@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Page</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div id="unsupportedPage" class="paywall hidden">
+      <div class="paywall-icon">🚫</div>
+      <h2 data-i18n="cannotEditThisPage">Cannot edit this page</h2>
+      <p data-i18n="pageNotSupported">This page type is not supported</p>
+    </div>
+
+    <div id="paywall" class="paywall hidden">
+      <div class="paywall-icon">🔒</div>
+      <h2 data-i18n="trialExpired">Trial Expired</h2>
+      <p data-i18n="trialExpiredDesc">Your free trial has ended.</p>
+      <button id="payBtn" class="unlock-btn" data-i18n="unlockNow">Unlock Now</button>
+      <div class="divider"></div>
+      <p class="license-note" data-i18n="haveLicense">Have a license key?</p>
+      <input type="text" id="licenseInput" class="license-input" data-i18n-placeholder="licensePlaceholder" placeholder="Enter license key">
+      <p id="licenseFeedback" class="license-feedback" data-i18n="licenseFormatHint">Format: ABCDE-FGHIJ-KLMNO-PQRST</p>
+      <button id="unlockBtn" class="tertiary" data-i18n="unlockLicense">Unlock with License</button>
+      <div class="trial-info">
+        <span id="trialDaysLeft"></span>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <div class="header">
+        <h1 data-i18n="title">Edit Page</h1>
+        <div class="header-right">
+          <span id="trialBadge" class="trial-badge"></span>
+          <button id="langToggleBtn" class="lang-toggle-btn" title="Switch Language">
+            <span id="langLabel">中/EN</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <p data-i18n="subtitle">Make this page editable</p>
+        <button id="editBtn" data-i18n="editMode">编辑模式</button>
+        <button id="screenshotBtn" class="secondary" data-i18n="screenshot">截图</button>
+        <div class="divider"></div>
+        <div class="image-section">
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          <button id="selectImageBtn" class="tertiary" data-i18n="selectImage">选择图片</button>
+          <div id="imagePreview" class="image-preview hidden">
+            <img id="previewImg" alt="Preview">
+            <button id="clearImageBtn" class="clear-btn">×</button>
+          </div>
+          <button id="replaceImageBtn" class="tertiary hidden" data-i18n="replaceMode">替换图片模式</button>
+        </div>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

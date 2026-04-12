@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Make any webpage editable with one click",
+    "description": "Extension description"
+  }
+}

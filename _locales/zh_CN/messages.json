@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "编辑页面",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "一键编辑任意网页",
+    "description": "Extension description"
+  }
+}

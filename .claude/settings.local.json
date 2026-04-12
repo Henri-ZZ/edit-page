@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"from PIL import Image, ImageDraw; print\\('Pillow available'\\)\")",
+      "Bash(python3 /Users/conghua/code/edit-page/icons/generate_icons.py)"
+    ]
+  }
+}
