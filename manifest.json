@@ -4,8 +4,8 @@
   "name": "__MSG_extName__",
   "version": "1.0.0",
   "description": "__MSG_extDescription__",
-  "homepage_url": "https://github.com/your-name/edit-page",
-  "author": "Your Name",
+  "homepage_url": "https://editpage.henri.ren",
+  "author": "Henri Zhang",
 
   "icons": {
     "16": "icons/icon16.png",
@@ -30,8 +30,6 @@
 
   "host_permissions": [
     "<all_urls>",
-    "http://localhost:8080/*",
-    "https://editpage.henri.ren/*",
-    "https://editpage-pre.henri.ren/*"
+    "https://editpage.henri.ren/*"
   ]
 }

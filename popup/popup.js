@@ -1,8 +1,7 @@
 const TRIAL_CLICKS = 10;
 const APP_BASE_URL = 'https://editpage.henri.ren';
-const PREVIEW_APP_BASE_URL = 'https://editpage-pre.henri.ren';
-const LICENSE_API_BASES = [`${PREVIEW_APP_BASE_URL}/api/license`, `${APP_BASE_URL}/api/license`];
-const TRIAL_API_BASES = [`${PREVIEW_APP_BASE_URL}/api/trial`, `${APP_BASE_URL}/api/trial`];
+const LICENSE_API_BASES = [`${APP_BASE_URL}/api/license`];
+const TRIAL_API_BASES = [`${APP_BASE_URL}/api/trial`];
 const LICENSE_STORAGE_KEYS = ['deviceId', 'isUnlocked', 'licenseKey'];
 
 const i18n = {
