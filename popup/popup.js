@@ -2,7 +2,8 @@ const TRIAL_CLICKS = 10;
 const APP_BASE_URL = 'https://editpage.henri.ren';
 const LICENSE_API_BASES = [`${APP_BASE_URL}/api/license`];
 const TRIAL_API_BASES = [`${APP_BASE_URL}/api/trial`];
-const LICENSE_STORAGE_KEYS = ['deviceId', 'isUnlocked', 'licenseKey'];
+const LICENSE_VERIFY_CACHE_MS = 24 * 60 * 60 * 1000;
+const LICENSE_STORAGE_KEYS = ['deviceId', 'isUnlocked', 'licenseKey', 'licenseVerifiedAt'];
 
 const i18n = {
   en: {
@@ -144,6 +145,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const getManifestVersion = () => chrome.runtime.getManifest().version || '0.0.0';
+
+  const hasFreshLicenseVerification = (timestamp) => {
+    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
+      return false;
+    }
+
+    return Date.now() - timestamp < LICENSE_VERIFY_CACHE_MS;
+  };
 
   const generateDeviceId = () => {
     if (globalThis.crypto?.randomUUID) {
@@ -323,9 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const payload = await getTrialFingerprintPayload();
       await postTrialApi('/exhaust', payload);
-    } catch (error) {
-      console.warn('[trial] failed to persist exhausted state', error);
-    }
+    } catch (error) {}
   };
 
   const restoreTrialExhaustedState = async () => {
@@ -337,9 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await chrome.storage.sync.set({ trialClicksUsed: TRIAL_CLICKS });
         return true;
       }
-    } catch (error) {
-      console.warn('[trial] failed to restore exhausted state', error);
-    }
+    } catch (error) {}
 
     return false;
   };
@@ -419,7 +424,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const activateLicense = async (key) => {
     if (!verifyLicenseKey(key)) {
-      console.log('[license] local format validation failed', { raw: key, normalized: normalizeLicenseKey(key) });
       return { success: false, error: 'local_format_invalid' };
     }
 
@@ -436,7 +440,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await saveLicenseState({
           deviceId,
           isUnlocked: true,
-          licenseKey: normalizedKey
+          licenseKey: normalizedKey,
+          licenseVerifiedAt: Date.now()
         });
         return { success: true, replacedDeviceId: response.data.replacedDeviceId || null };
       }
@@ -452,15 +457,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const refreshLicenseStatus = async () => {
-    const { isUnlocked, licenseKey } = await chrome.storage.local.get(['isUnlocked', 'licenseKey']);
+    const {
+      isUnlocked,
+      licenseKey,
+      licenseVerifiedAt
+    } = await chrome.storage.local.get(['isUnlocked', 'licenseKey', 'licenseVerifiedAt']);
 
     if (!isUnlocked || !licenseKey) {
       return false;
     }
 
+    if (hasFreshLicenseVerification(licenseVerifiedAt)) {
+      return true;
+    }
+
     const result = await verifyLicenseWithBackend(licenseKey);
 
     if (result.success) {
+      await saveLicenseState({
+        licenseVerifiedAt: Date.now()
+      });
       return true;
     }
 
@@ -516,7 +532,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const showStatus = (message, isSuccess) => {
-    console.log('[popup-status]', { message, isSuccess });
     statusDiv.textContent = message;
     statusDiv.className = 'status ' + (isSuccess ? 'success' : 'error');
     statusDiv.classList.add('visible');
@@ -843,7 +858,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   unlockBtn.addEventListener('click', async () => {
-    console.log('[license] unlock button clicked');
     const licenseKey = licenseInput.value.trim();
     if (!licenseKey) {
       setLicenseInputError(true);
@@ -860,7 +874,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     unlockBtn.textContent = t('activating');
 
     const result = await activateLicense(normalizedKey);
-    console.log('[license] activation result', result);
 
     if (result && result.success) {
       setLicenseInputError(false);

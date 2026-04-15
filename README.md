@@ -21,10 +21,8 @@
 │   └── content.css
 ├── background/            # 后台脚本
 │   └── background.js
-├── options/               # 选项页面
-│   ├── options.html
-│   ├── options.css
-│   └── options.js
+├── scripts/               # 发布脚本
+│   └── package-release.sh
 └── icons/                 # 图标文件
     ├── icon16.png
     ├── icon48.png
@@ -46,3 +44,35 @@
 3. 点击 "Load Temporary Add-on..."
 4. 选择 `manifest.json`
 
+## 发布打包
+
+如果需要重新提交 Chrome Web Store，可以直接运行：
+
+```bash
+./scripts/package-release.sh
+```
+
+这个脚本会：
+
+- 自动把 `manifest.json` 的 patch 版本号加 1
+- 读取 `manifest.json` 里的版本号
+- 生成带版本号的 zip 包
+- 同时生成一个固定文件名的最新上传包
+
+输出目录：
+
+```text
+/Users/conghua/code/edit-page-release/
+```
+
+生成的文件：
+
+- `edit-page-chrome-web-store-v版本号.zip`
+- `edit-page-chrome-web-store.zip`
+
+每次准备重新上架或更新时，建议顺序：
+
+1. 修改代码
+2. 更新 `manifest.json` 里的 `version`
+3. 运行 `./scripts/package-release.sh`
+4. 上传新的 zip 到 Chrome Web Store

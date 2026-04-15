@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "编辑页面",
+    "message": "Edit Page - 网页编辑与截图",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "一键编辑任意网页",
+    "message": "编辑网页文字和图片，并快速截图保存",
     "description": "Extension description"
   }
 }
