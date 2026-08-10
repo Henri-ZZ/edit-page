@@ -305,12 +305,6 @@ button.tertiary.active:hover {
   transform: translateY(0);
 }
 
-.trial-info {
-  margin-top: 16px;
-  font-size: 12px;
-  color: #999;
-}
-
 .reset-trial-btn {
   margin-top: 20px;
   padding: 6px 12px;

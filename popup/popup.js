@@ -1,4 +1,4 @@
-const TRIAL_CLICKS = 10;
+const TRIAL_CLICKS = 30;
 const APP_BASE_URL = 'https://editpage.henri.ren';
 const LICENSE_API_BASES = [`${APP_BASE_URL}/api/license`];
 const TRIAL_API_BASES = [`${APP_BASE_URL}/api/trial`];
@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const paywall = document.getElementById('paywall');
   const mainContent = document.getElementById('mainContent');
   const trialBadge = document.getElementById('trialBadge');
-  const trialDaysLeft = document.getElementById('trialDaysLeft');
   const unlockBtn = document.getElementById('unlockBtn');
   const licenseInput = document.getElementById('licenseInput');
   const licenseFeedback = document.getElementById('licenseFeedback');
@@ -508,10 +507,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     trialBadge.textContent = t('inTrial');
     trialBadge.style.display = 'inline-block';
-
-    if (trialDaysLeft) {
-      trialDaysLeft.textContent = '';
-    }
   };
 
   const applyLanguage = () => {

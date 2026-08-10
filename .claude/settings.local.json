@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(python3 -c \"from PIL import Image, ImageDraw; print\\('Pillow available'\\)\")",
-      "Bash(python3 /Users/conghua/code/edit-page/icons/generate_icons.py)"
+      "Bash(python3 /Users/conghua/code/edit-page/icons/generate_icons.py)",
+      "Bash(cd /Users/conghua/code/edit-page-web && cat src/pages/api/license/activate.ts 2>/dev/null | head -40; echo \"=====package.json=====\"; grep -A3 '\"scripts\"' package.json | head -20; echo \"=====env.d.ts=====\"; find src -name \"env.d.ts\" -o -name \"*.d.ts\" | head; cat src/env.d.ts 2>/dev/null)",
+      "Bash(npx astro *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
