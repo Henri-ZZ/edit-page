@@ -1,9 +1,20 @@
+// License activation & verification delegates to the shared Licentra client
+// (../license.js) — same integration as Stealth Browser Assistant: activate /
+// check-in endpoints, local ECDSA P-256 signature verification, and a 48h
+// offline grace window. The trial counter (TRIAL_CLICKS) still applies to
+// non-premium users.
+import {
+  activateLicense as activateWithLicentra,
+  normalizeLicenseKey,
+  maybeCheckIn,
+} from '../license.js';
+import { isPremium, refreshPremiumState } from '../shared.js';
+
 const TRIAL_CLICKS = 30;
 const APP_BASE_URL = 'https://editpage.henri.ren';
-const LICENSE_API_BASES = [`${APP_BASE_URL}/api/license`];
 const TRIAL_API_BASES = [`${APP_BASE_URL}/api/trial`];
-const LICENSE_VERIFY_CACHE_MS = 24 * 60 * 60 * 1000;
-const LICENSE_STORAGE_KEYS = ['deviceId', 'isUnlocked', 'licenseKey', 'licenseVerifiedAt'];
+// Licentra license-key format: ABCD-2345-EFGH-6789 (16 chars, 32-symbol alphabet).
+const LICENSE_KEY_REGEX = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
 
 const i18n = {
   en: {
@@ -29,8 +40,8 @@ const i18n = {
     unlockNow: 'Unlock Now',
     unlockLicense: 'Unlock with License',
     licensePlaceholder: 'Enter license key',
-    licenseFormatHint: 'Format: ABCDE-FGHIJ-KLMNO-PQRST',
-    licenseFormatError: 'License key format should look like ABCDE-FGHIJ-KLMNO-PQRST.',
+    licenseFormatHint: 'Format: ABCD-2345-EFGH-6789',
+    licenseFormatError: 'License key format should look like ABCD-2345-EFGH-6789.',
     inTrial: 'In trial',
     activating: 'Activating...',
     activatingHint: 'Contacting activation server...',
@@ -38,6 +49,8 @@ const i18n = {
     activationFailed: 'Activation failed: ',
     enterLicenseKey: 'Please enter a license key',
     invalidLicenseKey: 'Invalid license key',
+    licenseRevoked: 'This license key has been revoked.',
+    licenseRefunded: 'This license was refunded.',
     licenseKeyMoved: 'This license key is now active on another device.',
     networkError: 'Network error',
     offlineMode: 'Offline Mode',
@@ -71,8 +84,8 @@ const i18n = {
     unlockNow: '立即解锁',
     unlockLicense: '使用激活码解锁',
     licensePlaceholder: '请输入激活码',
-    licenseFormatHint: '格式：ABCDE-FGHIJ-KLMNO-PQRST',
-    licenseFormatError: '激活码格式不正确，应类似 ABCDE-FGHIJ-KLMNO-PQRST。',
+    licenseFormatHint: '格式：ABCD-2345-EFGH-6789',
+    licenseFormatError: '激活码格式不正确，应类似 ABCD-2345-EFGH-6789。',
     inTrial: '试用中',
     activating: '激活中...',
     activatingHint: '正在连接激活服务器...',
@@ -80,6 +93,8 @@ const i18n = {
     activationFailed: '激活失败: ',
     enterLicenseKey: '请输入激活码',
     invalidLicenseKey: '激活码无效',
+    licenseRevoked: '该激活码已被吊销。',
+    licenseRefunded: '该激活码对应的订单已退款。',
     licenseKeyMoved: '该激活码当前已在其他设备上生效。',
     networkError: '网络错误',
     offlineMode: '离线模式',
@@ -123,62 +138,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedImageData = null;
   let isReplaceMode = false;
 
-  const getStoredLicenseState = async () => {
-    const [syncResult, localResult] = await Promise.all([
-      chrome.storage.sync.get(['trialClicksUsed']),
-      chrome.storage.local.get(LICENSE_STORAGE_KEYS)
-    ]);
-
+  const getStoredTrialState = async () => {
+    const syncResult = await chrome.storage.sync.get(['trialClicksUsed']);
     return {
-      trialClicksUsed: typeof syncResult.trialClicksUsed === 'number' ? syncResult.trialClicksUsed : null,
-      ...localResult
+      trialClicksUsed: typeof syncResult.trialClicksUsed === 'number' ? syncResult.trialClicksUsed : null
     };
-  };
-
-  const saveLicenseState = async (data) => {
-    await chrome.storage.local.set(data);
-  };
-
-  const clearLicenseState = async () => {
-    await chrome.storage.local.remove(LICENSE_STORAGE_KEYS);
-  };
-
-  const getManifestVersion = () => chrome.runtime.getManifest().version || '0.0.0';
-
-  const hasFreshLicenseVerification = (timestamp) => {
-    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
-      return false;
-    }
-
-    return Date.now() - timestamp < LICENSE_VERIFY_CACHE_MS;
-  };
-
-  const generateDeviceId = () => {
-    if (globalThis.crypto?.randomUUID) {
-      return `dev_${globalThis.crypto.randomUUID()}`;
-    }
-
-    const random = Math.random().toString(36).slice(2, 12);
-    return `dev_${Date.now().toString(36)}_${random}`;
-  };
-
-  const getOrCreateDeviceId = async () => {
-    const result = await chrome.storage.local.get(['deviceId']);
-    if (result.deviceId) {
-      return result.deviceId;
-    }
-
-    const deviceId = generateDeviceId();
-    await chrome.storage.local.set({ deviceId });
-    return deviceId;
   };
 
   const normalizeError = (reasonOrMessage) => {
     switch (reasonOrMessage) {
+      case 'invalid_format':
+      case 'invalid':
       case 'invalid_license':
+      case 'license_not_found':
         return t('invalidLicenseKey');
+      case 'license_revoked':
+        return t('licenseRevoked');
+      case 'license_refunded':
+        return t('licenseRefunded');
+      case 'activation_evicted':
       case 'device_not_activated':
         return t('licenseKeyMoved');
+      case 'network':
       case 'Network error':
         return t('networkError');
       default:
@@ -193,54 +174,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const setLicenseInputError = (hasError) => {
     licenseInput.classList.toggle('input-error', hasError);
-  };
-
-  const postLicenseApi = async (path, payload) => {
-    let lastError = null;
-
-    for (const baseUrl of LICENSE_API_BASES) {
-      try {
-        const response = await fetch(`${baseUrl}${path}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (response.ok) {
-          return { ok: true, data };
-        }
-
-        const looksLikeLicenseApiResponse =
-          typeof data === 'object' &&
-          data !== null &&
-          ('reason' in data || 'error' in data || 'ok' in data);
-
-        if (looksLikeLicenseApiResponse) {
-          return { ok: false, data };
-        }
-
-        if (
-          response.status === 401 ||
-          response.status === 403 ||
-          response.status === 404 ||
-          response.status === 405 ||
-          response.status >= 500
-        ) {
-          lastError = data;
-          continue;
-        }
-
-        return { ok: false, data };
-      } catch (error) {
-        lastError = error;
-      }
-    }
-
-    throw lastError || new Error('Network error');
   };
 
   const postTrialApi = async (path, payload) => {
@@ -350,14 +283,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const getTrialInfo = async () => {
     try {
-      const result = await getStoredLicenseState();
-
-      if (result.isUnlocked) {
+      await refreshPremiumState();
+      if (isPremium()) {
         return { isUnlocked: true, clicksLeft: null, isOffline: false };
       }
 
+      const result = await getStoredTrialState();
       const clicksUsed = result.trialClicksUsed ?? 0;
-
       const clicksLeft = TRIAL_CLICKS - clicksUsed;
 
       return { isUnlocked: false, clicksLeft, clicksUsed, isExpired: clicksLeft <= 0, isOffline: false };
@@ -368,8 +300,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const incrementTrialClick = async () => {
     try {
-      const result = await getStoredLicenseState();
-      if (!result.isUnlocked) {
+      await refreshPremiumState();
+      if (!isPremium()) {
+        const result = await getStoredTrialState();
         const clicksUsed = (result.trialClicksUsed ?? 0) + 1;
         await chrome.storage.sync.set({ trialClicksUsed: clicksUsed });
         if (clicksUsed >= TRIAL_CLICKS) {
@@ -380,110 +313,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     return await getTrialInfo();
   };
 
-  const normalizeLicenseKey = (key) => {
-    const normalized = key
-      .trim()
-      .toUpperCase()
-      .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-')
-      .replace(/[^A-Z0-9]/g, '')
-      .slice(0, 20);
-    const parts = normalized.match(/.{1,5}/g) || [];
-    return parts.join('-');
-  };
+  const verifyLicenseKey = (key) => LICENSE_KEY_REGEX.test(normalizeLicenseKey(key));
 
-  const verifyLicenseKey = (key) => {
-    const cleanKey = normalizeLicenseKey(key);
-    const keyPattern = /^[A-Z0-9]{5}(?:-[A-Z0-9]{5}){3}$/;
-    return keyPattern.test(cleanKey);
-  };
-
-  const verifyLicenseWithBackend = async (key) => {
-    try {
-      const deviceId = await getOrCreateDeviceId();
-      const normalizedKey = normalizeLicenseKey(key);
-      const response = await postLicenseApi('/verify', {
-        deviceId,
-        extensionVersion: getManifestVersion(),
-        licenseKey: normalizedKey
-      });
-
-      if (response.ok && response.data.ok) {
-        return { success: true };
-      }
-
-      return {
-        success: false,
-        error: response.data.reason || response.data.error || t('invalidLicenseKey')
-      };
-    } catch (e) {
-      console.error('License verification failed:', e);
-      return { success: false, error: 'Network error' };
-    }
+  const deviceLabel = () => {
+    const ua = navigator.userAgent || '';
+    if (/Macintosh|Mac OS X/.test(ua)) return 'Chrome on macOS';
+    if (/Windows/.test(ua)) return 'Chrome on Windows';
+    if (/Android/.test(ua)) return 'Chrome on Android';
+    if (/Linux/.test(ua)) return 'Chrome on Linux';
+    return 'Chrome';
   };
 
   const activateLicense = async (key) => {
-    if (!verifyLicenseKey(key)) {
+    const normalizedKey = normalizeLicenseKey(key);
+    if (!verifyLicenseKey(normalizedKey)) {
       return { success: false, error: 'local_format_invalid' };
     }
 
-    try {
-      const deviceId = await getOrCreateDeviceId();
-      const normalizedKey = normalizeLicenseKey(key);
-      const response = await postLicenseApi('/activate', {
-        deviceId,
-        extensionVersion: getManifestVersion(),
-        licenseKey: normalizedKey
-      });
-
-      if (response.ok && response.data.ok) {
-        await saveLicenseState({
-          deviceId,
-          isUnlocked: true,
-          licenseKey: normalizedKey,
-          licenseVerifiedAt: Date.now()
-        });
-        return { success: true, replacedDeviceId: response.data.replacedDeviceId || null };
-      }
-
-      return {
-        success: false,
-        error: response.data.reason || response.data.error || t('invalidLicenseKey')
-      };
-    } catch (e) {
-      console.error('License activation failed:', e);
-      return { success: false, error: 'Network error' };
+    const result = await activateWithLicentra(normalizedKey, deviceLabel());
+    if (result.ok) {
+      await refreshPremiumState();
+      return { success: true };
     }
+    return { success: false, error: result.reason || 'invalid' };
   };
 
   const refreshLicenseStatus = async () => {
-    const {
-      isUnlocked,
-      licenseKey,
-      licenseVerifiedAt
-    } = await chrome.storage.local.get(['isUnlocked', 'licenseKey', 'licenseVerifiedAt']);
-
-    if (!isUnlocked || !licenseKey) {
-      return false;
-    }
-
-    if (hasFreshLicenseVerification(licenseVerifiedAt)) {
+    await refreshPremiumState();
+    if (isPremium()) {
       return true;
     }
 
-    const result = await verifyLicenseWithBackend(licenseKey);
-
-    if (result.success) {
-      await saveLicenseState({
-        licenseVerifiedAt: Date.now()
-      });
-      return true;
-    }
-
-    if (result.error !== 'Network error') {
-      await clearLicenseState();
-    }
-
-    return result.error === 'Network error';
+    // A license row exists but its signature is stale (or the offline grace
+    // window has lapsed) — hit Licentra to re-verify / check in.
+    const result = await maybeCheckIn();
+    await refreshPremiumState();
+    return isPremium() || result.ok === true;
   };
 
   const updateTrialUI = (info) => {
@@ -824,8 +689,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await refreshLicenseStatus();
 
-  const initialStoredState = await getStoredLicenseState();
-  if (!initialStoredState.isUnlocked && initialStoredState.trialClicksUsed == null) {
+  const initialStoredState = await getStoredTrialState();
+  if (!isPremium() && initialStoredState.trialClicksUsed == null) {
     await restoreTrialExhaustedState();
   }
 

@@ -39,6 +39,8 @@ zip -qr "$ZIP_PATH" \
   content \
   icons \
   popup \
+  license.js \
+  shared.js \
   manifest.json
 
 cp "$ZIP_PATH" "$RELEASE_DIR/edit-page-chrome-web-store.zip"

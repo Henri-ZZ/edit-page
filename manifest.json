@@ -20,16 +20,19 @@
     }
   },
   "background": {
-    "service_worker": "background/background.js"
+    "service_worker": "background/background.js",
+    "type": "module"
   },
   "permissions": [
     "tabs",
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "host_permissions": [
     "<all_urls>",
-    "https://editpage.henri.ren/*"
+    "https://editpage.henri.ren/*",
+    "https://licentra.henri.ren/*"
   ]
 }
