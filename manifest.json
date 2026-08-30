@@ -23,12 +23,19 @@
     "service_worker": "background/background.js",
     "type": "module"
   },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
   "permissions": [
     "tabs",
     "activeTab",
     "scripting",
     "storage",
-    "alarms"
+    "alarms",
+    "offscreen",
+    "clipboardWrite",
+    "downloads"
   ],
   "host_permissions": [
     "<all_urls>",

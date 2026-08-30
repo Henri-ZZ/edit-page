@@ -7,6 +7,53 @@ export const STORAGE_KEYS = {
   LICENSE: "license", // object|null: verified license state (see license.js)
 };
 
+export const LANGUAGE_PREFERENCE_KEY = "languagePreference";
+export const SUPPORTED_LANGUAGES = ["en", "zh"];
+export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
+export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
+
+export async function getScreenshotDestination() {
+  const result = await chrome.storage.sync.get(SCREENSHOT_DESTINATION_KEY);
+  const value = result[SCREENSHOT_DESTINATION_KEY];
+  return SCREENSHOT_DESTINATIONS.includes(value) ? value : "clipboard";
+}
+
+export async function setScreenshotDestination(value) {
+  const normalized = SCREENSHOT_DESTINATIONS.includes(value) ? value : "clipboard";
+  await chrome.storage.sync.set({ [SCREENSHOT_DESTINATION_KEY]: normalized });
+  return normalized;
+}
+
+/** Empty preference follows the browser UI language. */
+export async function getLanguagePreference() {
+  const result = await chrome.storage.sync.get(LANGUAGE_PREFERENCE_KEY);
+  const value = result[LANGUAGE_PREFERENCE_KEY];
+  return SUPPORTED_LANGUAGES.includes(value) ? value : "";
+}
+
+export async function setLanguagePreference(value) {
+  const normalized = SUPPORTED_LANGUAGES.includes(value) ? value : "";
+  await chrome.storage.sync.set({ [LANGUAGE_PREFERENCE_KEY]: normalized });
+  return normalized;
+}
+
+/** Preference > browser UI language > English. */
+export async function resolveLanguage() {
+  const preference = await getLanguagePreference();
+  if (preference) return preference;
+
+  const candidates = [];
+  try {
+    candidates.push(chrome.i18n.getUILanguage());
+  } catch {}
+  if (typeof navigator !== "undefined") {
+    candidates.push(...(navigator.languages || []), navigator.language);
+  }
+  return candidates.some((value) => String(value || "").toLowerCase().startsWith("zh"))
+    ? "zh"
+    : "en";
+}
+
 const DEFAULTS = {
   [STORAGE_KEYS.LICENSE]: null,
 };

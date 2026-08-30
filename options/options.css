@@ -1,0 +1,254 @@
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f4f4f6;
+  --fg: #1c1c1e;
+  --fg-soft: #6b6b70;
+  --border: #e3e3e8;
+  --accent: #3b6ef5;
+  color-scheme: light;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--fg);
+  background: var(--bg-soft);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.options-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.options-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.options-header .header-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.options-header p {
+  margin-top: 2px;
+  color: var(--fg-soft);
+  font-size: 12px;
+}
+
+.card {
+  padding: 20px;
+  margin-bottom: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.screenshot-card {
+  grid-column: 1 / -1;
+}
+
+h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.help {
+  margin: 0 0 14px;
+  color: var(--fg-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.lang-select {
+  appearance: none;
+  min-width: 200px;
+  padding: 8px 10px;
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.lang-select:focus {
+  border-color: var(--accent);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+  padding: 9px 12px;
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.radio-option:hover {
+  border-color: #b9bac1;
+}
+
+.radio-option:has(input:checked) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: #f5f7ff;
+}
+
+.radio-option input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.radio-option:focus-within {
+  outline: 2px solid rgba(59, 110, 245, 0.24);
+  outline-offset: 2px;
+}
+
+body.is-premium .premium-card {
+  display: none;
+}
+
+body.is-premium .language-card {
+  grid-column: 1 / -1;
+}
+
+.premium-intro {
+  margin-bottom: 14px;
+}
+
+.premium-learn {
+  display: block;
+  width: 100%;
+  padding: 9px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.05s;
+}
+
+.premium-learn:hover {
+  filter: brightness(1.08);
+}
+
+.premium-learn:active {
+  transform: translateY(1px);
+}
+
+.premium-activate {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.premium-activate-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--fg-soft);
+  font-size: 12px;
+}
+
+.premium-activate-row {
+  display: flex;
+  gap: 6px;
+}
+
+.premium-activate-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 7px 10px;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+.premium-activate-row input:focus {
+  border-color: var(--accent);
+}
+
+.btn {
+  padding: 7px 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.premium-activate-status {
+  margin: 8px 0 0;
+  color: var(--fg-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.premium-activate-status.is-success {
+  color: #17823b;
+}
+
+.premium-activate-status.is-error {
+  color: #d8392b;
+}
+
+@media (max-width: 760px) {
+  .options-main {
+    grid-template-columns: 1fr;
+  }
+}

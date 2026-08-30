@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings · Edit Page</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="options-main">
+    <header class="options-header">
+      <img class="header-icon" src="../icons/icon48.png" alt="" width="40" height="40" aria-hidden="true">
+      <div>
+        <h1 data-i18n="title">Edit Page Settings</h1>
+        <p data-i18n="subtitle">Customize how Edit Page works for you.</p>
+      </div>
+    </header>
+
+    <section class="card screenshot-card" aria-labelledby="screenshotDestinationHeading">
+      <h2 id="screenshotDestinationHeading" data-i18n="screenshotDestination">Screenshot save method</h2>
+      <p class="help" data-i18n="screenshotDestinationHelp">Choose where screenshots are saved.</p>
+      <div class="radio-group" role="radiogroup" aria-labelledby="screenshotDestinationHeading">
+        <label class="radio-option">
+          <input type="radio" name="screenshotDestination" value="clipboard">
+          <span data-i18n="saveToClipboard">Clipboard</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="screenshotDestination" value="download">
+          <span data-i18n="saveAsDownload">Download</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card language-card" aria-labelledby="languageHeading">
+      <h2 id="languageHeading" data-i18n="language">Language</h2>
+      <p class="help" data-i18n="languageHelp">Choose the interface language, or follow your browser.</p>
+      <select id="languageSelect" class="lang-select" aria-labelledby="languageHeading">
+        <option value="" data-i18n="followBrowser">Follow browser</option>
+        <option value="en">English</option>
+        <option value="zh">简体中文</option>
+      </select>
+    </section>
+
+    <section class="card premium-card" id="premiumCard">
+      <h2>Premium</h2>
+      <div class="premium-body">
+        <p class="help premium-intro" data-i18n="premiumIntro">Premium unlocks every feature in this extension.</p>
+        <button class="premium-learn" id="premiumLearnBtn" type="button" data-i18n="premiumLearn">Learn about Premium</button>
+        <div class="premium-activate">
+          <span class="premium-activate-label" data-i18n="premiumActivateLabel">Already have a License Key?</span>
+          <div class="premium-activate-row">
+            <input id="premiumCodeInput" type="text" data-i18n-placeholder="premiumCodePlaceholder" placeholder="Enter License Key" autocomplete="off" spellcheck="false">
+            <button class="btn btn-small" id="premiumActivateBtn" type="button" data-i18n="premiumActivate">Activate</button>
+          </div>
+          <p class="premium-activate-status" id="premiumActivateStatus" role="status" aria-live="polite" hidden></p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

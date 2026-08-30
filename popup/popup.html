@@ -14,45 +14,93 @@
       <p data-i18n="pageNotSupported">This page type is not supported</p>
     </div>
 
-    <div id="paywall" class="paywall hidden">
-      <div class="paywall-icon">🔒</div>
-      <h2 data-i18n="trialExpired">Trial Expired</h2>
-      <p data-i18n="trialExpiredDesc">Your free trial has ended.</p>
-      <button id="payBtn" class="unlock-btn" data-i18n="unlockNow">Unlock Now</button>
-      <div class="divider"></div>
-      <p class="license-note" data-i18n="haveLicense">Have a license key?</p>
-      <input type="text" id="licenseInput" class="license-input" data-i18n-placeholder="licensePlaceholder" placeholder="Enter license key">
-      <p id="licenseFeedback" class="license-feedback" data-i18n="licenseFormatHint">Format: ABCD-2345-EFGH-6789</p>
-      <button id="unlockBtn" class="tertiary" data-i18n="unlockLicense">Unlock with License</button>
-    </div>
-
     <div id="mainContent">
       <div class="header">
-        <h1 data-i18n="title">Edit Page</h1>
+        <h1>
+          <img class="header-logo" src="../icons/icon48.png" alt="" aria-hidden="true">
+          <span data-i18n="title">Edit Page</span>
+        </h1>
         <div class="header-right">
           <span id="trialBadge" class="trial-badge"></span>
-          <button id="langToggleBtn" class="lang-toggle-btn" title="Switch Language">
-            <span id="langLabel">中/EN</span>
-          </button>
         </div>
       </div>
       <div class="content">
-        <p data-i18n="subtitle">Make this page editable</p>
-        <button id="editBtn" data-i18n="editMode">编辑模式</button>
-        <button id="screenshotBtn" class="secondary" data-i18n="screenshot">截图</button>
-        <div class="divider"></div>
-        <div class="image-section">
+        <p class="section-label" data-i18n="chooseTool">Choose a tool</p>
+        <div class="tool-list">
+          <button id="editBtn" class="tool-button tool-button--text" type="button" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">T</span>
+            <span class="tool-copy">
+              <span id="editBtnLabel" class="tool-title" data-i18n="editText">Edit text</span>
+              <span class="tool-description" data-i18n="editTextDesc">Change any text on this page</span>
+            </span>
+            <span class="tool-indicator" aria-hidden="true">›</span>
+          </button>
+
+          <div class="image-section">
+            <button id="selectImageBtn" class="tool-button tool-button--image" type="button">
+              <span class="tool-icon" aria-hidden="true">▧</span>
+              <span class="tool-copy">
+                <span class="tool-title" data-i18n="changeImage">Change image</span>
+                <span class="tool-description" data-i18n="changeImageDesc">Choose and replace an image</span>
+              </span>
+              <span class="tool-indicator" aria-hidden="true">›</span>
+            </button>
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
-          <button id="selectImageBtn" class="tertiary" data-i18n="selectImage">选择图片</button>
           <div id="imagePreview" class="image-preview hidden">
             <img id="previewImg" alt="Preview">
-            <button id="clearImageBtn" class="clear-btn">×</button>
+              <div class="image-preview-actions">
+                <button id="replaceImageBtn" class="preview-action" type="button" aria-pressed="false">
+                  <span id="replaceImageBtnLabel" data-i18n="replaceMode">Replace image mode</span>
+                </button>
+                <button id="clearImageBtn" class="clear-btn" type="button" data-i18n-aria-label="clearImage" aria-label="Clear selected image">×</button>
+              </div>
+            </div>
           </div>
-          <button id="replaceImageBtn" class="tertiary hidden" data-i18n="replaceMode">替换图片模式</button>
+
+          <button id="removeBtn" class="tool-button tool-button--remove" type="button" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">×</span>
+            <span class="tool-copy">
+              <span id="removeBtnLabel" class="tool-title" data-i18n="removeElement">Remove element</span>
+              <span class="tool-description" data-i18n="removeElementDesc">Click anything to remove it</span>
+            </span>
+            <span class="tool-indicator" aria-hidden="true">›</span>
+          </button>
+
+          <button id="screenshotBtn" class="tool-button tool-button--screenshot" type="button" aria-expanded="false" aria-controls="screenshotOptions">
+            <span class="tool-icon" aria-hidden="true">⌗</span>
+            <span class="tool-copy">
+              <span id="screenshotBtnLabel" class="tool-title" data-i18n="screenshot">Screenshot</span>
+              <span class="tool-description" data-i18n="screenshotDesc">Capture the viewport or full page</span>
+            </span>
+            <span class="tool-indicator" aria-hidden="true">›</span>
+          </button>
+          <div id="screenshotOptions" class="screenshot-options hidden">
+            <button id="visibleScreenshotBtn" class="screenshot-option" type="button">
+              <span class="screenshot-option-icon" aria-hidden="true">▣</span>
+              <span>
+                <strong id="visibleScreenshotLabel" data-i18n="visibleScreenshot">Current viewport</strong>
+                <small data-i18n="visibleScreenshotDesc">Capture only what you see</small>
+              </span>
+            </button>
+            <button id="fullPageScreenshotBtn" class="screenshot-option" type="button">
+              <span class="screenshot-option-icon" aria-hidden="true">↕</span>
+              <span>
+                <strong id="fullPageScreenshotLabel" data-i18n="fullPageScreenshot">Full page</strong>
+                <small data-i18n="fullPageScreenshotDesc">Scroll and capture the entire page</small>
+              </span>
+            </button>
+            <div id="captureProgress" class="capture-progress hidden" role="status" aria-live="polite">
+              <div class="capture-progress-track"><span id="captureProgressBar"></span></div>
+              <span id="captureProgressText"></span>
+            </div>
+          </div>
         </div>
       </div>
       <div id="status" class="status"></div>
     </div>
+    <footer class="popup-footer">
+      <a id="settingsBtn" href="#" data-i18n="settings">Settings</a>
+    </footer>
   </div>
   <script type="module" src="popup.js"></script>
 </body>

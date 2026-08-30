@@ -38,6 +38,8 @@ zip -qr "$ZIP_PATH" \
   background \
   content \
   icons \
+  offscreen \
+  options \
   popup \
   license.js \
   shared.js \

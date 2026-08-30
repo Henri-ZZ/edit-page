@@ -1,40 +1,63 @@
-// License activation & verification delegates to the shared Licentra client
-// (../license.js) — same integration as Stealth Browser Assistant: activate /
-// check-in endpoints, local ECDSA P-256 signature verification, and a 48h
-// offline grace window. The trial counter (TRIAL_CLICKS) still applies to
-// non-premium users.
+// Premium state uses the shared Licentra client. Activation lives on the
+// settings page; the popup only refreshes license state for feature gating.
 import {
-  activateLicense as activateWithLicentra,
-  normalizeLicenseKey,
   maybeCheckIn,
 } from '../license.js';
-import { isPremium, refreshPremiumState } from '../shared.js';
+import {
+  getScreenshotDestination,
+  isPremium,
+  refreshPremiumState,
+  resolveLanguage,
+} from '../shared.js';
 
 const TRIAL_CLICKS = 30;
 const APP_BASE_URL = 'https://editpage.henri.ren';
 const TRIAL_API_BASES = [`${APP_BASE_URL}/api/trial`];
-// Licentra license-key format: ABCD-2345-EFGH-6789 (16 chars, 32-symbol alphabet).
-const LICENSE_KEY_REGEX = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
 
 const i18n = {
   en: {
     title: 'Edit Page',
+    settings: 'Settings',
     subtitle: 'Make this page editable',
+    chooseTool: 'Choose a tool',
+    editText: 'Edit text',
+    editTextDesc: 'Change any text on this page',
     editMode: 'Edit Mode',
     exitEdit: 'Exit Edit',
     screenshot: 'Screenshot',
+    screenshotDesc: 'Capture the viewport or full page',
+    visibleScreenshot: 'Current viewport',
+    visibleScreenshotDesc: 'Capture only what you see',
+    fullPageScreenshot: 'Full page',
+    fullPageScreenshotDesc: 'Scroll and capture the entire page',
+    preparingFullPage: 'Preparing full-page capture...',
+    capturingFullPage: 'Capturing {current} of {total}...',
+    stitchingFullPage: 'Stitching the final image...',
     screenshotting: 'Screenshotting...',
-    langLabel: 'EN/中',
     statusScreenshotting: 'Taking screenshot...',
     statusScreenshotSuccess: 'Screenshot copied to clipboard!',
+    statusScreenshotDownloaded: 'Screenshot downloaded!',
+    savingScreenshot: 'Saving screenshot...',
     statusScreenshotFailed: 'Screenshot failed: ',
     selectImage: 'Select Image',
+    changeImage: 'Change image',
+    changeImageDesc: 'Choose and replace an image',
+    clearImage: 'Clear selected image',
     replaceMode: 'Replace Image Mode',
     exitReplaceMode: 'Exit Replace Mode',
     clickImageToReplace: 'Click an image on the page to replace',
     imageSelected: 'Image selected, click "Replace Image Mode"',
     statusImageReplaced: 'Image replaced!',
     pleaseSelectImageFirst: 'Please select an image first',
+    removeElement: 'Remove element',
+    removeElementDesc: 'Click anything to remove it',
+    exitRemoveMode: 'Exit remove mode',
+    clickElementToRemove: 'Click an element on the page to remove it',
+    undo: '↶ Undo',
+    redo: '↷ Redo',
+    done: 'Done',
+    changeCount: '{count} changes',
+    editWarning: 'Editing may affect page behavior. Refresh to fully restore.',
     trialExpired: 'Trial Expired',
     trialExpiredDesc: 'Your free trial has ended.',
     unlockNow: 'Unlock Now',
@@ -63,22 +86,47 @@ const i18n = {
   },
   zh: {
     title: 'Edit Page',
+    settings: '设置',
     subtitle: '编辑当前页面',
+    chooseTool: '选择工具',
+    editText: '编辑文字',
+    editTextDesc: '直接修改当前页面的文字',
     editMode: '编辑模式',
     exitEdit: '退出编辑',
     screenshot: '截图',
+    screenshotDesc: '截取当前视窗或完整网页',
+    visibleScreenshot: '当前视窗',
+    visibleScreenshotDesc: '只截取当前看到的内容',
+    fullPageScreenshot: '整张网页',
+    fullPageScreenshotDesc: '自动滚动并截取完整页面',
+    preparingFullPage: '正在准备整页截图...',
+    capturingFullPage: '正在截取第 {current}/{total} 段...',
+    stitchingFullPage: '正在拼接完整图片...',
     screenshotting: '截图中...',
-    langLabel: '中/EN',
     statusScreenshotting: '正在截图...',
     statusScreenshotSuccess: '截图已保存到剪贴板！',
+    statusScreenshotDownloaded: '截图已下载！',
+    savingScreenshot: '正在保存截图…',
     statusScreenshotFailed: '截图失败: ',
     selectImage: '选择图片',
+    changeImage: '更改图片',
+    changeImageDesc: '选择图片并替换页面图片',
+    clearImage: '清除已选图片',
     replaceMode: '替换图片模式',
     exitReplaceMode: '退出替换模式',
     clickImageToReplace: '点击页面上的图片进行替换',
     imageSelected: '已选择图片，点击"替换图片模式"',
     statusImageReplaced: '图片已替换！',
     pleaseSelectImageFirst: '请先选择图片',
+    removeElement: '移除元素',
+    removeElementDesc: '点击页面上的任意元素进行移除',
+    exitRemoveMode: '退出移除模式',
+    clickElementToRemove: '点击页面上的元素即可移除',
+    undo: '↶ 撤回',
+    redo: '↷ 重做',
+    done: '完成',
+    changeCount: '已修改 {count} 项',
+    editWarning: '编辑可能影响页面功能，刷新网页可完全恢复。',
     trialExpired: '试用已结束',
     trialExpiredDesc: '您的免费试用已结束。',
     unlockNow: '立即解锁',
@@ -109,71 +157,49 @@ const i18n = {
   }
 };
 
-let currentLang = 'zh';
+let currentLang = 'en';
 let trialInfo = { isUnlocked: false, clicksLeft: TRIAL_CLICKS, clicksUsed: 0, isExpired: false, isOffline: true };
 
 const t = (key) => i18n[currentLang][key] || key;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const editBtn = document.getElementById('editBtn');
+  const editBtnLabel = document.getElementById('editBtnLabel');
   const screenshotBtn = document.getElementById('screenshotBtn');
+  const screenshotBtnLabel = document.getElementById('screenshotBtnLabel');
+  const screenshotOptions = document.getElementById('screenshotOptions');
+  const visibleScreenshotBtn = document.getElementById('visibleScreenshotBtn');
+  const visibleScreenshotLabel = document.getElementById('visibleScreenshotLabel');
+  const fullPageScreenshotBtn = document.getElementById('fullPageScreenshotBtn');
+  const fullPageScreenshotLabel = document.getElementById('fullPageScreenshotLabel');
+  const captureProgress = document.getElementById('captureProgress');
+  const captureProgressBar = document.getElementById('captureProgressBar');
+  const captureProgressText = document.getElementById('captureProgressText');
+  const removeBtn = document.getElementById('removeBtn');
+  const removeBtnLabel = document.getElementById('removeBtnLabel');
   const statusDiv = document.getElementById('status');
-  const langToggleBtn = document.getElementById('langToggleBtn');
-  const langLabel = document.getElementById('langLabel');
+  const settingsBtn = document.getElementById('settingsBtn');
   const unsupportedPage = document.getElementById('unsupportedPage');
-  const paywall = document.getElementById('paywall');
   const mainContent = document.getElementById('mainContent');
   const trialBadge = document.getElementById('trialBadge');
-  const unlockBtn = document.getElementById('unlockBtn');
-  const licenseInput = document.getElementById('licenseInput');
-  const licenseFeedback = document.getElementById('licenseFeedback');
   const imageInput = document.getElementById('imageInput');
   const selectImageBtn = document.getElementById('selectImageBtn');
   const imagePreview = document.getElementById('imagePreview');
   const previewImg = document.getElementById('previewImg');
   const clearImageBtn = document.getElementById('clearImageBtn');
   const replaceImageBtn = document.getElementById('replaceImageBtn');
-  const payBtn = document.getElementById('payBtn');
+  const replaceImageBtnLabel = document.getElementById('replaceImageBtnLabel');
 
   let selectedImageData = null;
   let isReplaceMode = false;
+  let isRemoveMode = false;
+  const screenshotDestination = await getScreenshotDestination().catch(() => 'clipboard');
 
   const getStoredTrialState = async () => {
     const syncResult = await chrome.storage.sync.get(['trialClicksUsed']);
     return {
       trialClicksUsed: typeof syncResult.trialClicksUsed === 'number' ? syncResult.trialClicksUsed : null
     };
-  };
-
-  const normalizeError = (reasonOrMessage) => {
-    switch (reasonOrMessage) {
-      case 'invalid_format':
-      case 'invalid':
-      case 'invalid_license':
-      case 'license_not_found':
-        return t('invalidLicenseKey');
-      case 'license_revoked':
-        return t('licenseRevoked');
-      case 'license_refunded':
-        return t('licenseRefunded');
-      case 'activation_evicted':
-      case 'device_not_activated':
-        return t('licenseKeyMoved');
-      case 'network':
-      case 'Network error':
-        return t('networkError');
-      default:
-        return reasonOrMessage || t('networkError');
-    }
-  };
-
-  const setLicenseFeedback = (message, kind = 'neutral') => {
-    licenseFeedback.textContent = message;
-    licenseFeedback.className = `license-feedback${kind === 'neutral' ? '' : ` ${kind}`}`;
-  };
-
-  const setLicenseInputError = (hasError) => {
-    licenseInput.classList.toggle('input-error', hasError);
   };
 
   const postTrialApi = async (path, payload) => {
@@ -313,31 +339,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return await getTrialInfo();
   };
 
-  const verifyLicenseKey = (key) => LICENSE_KEY_REGEX.test(normalizeLicenseKey(key));
-
-  const deviceLabel = () => {
-    const ua = navigator.userAgent || '';
-    if (/Macintosh|Mac OS X/.test(ua)) return 'Chrome on macOS';
-    if (/Windows/.test(ua)) return 'Chrome on Windows';
-    if (/Android/.test(ua)) return 'Chrome on Android';
-    if (/Linux/.test(ua)) return 'Chrome on Linux';
-    return 'Chrome';
-  };
-
-  const activateLicense = async (key) => {
-    const normalizedKey = normalizeLicenseKey(key);
-    if (!verifyLicenseKey(normalizedKey)) {
-      return { success: false, error: 'local_format_invalid' };
-    }
-
-    const result = await activateWithLicentra(normalizedKey, deviceLabel());
-    if (result.ok) {
-      await refreshPremiumState();
-      return { success: true };
-    }
-    return { success: false, error: result.reason || 'invalid' };
-  };
-
   const refreshLicenseStatus = async () => {
     await refreshPremiumState();
     if (isPremium()) {
@@ -355,19 +356,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     trialInfo = info;
 
     if (info.isUnlocked) {
-      paywall.classList.add('hidden');
       mainContent.classList.remove('hidden');
       trialBadge.style.display = 'none';
       return;
     }
 
     if (info.isExpired) {
-      paywall.classList.remove('hidden');
-      mainContent.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+      trialBadge.textContent = t('trialExpired');
+      trialBadge.style.display = 'inline-block';
       return;
     }
 
-    paywall.classList.add('hidden');
     mainContent.classList.remove('hidden');
 
     trialBadge.textContent = t('inTrial');
@@ -387,8 +387,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         el.setAttribute('placeholder', i18n[currentLang][key]);
       }
     });
-    langLabel.textContent = t('langLabel');
-    setLicenseFeedback(t('licenseFormatHint'));
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+      const key = el.getAttribute('data-i18n-aria-label');
+      if (i18n[currentLang][key]) {
+        el.setAttribute('aria-label', i18n[currentLang][key]);
+      }
+    });
   };
 
   const showStatus = (message, isSuccess) => {
@@ -404,8 +408,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const updateButton = (isEditing) => {
-    editBtn.textContent = isEditing ? t('exitEdit') : t('editMode');
+    editBtnLabel.textContent = isEditing ? t('exitEdit') : t('editText');
     editBtn.classList.toggle('active', isEditing);
+    editBtn.setAttribute('aria-pressed', String(isEditing));
   };
 
   const isEditablePage = (url) => {
@@ -459,10 +464,300 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   };
 
-  const takeScreenshot = async () => {
+  const ensureHistoryManager = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (labels) => {
+        const toolbarId = 'edit-page-history-toolbar';
+        const styleId = 'edit-page-history-styles';
+
+        let style = document.getElementById(styleId);
+        if (!style) {
+          style = document.createElement('style');
+          style.id = styleId;
+          document.head.appendChild(style);
+        }
+        style.textContent = `
+            #${toolbarId} {
+              position: fixed !important;
+              left: 50% !important;
+              bottom: 22px !important;
+              z-index: 2147483647 !important;
+              display: flex !important;
+              flex-wrap: wrap !important;
+              align-items: center !important;
+              gap: 8px !important;
+              width: max-content !important;
+              max-width: calc(100vw - 32px) !important;
+              padding: 8px 10px !important;
+              color: #172033 !important;
+              font: 13px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+              background: rgba(255, 255, 255, 0.96) !important;
+              border: 1px solid rgba(79, 70, 229, 0.2) !important;
+              border-radius: 14px !important;
+              box-shadow: 0 10px 34px rgba(15, 23, 42, 0.2) !important;
+              transform: translateX(-50%) !important;
+              backdrop-filter: blur(12px) !important;
+              user-select: none !important;
+            }
+            #${toolbarId} * { box-sizing: border-box !important; }
+            #${toolbarId} button {
+              flex: none !important;
+              width: auto !important;
+              min-width: 0 !important;
+              margin: 0 !important;
+              padding: 8px 11px !important;
+              color: #3730a3 !important;
+              font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+              background: #eef2ff !important;
+              border: 0 !important;
+              border-radius: 9px !important;
+              cursor: pointer !important;
+            }
+            #${toolbarId} button:hover { background: #e0e7ff !important; }
+            #${toolbarId} button:disabled { opacity: 0.35 !important; cursor: not-allowed !important; }
+            #${toolbarId} .edit-page-history-done { color: #fff !important; background: #4f46e5 !important; }
+            #${toolbarId} .edit-page-history-info { flex: none !important; white-space: nowrap !important; color: #64748b !important; }
+            #${toolbarId} .edit-page-history-warning {
+              flex: 0 1 auto !important;
+              min-width: 0 !important;
+              color: #92400e !important;
+              font-size: 11px !important;
+              line-height: 1.35 !important;
+              white-space: normal !important;
+            }
+        `;
+
+        const createToolbar = () => {
+          let toolbar = document.getElementById(toolbarId);
+          if (toolbar) return toolbar;
+          toolbar = document.createElement('div');
+          toolbar.id = toolbarId;
+          toolbar.contentEditable = 'false';
+          toolbar.innerHTML = `
+            <button type="button" data-action="undo"></button>
+            <button type="button" data-action="redo"></button>
+            <span class="edit-page-history-info"></span>
+            <span class="edit-page-history-warning"></span>
+            <button type="button" class="edit-page-history-done" data-action="done"></button>
+          `;
+          for (const eventName of ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend']) {
+            // Let the target button run first, then stop the event before it
+            // bubbles into the host page. Capture-phase blocking here would
+            // prevent the toolbar's own buttons from receiving the event.
+            toolbar.addEventListener(eventName, (event) => event.stopPropagation());
+          }
+          toolbar.querySelector('[data-action="undo"]').addEventListener('click', () => window._editPageHistory?.undo());
+          toolbar.querySelector('[data-action="redo"]').addEventListener('click', () => window._editPageHistory?.redo());
+          toolbar.querySelector('[data-action="done"]').addEventListener('click', () => window._editPageFinishEditingSession?.());
+          document.body.appendChild(toolbar);
+          return toolbar;
+        };
+
+        if (!window._editPageHistory) {
+          const history = {
+            undoStack: [],
+            redoStack: [],
+            pendingText: null,
+            labels,
+            update() {
+              const toolbar = createToolbar();
+              const undoButton = toolbar.querySelector('[data-action="undo"]');
+              const redoButton = toolbar.querySelector('[data-action="redo"]');
+              undoButton.textContent = this.labels.undo;
+              redoButton.textContent = this.labels.redo;
+              toolbar.querySelector('[data-action="done"]').textContent = this.labels.done;
+              toolbar.querySelector('.edit-page-history-info').textContent = this.labels.count.replace('{count}', String(this.undoStack.length));
+              toolbar.querySelector('.edit-page-history-warning').textContent = this.labels.warning;
+              undoButton.disabled = this.undoStack.length === 0;
+              redoButton.disabled = this.redoStack.length === 0;
+            },
+            push(operation) {
+              const previous = this.undoStack[this.undoStack.length - 1];
+              if (
+                operation.type === 'text' &&
+                previous?.type === 'text' &&
+                previous.element === operation.element &&
+                operation.time - previous.time < 900
+              ) {
+                previous.after = operation.after;
+                previous.time = operation.time;
+              } else {
+                this.undoStack.push(operation);
+              }
+              this.redoStack = [];
+              this.update();
+            },
+            apply(operation, direction) {
+              const value = direction === 'undo' ? operation.before : operation.after;
+              if (operation.type === 'text') {
+                if (operation.element?.isConnected) operation.element.innerHTML = value;
+              } else if (operation.type === 'image') {
+                if (!operation.element?.isConnected) return;
+                if (operation.imageKind === 'img') {
+                  const setAttribute = (name, attributeValue) => {
+                    if (attributeValue == null) operation.element.removeAttribute(name);
+                    else operation.element.setAttribute(name, attributeValue);
+                  };
+                  setAttribute('src', value.src);
+                  setAttribute('srcset', value.srcset);
+                  operation.sources.forEach((source, index) => {
+                    const sourceValue = value.sources[index];
+                    if (!sourceValue) return;
+                    for (const name of ['srcset', 'media', 'type']) {
+                      if (sourceValue[name] == null) source.removeAttribute(name);
+                      else source.setAttribute(name, sourceValue[name]);
+                    }
+                  });
+                } else {
+                  operation.element.style.backgroundImage = value.backgroundImage;
+                }
+              } else if (operation.type === 'remove') {
+                if (direction === 'undo') {
+                  if (!operation.parent?.isConnected) return;
+                  if (operation.nextSibling?.parentNode === operation.parent) {
+                    operation.parent.insertBefore(operation.element, operation.nextSibling);
+                  } else {
+                    operation.parent.appendChild(operation.element);
+                  }
+                } else if (operation.element?.isConnected) {
+                  operation.element.remove();
+                }
+              }
+            },
+            undo() {
+              const operation = this.undoStack.pop();
+              if (!operation) return;
+              this.apply(operation, 'undo');
+              this.redoStack.push(operation);
+              this.update();
+            },
+            redo() {
+              const operation = this.redoStack.pop();
+              if (!operation) return;
+              this.apply(operation, 'redo');
+              this.undoStack.push(operation);
+              this.update();
+            }
+          };
+          window._editPageHistory = history;
+
+          window._editPageTextBeforeInput = () => {
+            if (!document.body.isContentEditable) return;
+            const selection = window.getSelection();
+            let element = selection?.anchorNode;
+            if (element?.nodeType === Node.TEXT_NODE) element = element.parentElement;
+            if (!(element instanceof Element) || element.closest(`#${toolbarId}`)) return;
+            element = element.closest('p,h1,h2,h3,h4,h5,h6,li,td,th,blockquote,figcaption,button,a,label,span,div') || element;
+            history.pendingText = { element, before: element.innerHTML };
+          };
+
+          window._editPageTextInput = () => {
+            const pending = history.pendingText;
+            history.pendingText = null;
+            if (!pending?.element?.isConnected) return;
+            const after = pending.element.innerHTML;
+            if (pending.before !== after) {
+              history.push({
+                type: 'text',
+                element: pending.element,
+                before: pending.before,
+                after,
+                time: Date.now()
+              });
+            }
+          };
+
+          window._editPageHistoryKeyHandler = (event) => {
+            if (!document.getElementById(toolbarId)) return;
+            if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.shiftKey) history.redo();
+            else history.undo();
+          };
+
+          document.addEventListener('beforeinput', window._editPageTextBeforeInput, true);
+          document.addEventListener('input', window._editPageTextInput, true);
+          document.addEventListener('keydown', window._editPageHistoryKeyHandler, true);
+        }
+
+        window._editPageFinishEditingSession = () => {
+          document.body.contentEditable = 'false';
+          document.body.classList.remove('edit-page-editing', 'edit-page-replace-mode', 'edit-page-remove-mode');
+          if (window._editPageReplaceHandler) document.removeEventListener('click', window._editPageReplaceHandler, true);
+          if (window._editPageReplaceMouseDownHandler) document.removeEventListener('mousedown', window._editPageReplaceMouseDownHandler, true);
+          if (window._editPageRemoveClickHandler) document.removeEventListener('click', window._editPageRemoveClickHandler, true);
+          if (window._editPageRemoveOverHandler) document.removeEventListener('mouseover', window._editPageRemoveOverHandler, true);
+          if (window._editPageRemoveOutHandler) document.removeEventListener('mouseout', window._editPageRemoveOutHandler, true);
+          window._editPageReplaceHandler = null;
+          window._editPageReplaceMouseDownHandler = null;
+          window._editPageRemoveClickHandler = null;
+          window._editPageRemoveOverHandler = null;
+          window._editPageRemoveOutHandler = null;
+          document.querySelectorAll('.edit-page-remove-target').forEach((element) => element.classList.remove('edit-page-remove-target'));
+          document.getElementById(toolbarId)?.remove();
+        };
+
+        window._editPageHistory.labels = labels;
+        window._editPageHistory.update();
+      },
+      args: [{
+        undo: t('undo'),
+        redo: t('redo'),
+        done: t('done'),
+        count: t('changeCount'),
+        warning: t('editWarning')
+      }]
+    });
+  };
+
+  const stopEditMode = async () => {
+    if (await getIsEditing()) {
+      await toggleEdit();
+    }
+    updateButton(false);
+  };
+
+  const finishEditingSession = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => window._editPageFinishEditingSession?.()
+    }).catch(() => {});
+  };
+
+  const copyScreenshotToClipboard = async (dataUrl) => {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob })
+    ]);
+  };
+
+  const screenshotFilename = (kind) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    return `edit-page-${kind}-${timestamp}.png`;
+  };
+
+  const saveScreenshot = async (dataUrl, kind) => {
+    if (screenshotDestination === 'download') {
+      await chrome.downloads.download({
+        url: dataUrl,
+        filename: screenshotFilename(kind),
+        saveAs: false
+      });
+      return t('statusScreenshotDownloaded');
+    }
+    await copyScreenshotToClipboard(dataUrl);
+    return t('statusScreenshotSuccess');
+  };
+
+  const takeVisibleScreenshot = async () => {
     try {
-      screenshotBtn.disabled = true;
-      screenshotBtn.textContent = t('screenshotting');
+      visibleScreenshotBtn.disabled = true;
+      visibleScreenshotLabel.textContent = t('screenshotting');
       showStatus(t('statusScreenshotting'), true);
 
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -471,22 +766,92 @@ document.addEventListener('DOMContentLoaded', async () => {
         format: 'png'
       });
 
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
-      ]);
-
-      showStatus(t('statusScreenshotSuccess'), true);
+      const successMessage = await saveScreenshot(dataUrl, 'viewport');
+      showStatus(successMessage, true);
     } catch (e) {
       console.error('Screenshot failed:', e);
       showStatus(t('statusScreenshotFailed') + e.message, false);
     } finally {
-      screenshotBtn.disabled = false;
-      screenshotBtn.textContent = t('screenshot');
+      visibleScreenshotBtn.disabled = false;
+      visibleScreenshotLabel.textContent = t('visibleScreenshot');
     }
   };
+
+  const setCaptureProgress = (progress) => {
+    if (!progress) {
+      captureProgress.classList.add('hidden');
+      captureProgressBar.style.width = '0%';
+      captureProgressText.textContent = '';
+      return;
+    }
+
+    captureProgress.classList.remove('hidden');
+    let percent = 8;
+    let message = t('preparingFullPage');
+    if (progress.status === 'capturing') {
+      const current = progress.current || 0;
+      const total = progress.total || 1;
+      percent = Math.max(10, Math.round((current / total) * 88));
+      message = t('capturingFullPage')
+        .replace('{current}', String(current))
+        .replace('{total}', String(total));
+    } else if (progress.status === 'stitching') {
+      percent = 94;
+      message = t('stitchingFullPage');
+    } else if (progress.status === 'done') {
+      percent = 100;
+      message = t('savingScreenshot');
+    } else if (progress.status === 'error') {
+      percent = 100;
+      message = t('statusScreenshotFailed') + (progress.error || '');
+    }
+    captureProgressBar.style.width = `${percent}%`;
+    captureProgressText.textContent = message;
+  };
+
+  const takeFullPageScreenshot = async () => {
+    fullPageScreenshotBtn.disabled = true;
+    visibleScreenshotBtn.disabled = true;
+    fullPageScreenshotLabel.textContent = t('screenshotting');
+    setCaptureProgress({ status: 'preparing' });
+
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const result = await Promise.race([
+        chrome.runtime.sendMessage({
+          action: 'captureFullPage',
+          tabId: tab.id,
+          windowId: tab.windowId
+        }),
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Full-page capture timed out')), 180000);
+        })
+      ]);
+
+      if (!result?.ok || !result.dataUrl) {
+        throw new Error(result?.error || 'Full-page capture failed');
+      }
+
+      const successMessage = await saveScreenshot(result.dataUrl, 'full-page');
+      captureProgressBar.style.width = '100%';
+      captureProgressText.textContent = successMessage;
+      showStatus(successMessage, true);
+    } catch (error) {
+      console.error('Full-page screenshot failed:', error);
+      showStatus(t('statusScreenshotFailed') + error.message, false);
+    } finally {
+      fullPageScreenshotBtn.disabled = false;
+      visibleScreenshotBtn.disabled = false;
+      fullPageScreenshotLabel.textContent = t('fullPageScreenshot');
+      setTimeout(() => setCaptureProgress(null), 1800);
+    }
+  };
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.fullPageCaptureProgress?.newValue) {
+      setCaptureProgress(changes.fullPageCaptureProgress.newValue);
+    }
+  });
 
   const saveImageData = async (data) => {
     try {
@@ -520,9 +885,118 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
+  const checkRemoveModeActive = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => !!document.body.classList.contains('edit-page-remove-mode')
+      });
+      return results[0].result;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const updateRemoveButton = () => {
+    removeBtnLabel.textContent = isRemoveMode ? t('exitRemoveMode') : t('removeElement');
+    removeBtn.classList.toggle('active', isRemoveMode);
+    removeBtn.setAttribute('aria-pressed', String(isRemoveMode));
+  };
+
+  const stopRemoveMode = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        if (window._editPageRemoveClickHandler) {
+          document.removeEventListener('click', window._editPageRemoveClickHandler, true);
+          document.removeEventListener('mouseover', window._editPageRemoveOverHandler, true);
+          document.removeEventListener('mouseout', window._editPageRemoveOutHandler, true);
+        }
+        window._editPageRemoveClickHandler = null;
+        window._editPageRemoveOverHandler = null;
+        window._editPageRemoveOutHandler = null;
+        document.querySelectorAll('.edit-page-remove-target').forEach((element) => {
+          element.classList.remove('edit-page-remove-target');
+        });
+        document.body.classList.remove('edit-page-remove-mode');
+      }
+    });
+  };
+
+  const startRemoveMode = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        if (window._editPageRemoveClickHandler) return;
+
+        const canRemove = (element) =>
+          element instanceof Element &&
+          element !== document.documentElement &&
+          element !== document.body &&
+          !element.closest('#edit-page-history-toolbar');
+
+        window._editPageRemoveOverHandler = (event) => {
+          if (!canRemove(event.target)) return;
+          document.querySelectorAll('.edit-page-remove-target').forEach((element) => {
+            if (element !== event.target) element.classList.remove('edit-page-remove-target');
+          });
+          event.target.classList.add('edit-page-remove-target');
+        };
+
+        window._editPageRemoveOutHandler = (event) => {
+          if (canRemove(event.target)) event.target.classList.remove('edit-page-remove-target');
+        };
+
+        window._editPageRemoveClickHandler = (event) => {
+          if (!canRemove(event.target)) return;
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          const parent = event.target.parentNode;
+          const nextSibling = event.target.nextSibling;
+          window._editPageHistory?.push({
+            type: 'remove',
+            element: event.target,
+            parent,
+            nextSibling,
+            before: null,
+            after: null,
+            time: Date.now()
+          });
+          event.target.remove();
+        };
+
+        document.addEventListener('mouseover', window._editPageRemoveOverHandler, true);
+        document.addEventListener('mouseout', window._editPageRemoveOutHandler, true);
+        document.addEventListener('click', window._editPageRemoveClickHandler, true);
+        document.body.classList.add('edit-page-remove-mode');
+      }
+    });
+
+    await chrome.scripting.insertCSS({
+      target: { tabId: tab.id },
+      css: `
+        .edit-page-remove-mode,
+        .edit-page-remove-mode * {
+          cursor: crosshair !important;
+        }
+        .edit-page-remove-target {
+          outline: 3px solid #ef4444 !important;
+          outline-offset: 2px !important;
+          background-color: rgba(239, 68, 68, 0.08) !important;
+        }
+      `
+    });
+  };
+
   const updateReplaceButton = () => {
-    replaceImageBtn.textContent = isReplaceMode ? t('exitReplaceMode') : t('replaceMode');
+    replaceImageBtnLabel.textContent = isReplaceMode ? t('exitReplaceMode') : t('replaceMode');
     replaceImageBtn.classList.toggle('active', isReplaceMode);
+    replaceImageBtn.setAttribute('aria-pressed', String(isReplaceMode));
   };
 
   const clearImage = async () => {
@@ -570,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         window._editPageReplaceHandler = (e) => {
           if (!window._editPageReplaceImage) return;
+          if (e.target instanceof Element && e.target.closest('#edit-page-history-toolbar')) return;
 
           e.preventDefault();
           e.stopPropagation();
@@ -589,28 +1064,62 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           if (img) {
             if (img.tagName === 'IMG') {
+              const picture = img.closest('picture');
+              const sources = picture ? Array.from(picture.querySelectorAll('source')) : [];
+              const snapshot = () => ({
+                src: img.getAttribute('src'),
+                srcset: img.getAttribute('srcset'),
+                sources: sources.map((source) => ({
+                  srcset: source.getAttribute('srcset'),
+                  media: source.getAttribute('media'),
+                  type: source.getAttribute('type')
+                }))
+              });
+              const before = snapshot();
               img.src = window._editPageReplaceImage;
               if (img.srcset) {
                 img.srcset = '';
               }
 
-              const picture = img.closest('picture');
               if (picture) {
-                const sources = picture.querySelectorAll('source');
                 sources.forEach(source => {
                   source.removeAttribute('srcset');
                   source.removeAttribute('media');
                   source.removeAttribute('type');
                 });
               }
+              window._editPageHistory?.push({
+                type: 'image',
+                imageKind: 'img',
+                element: img,
+                sources,
+                before,
+                after: snapshot(),
+                time: Date.now()
+              });
             } else {
+              const before = { backgroundImage: img.style.backgroundImage };
               img.style.backgroundImage = `url(${window._editPageReplaceImage})`;
+              window._editPageHistory?.push({
+                type: 'image',
+                imageKind: 'background',
+                element: img,
+                sources: [],
+                before,
+                after: { backgroundImage: img.style.backgroundImage },
+                time: Date.now()
+              });
             }
           }
         };
 
+        window._editPageReplaceMouseDownHandler = (event) => {
+          if (event.target instanceof Element && event.target.closest('#edit-page-history-toolbar')) return;
+          event.preventDefault();
+        };
+
         document.addEventListener('click', window._editPageReplaceHandler, true);
-        document.addEventListener('mousedown', (e) => e.preventDefault(), true);
+        document.addEventListener('mousedown', window._editPageReplaceMouseDownHandler, true);
         document.body.classList.add('edit-page-replace-mode');
       },
       args: [selectedImageData]
@@ -644,34 +1153,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       func: () => {
         if (window._editPageReplaceHandler) {
           document.removeEventListener('click', window._editPageReplaceHandler, true);
-          window._editPageReplaceHandler = null;
-          window._editPageReplaceImage = null;
-          document.body.classList.remove('edit-page-replace-mode');
         }
+        if (window._editPageReplaceMouseDownHandler) {
+          document.removeEventListener('mousedown', window._editPageReplaceMouseDownHandler, true);
+        }
+        window._editPageReplaceHandler = null;
+        window._editPageReplaceMouseDownHandler = null;
+        window._editPageReplaceImage = null;
+        document.body.classList.remove('edit-page-replace-mode');
       }
     });
   };
 
-  try {
-    const result = await chrome.storage.sync.get(['language', 'languageInitialized']);
+  currentLang = await resolveLanguage().catch(() => 'en');
+  applyLanguage();
 
-    if (result.language) {
-      currentLang = result.language;
-    } else {
-      const browserLang = navigator.language || navigator.userLanguage;
-      if (browserLang.startsWith('zh')) {
-        currentLang = 'zh';
-      } else {
-        currentLang = 'en';
-      }
-      await chrome.storage.sync.set({
-        language: currentLang,
-        languageInitialized: true
-      });
-    }
-  } catch (e) {
-    currentLang = 'zh';
-  }
+  settingsBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    chrome.runtime.openOptionsPage();
+    window.close();
+  });
 
   let startupStatusTimer = setTimeout(() => {
     showStatus(t('connecting'), true);
@@ -682,7 +1183,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!pageEditable) {
     unsupportedPage.classList.remove('hidden');
-    paywall.classList.add('hidden');
     mainContent.classList.add('hidden');
     return;
   }
@@ -698,83 +1198,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   clearTimeout(startupStatusTimer);
 
-  applyLanguage();
   updateTrialUI(trialInfo);
   statusDiv.classList.remove('visible');
-
-  langToggleBtn.addEventListener('click', async () => {
-    currentLang = currentLang === 'zh' ? 'en' : 'zh';
-    try {
-      await chrome.storage.sync.set({ language: currentLang });
-    } catch (e) {}
-    applyLanguage();
-    const isEditing = await getIsEditing();
-    updateButton(isEditing);
-  });
-
-  payBtn.addEventListener('click', async () => {
-    chrome.tabs.create({ url: APP_BASE_URL });
-    showStatus(t('purchasePageHint'), true);
-  });
-
-  unlockBtn.addEventListener('click', async () => {
-    const licenseKey = licenseInput.value.trim();
-    if (!licenseKey) {
-      setLicenseInputError(true);
-      setLicenseFeedback(t('enterLicenseKey'), 'error');
-      showStatus(t('enterLicenseKey'), false);
-      return;
-    }
-
-    const normalizedKey = normalizeLicenseKey(licenseKey);
-    licenseInput.value = normalizedKey;
-    setLicenseInputError(false);
-    setLicenseFeedback(t('activatingHint'));
-    unlockBtn.disabled = true;
-    unlockBtn.textContent = t('activating');
-
-    const result = await activateLicense(normalizedKey);
-
-    if (result && result.success) {
-      setLicenseInputError(false);
-      setLicenseFeedback(t('activationSuccess'), 'success');
-      showStatus(t('activationSuccess'), true);
-      trialInfo = await getTrialInfo();
-      updateTrialUI(trialInfo);
-    } else {
-      const isFormatError = result?.error === 'local_format_invalid';
-      const userMessage = isFormatError ? t('licenseFormatError') : normalizeError(result?.error);
-      setLicenseInputError(true);
-      setLicenseFeedback(userMessage, 'error');
-      showStatus(t('activationFailed') + normalizeError(result?.error), false);
-    }
-
-    unlockBtn.disabled = false;
-    unlockBtn.textContent = t('unlockLicense');
-  });
-
-  licenseInput.addEventListener('input', () => {
-    setLicenseInputError(false);
-    setLicenseFeedback(t('licenseFormatHint'));
-  });
-
-  licenseInput.addEventListener('blur', () => {
-    const value = licenseInput.value.trim();
-    if (!value) {
-      return;
-    }
-
-    const normalizedKey = normalizeLicenseKey(value);
-    licenseInput.value = normalizedKey;
-
-    if (!verifyLicenseKey(normalizedKey)) {
-      setLicenseInputError(true);
-      setLicenseFeedback(t('licenseFormatError'), 'error');
-    } else {
-      setLicenseInputError(false);
-      setLicenseFeedback(t('licenseFormatHint'));
-    }
-  });
 
   if (!trialInfo.isExpired || trialInfo.isUnlocked) {
     const isEditing = await getIsEditing();
@@ -794,6 +1219,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateReplaceButton();
     }
 
+    const removeModeActive = await checkRemoveModeActive();
+    if (removeModeActive) {
+      isRemoveMode = true;
+      updateRemoveButton();
+    }
+
     editBtn.addEventListener('click', async () => {
       const currentTrialInfo = await getTrialInfo();
       if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
@@ -801,20 +1232,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       trialInfo = await incrementTrialClick();
+      const willEnableEdit = !(await getIsEditing());
+      if (willEnableEdit) {
+        await ensureHistoryManager();
+        if (isReplaceMode) {
+          isReplaceMode = false;
+          await stopReplaceMode();
+          updateReplaceButton();
+        }
+        if (isRemoveMode) {
+          isRemoveMode = false;
+          await stopRemoveMode();
+          updateRemoveButton();
+        }
+      }
       await toggleEdit();
       const newIsEditing = await getIsEditing();
       updateButton(newIsEditing);
       updateTrialUI(trialInfo);
     });
 
-    screenshotBtn.addEventListener('click', async () => {
+    const prepareForScreenshot = async () => {
+      await stopEditMode();
+      if (isReplaceMode) {
+        isReplaceMode = false;
+        await stopReplaceMode();
+        updateReplaceButton();
+      }
+      if (isRemoveMode) {
+        isRemoveMode = false;
+        await stopRemoveMode();
+        updateRemoveButton();
+      }
+      await finishEditingSession();
+    };
+
+    screenshotBtn.addEventListener('click', () => {
+      const expanded = screenshotBtn.getAttribute('aria-expanded') === 'true';
+      screenshotBtn.setAttribute('aria-expanded', String(!expanded));
+      screenshotOptions.classList.toggle('hidden', expanded);
+    });
+
+    visibleScreenshotBtn.addEventListener('click', async () => {
       const currentTrialInfo = await getTrialInfo();
       if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
         updateTrialUI(currentTrialInfo);
         return;
       }
       trialInfo = await incrementTrialClick();
-      await takeScreenshot();
+      await prepareForScreenshot();
+      await takeVisibleScreenshot();
+      updateTrialUI(trialInfo);
+    });
+
+    fullPageScreenshotBtn.addEventListener('click', async () => {
+      const currentTrialInfo = await getTrialInfo();
+      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
+        updateTrialUI(currentTrialInfo);
+        return;
+      }
+      trialInfo = await incrementTrialClick();
+      await prepareForScreenshot();
+      await takeFullPageScreenshot();
       updateTrialUI(trialInfo);
     });
 
@@ -861,12 +1340,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       trialInfo = await incrementTrialClick();
       isReplaceMode = !isReplaceMode;
-      updateReplaceButton();
       if (isReplaceMode) {
+        await ensureHistoryManager();
+        await stopEditMode();
+        if (isRemoveMode) {
+          isRemoveMode = false;
+          await stopRemoveMode();
+          updateRemoveButton();
+        }
         await startReplaceMode();
       } else {
         await stopReplaceMode();
       }
+      updateReplaceButton();
+      updateTrialUI(trialInfo);
+    });
+
+    removeBtn.addEventListener('click', async () => {
+      const currentTrialInfo = await getTrialInfo();
+      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
+        updateTrialUI(currentTrialInfo);
+        return;
+      }
+
+      trialInfo = await incrementTrialClick();
+      isRemoveMode = !isRemoveMode;
+      if (isRemoveMode) {
+        await ensureHistoryManager();
+        await stopEditMode();
+        if (isReplaceMode) {
+          isReplaceMode = false;
+          await stopReplaceMode();
+          updateReplaceButton();
+        }
+        await startRemoveMode();
+        showStatus(t('clickElementToRemove'), true);
+      } else {
+        await stopRemoveMode();
+      }
+      updateRemoveButton();
       updateTrialUI(trialInfo);
     });
   }

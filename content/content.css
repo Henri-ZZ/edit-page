@@ -7,3 +7,13 @@
   outline: 1px dashed #3498db !important;
 }
 
+.edit-page-remove-mode,
+.edit-page-remove-mode * {
+  cursor: crosshair !important;
+}
+
+.edit-page-remove-target {
+  outline: 3px solid #ef4444 !important;
+  outline-offset: 2px !important;
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
