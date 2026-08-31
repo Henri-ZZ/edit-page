@@ -102,6 +102,184 @@ const i18n = {
     quotaExhaustedToast:
       "Advanced feature limit reached. Unlocks in {reset}. Upgrade to Premium for unlimited use.",
   },
+  es: {
+    title: "Edit Page",
+    settings: "Panel",
+    chooseTool: "Elige una herramienta",
+    editText: "Editar texto",
+    editTextDesc: "Cambia cualquier texto de esta página",
+    exitEdit: "Salir de la edición",
+    screenshot: "Captura de pantalla",
+    screenshotDesc: "Captura la vista actual o la página completa",
+    visibleScreenshot: "Vista actual",
+    fullPageScreenshot: "Página completa",
+    preparingFullPage: "Preparando la captura de página completa...",
+    capturingFullPage: "Capturando {current} de {total}...",
+    stitchingFullPage: "Uniendo la imagen final...",
+    fullPageCaptureInProgress: "Ya hay una captura de página completa en curso.",
+    fullPageTabChanged:
+      "La captura se detuvo porque cambiaste de pestaña. Mantén esta página activa e inténtalo de nuevo.",
+    screenshotting: "Capturando...",
+    statusScreenshotting: "Tomando la captura...",
+    statusScreenshotSuccess: "¡Captura copiada al portapapeles!",
+    statusScreenshotDownloaded: "¡Captura descargada!",
+    savingScreenshot: "Guardando la captura...",
+    statusScreenshotFailed: "Error al capturar: ",
+    changeImage: "Cambiar imagen",
+    changeImageDesc: "Sube una imagen o pega su URL",
+    uploadLocalImage: "Subir desde el dispositivo",
+    imageUrlPlaceholder: "Pega la URL de la imagen",
+    useImageUrl: "Usar URL",
+    invalidImageUrl: "Introduce una URL de imagen http o https válida.",
+    checkingImageUrl: "Comprobando...",
+    imageUrlNotImage: "Esta URL no apunta a una imagen legible.",
+    imageUrlDenied: "El sitio de origen rechazó el acceso a la imagen. Puede requerir inicio de sesión o impedir el uso externo.",
+    imageUrlNotFound: "No se encontró la imagen. Es posible que la URL haya caducado o cambiado.",
+    imageUrlHttpError: "El sitio de origen devolvió HTTP {status}, por lo que no se pudo leer la imagen.",
+    imageUrlAccessRestricted: "El navegador no pudo acceder a la imagen. El sitio de origen puede restringir el acceso externo.",
+    imageLoadTimeout: "La imagen tardó demasiado en responder. Comprueba la URL o la conexión.",
+    imageReadFailed: "No se pudo leer la imagen. El archivo puede estar dañado, la URL puede ser incorrecta o el sitio puede bloquear el acceso.",
+    freePlan: "Versión gratuita",
+    quotaExhaustedBadge: "Funciones limitadas",
+    editModeFailed: "No se pudo iniciar la edición de texto en esta página.",
+    replaceModeFailed: "No se pudo iniciar el modo de reemplazo en esta página.",
+    removeModeFailed: "No se pudo iniciar el modo de eliminación en esta página.",
+    clearImage: "Quitar la imagen seleccionada",
+    replaceMode: "Modo de reemplazo",
+    exitReplaceMode: "Salir del modo de reemplazo",
+    imageSelected: 'Imagen seleccionada. Haz clic en "Modo de reemplazo"',
+    pleaseSelectImageFirst: "Selecciona primero una imagen",
+    removeElement: "Eliminar elemento",
+    removeElementDesc: "Haz clic en cualquier elemento para eliminarlo",
+    exitRemoveMode: "Salir del modo de eliminación",
+    undo: "↶ Deshacer",
+    redo: "↷ Rehacer",
+    done: "Listo",
+    changeCount: "{count} cambios",
+    editWarning: "La edición puede afectar al funcionamiento de la página. Actualízala para restaurarla por completo.",
+    connecting: "Conectando con el servidor...",
+    cannotEditThisPage: "No se puede editar esta página",
+    pageNotSupported: "Este tipo de página no es compatible",
+    quotaExhaustedToast: "Se alcanzó el límite de funciones avanzadas. Se desbloquea en {reset}. Actualiza a Premium para usarlas sin límites.",
+  },
+  pt: {
+    title: "Edit Page",
+    settings: "Painel",
+    chooseTool: "Escolha uma ferramenta",
+    editText: "Editar texto",
+    editTextDesc: "Altere qualquer texto desta página",
+    exitEdit: "Sair da edição",
+    screenshot: "Captura de tela",
+    screenshotDesc: "Capture a visualização atual ou a página inteira",
+    visibleScreenshot: "Visualização atual",
+    fullPageScreenshot: "Página inteira",
+    preparingFullPage: "Preparando a captura da página inteira...",
+    capturingFullPage: "Capturando {current} de {total}...",
+    stitchingFullPage: "Montando a imagem final...",
+    fullPageCaptureInProgress: "Já existe uma captura de página inteira em andamento.",
+    fullPageTabChanged: "A captura foi interrompida porque você mudou de guia. Mantenha esta página ativa e tente novamente.",
+    screenshotting: "Capturando...",
+    statusScreenshotting: "Fazendo a captura...",
+    statusScreenshotSuccess: "Captura copiada para a área de transferência!",
+    statusScreenshotDownloaded: "Captura baixada!",
+    savingScreenshot: "Salvando a captura...",
+    statusScreenshotFailed: "Falha na captura: ",
+    changeImage: "Alterar imagem",
+    changeImageDesc: "Envie uma imagem ou cole a URL",
+    uploadLocalImage: "Enviar do dispositivo",
+    imageUrlPlaceholder: "Cole a URL da imagem",
+    useImageUrl: "Usar URL",
+    invalidImageUrl: "Insira uma URL de imagem http ou https válida.",
+    checkingImageUrl: "Verificando...",
+    imageUrlNotImage: "Esta URL não aponta para uma imagem legível.",
+    imageUrlDenied: "O site de origem recusou o acesso à imagem. Ele pode exigir login ou bloquear o uso externo.",
+    imageUrlNotFound: "A imagem não foi encontrada. A URL pode ter expirado ou mudado.",
+    imageUrlHttpError: "O site de origem retornou HTTP {status}, portanto a imagem não pôde ser lida.",
+    imageUrlAccessRestricted: "O navegador não pôde acessar a imagem. O site de origem pode restringir o acesso externo.",
+    imageLoadTimeout: "A imagem demorou demais para responder. Verifique a URL ou sua conexão.",
+    imageReadFailed: "Não foi possível ler a imagem. O arquivo pode estar danificado, a URL pode ser inválida ou o site pode bloquear o acesso.",
+    freePlan: "Versão gratuita",
+    quotaExhaustedBadge: "Recursos limitados",
+    editModeFailed: "Não foi possível iniciar a edição de texto nesta página.",
+    replaceModeFailed: "Não foi possível iniciar o modo de substituição nesta página.",
+    removeModeFailed: "Não foi possível iniciar o modo de remoção nesta página.",
+    clearImage: "Limpar imagem selecionada",
+    replaceMode: "Modo de substituição",
+    exitReplaceMode: "Sair do modo de substituição",
+    imageSelected: 'Imagem selecionada. Clique em "Modo de substituição"',
+    pleaseSelectImageFirst: "Selecione uma imagem primeiro",
+    removeElement: "Remover elemento",
+    removeElementDesc: "Clique em qualquer elemento para removê-lo",
+    exitRemoveMode: "Sair do modo de remoção",
+    undo: "↶ Desfazer",
+    redo: "↷ Refazer",
+    done: "Concluir",
+    changeCount: "{count} alterações",
+    editWarning: "A edição pode afetar o funcionamento da página. Atualize-a para restaurar tudo.",
+    connecting: "Conectando ao servidor...",
+    cannotEditThisPage: "Não é possível editar esta página",
+    pageNotSupported: "Este tipo de página não é compatível",
+    quotaExhaustedToast: "O limite de recursos avançados foi atingido. Desbloqueia em {reset}. Assine o Premium para uso ilimitado.",
+  },
+  ja: {
+    title: "Edit Page",
+    settings: "ダッシュボード",
+    chooseTool: "ツールを選択",
+    editText: "テキストを編集",
+    editTextDesc: "ページ上のテキストを変更します",
+    exitEdit: "編集を終了",
+    screenshot: "スクリーンショット",
+    screenshotDesc: "現在の表示領域またはページ全体を撮影します",
+    visibleScreenshot: "現在の表示領域",
+    fullPageScreenshot: "ページ全体",
+    preparingFullPage: "ページ全体の撮影を準備中...",
+    capturingFullPage: "{total} 枚中 {current} 枚目を撮影中...",
+    stitchingFullPage: "最終画像を合成中...",
+    fullPageCaptureInProgress: "ページ全体の撮影がすでに実行中です。",
+    fullPageTabChanged: "タブが切り替えられたため撮影を停止しました。このページを表示したまま再試行してください。",
+    screenshotting: "撮影中...",
+    statusScreenshotting: "スクリーンショットを撮影中...",
+    statusScreenshotSuccess: "クリップボードにコピーしました！",
+    statusScreenshotDownloaded: "スクリーンショットをダウンロードしました！",
+    savingScreenshot: "スクリーンショットを保存中...",
+    statusScreenshotFailed: "撮影に失敗しました: ",
+    changeImage: "画像を変更",
+    changeImageDesc: "画像をアップロードまたは URL を貼り付けます",
+    uploadLocalImage: "デバイスからアップロード",
+    imageUrlPlaceholder: "画像 URL を貼り付け",
+    useImageUrl: "URL を使用",
+    invalidImageUrl: "有効な http または https の画像 URL を入力してください。",
+    checkingImageUrl: "確認中...",
+    imageUrlNotImage: "この URL は読み込み可能な画像ではありません。",
+    imageUrlDenied: "画像の提供元がアクセスを拒否しました。ログインが必要か、外部利用が制限されている可能性があります。",
+    imageUrlNotFound: "画像が見つかりません。URL が無効になったか変更された可能性があります。",
+    imageUrlHttpError: "提供元が HTTP {status} を返したため、画像を読み込めませんでした。",
+    imageUrlAccessRestricted: "ブラウザーが画像にアクセスできませんでした。提供元が外部アクセスを制限している可能性があります。",
+    imageLoadTimeout: "画像の応答に時間がかかりすぎました。URL またはネットワークを確認してください。",
+    imageReadFailed: "画像を読み込めませんでした。ファイルの破損、URL の誤り、または提供元のアクセス制限が考えられます。",
+    freePlan: "無料版",
+    quotaExhaustedBadge: "機能制限中",
+    editModeFailed: "このページでテキスト編集を開始できませんでした。",
+    replaceModeFailed: "このページで画像置換モードを開始できませんでした。",
+    removeModeFailed: "このページで要素削除モードを開始できませんでした。",
+    clearImage: "選択した画像をクリア",
+    replaceMode: "画像置換モード",
+    exitReplaceMode: "画像置換モードを終了",
+    imageSelected: "画像を選択しました。「画像置換モード」をクリックしてください",
+    pleaseSelectImageFirst: "先に画像を選択してください",
+    removeElement: "要素を削除",
+    removeElementDesc: "ページ上の要素をクリックして削除します",
+    exitRemoveMode: "削除モードを終了",
+    undo: "↶ 元に戻す",
+    redo: "↷ やり直す",
+    done: "完了",
+    changeCount: "{count} 件の変更",
+    editWarning: "編集によりページの動作に影響する場合があります。完全に元に戻すにはページを再読み込みしてください。",
+    connecting: "サーバーに接続中...",
+    cannotEditThisPage: "このページは編集できません",
+    pageNotSupported: "この種類のページには対応していません",
+    quotaExhaustedToast: "高度な機能の上限に達しました。{reset}後に解除されます。Premium では無制限に利用できます。",
+  },
   zh: {
     title: "Edit Page",
     settings: "控制面板",
@@ -193,16 +371,16 @@ const i18n = {
 
 let currentLang = "en";
 
-const t = (key) => i18n[currentLang][key] || key;
+const t = (key) => i18n[currentLang]?.[key] || i18n.en[key] || key;
 
 // Free-tier quota feedback: humanize the time until the 12h lock lifts.
 const formatResetIn = (resetsAt) => {
   const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return currentLang === "zh"
-    ? `${hours} 小时 ${minutes} 分钟`
-    : `${hours}h ${minutes}m`;
+  if (currentLang === "zh") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLang === "ja") return `${hours} 時間 ${minutes} 分`;
+  return `${hours} h ${minutes} min`;
 };
 
 const quotaExhaustedMessage = (state) =>
@@ -296,22 +474,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const applyLanguage = () => {
+    const documentLanguages = {
+      en: "en",
+      zh: "zh-CN",
+      es: "es",
+      pt: "pt-BR",
+      ja: "ja",
+    };
+    document.documentElement.lang = documentLanguages[currentLang] || "en";
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
-      if (i18n[currentLang][key]) {
-        el.textContent = i18n[currentLang][key];
+      if (t(key) !== key) {
+        el.textContent = t(key);
       }
     });
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
       const key = el.getAttribute("data-i18n-placeholder");
-      if (i18n[currentLang][key]) {
-        el.setAttribute("placeholder", i18n[currentLang][key]);
+      if (t(key) !== key) {
+        el.setAttribute("placeholder", t(key));
       }
     });
     document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
       const key = el.getAttribute("data-i18n-aria-label");
-      if (i18n[currentLang][key]) {
-        el.setAttribute("aria-label", i18n[currentLang][key]);
+      if (t(key) !== key) {
+        el.setAttribute("aria-label", t(key));
       }
     });
   };

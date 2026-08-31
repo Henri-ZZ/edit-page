@@ -26,11 +26,42 @@ Edit Page - 网页编辑与整页截图
 
 直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页，适合网页改稿、设计预览与内容校对。
 
+### Español
+
+**Nombre de la extensión**
+
+Edit Page - Editor de páginas web y captura completa
+
+**Resumen**
+
+Edita textos, cambia imágenes, elimina elementos y captura la vista actual o una página web completa.
+
+### Português (Brasil)
+
+**Nome da extensão**
+
+Edit Page - Editor de páginas e captura completa
+
+**Resumo**
+
+Edite textos, altere imagens, remova elementos e capture a visualização atual ou uma página inteira.
+
+### 日本語
+
+**拡張機能名**
+
+Edit Page - ウェブページ編集とページ全体撮影
+
+**概要**
+
+ページのテキスト編集、画像置換、要素削除、現在の表示領域またはページ全体の撮影ができます。
+
 ## Copy Rules
 
 - Product name: always `Edit Page` in every language.
 - English feature terms: Edit text, Replace images, Remove elements, Screenshot, Current view, Full page.
 - Chinese feature terms: 编辑文字、更改图片、移除元素、截图、当前视窗、整张网页。
+- Supported interface and store languages: English, Simplified Chinese, Spanish, Brazilian Portuguese, and Japanese.
 - Keep the extension name within 75 characters and the Summary within 132 characters.
 - Keep keywords natural. Do not add unsupported claims, superlatives, or repetitive keyword variants.
 
@@ -38,6 +69,9 @@ Edit Page - 网页编辑与整页截图
 
 - [ ] Copy the English name and Summary to the English Chrome Web Store listing.
 - [ ] Copy the Chinese name and Summary to the Simplified Chinese Chrome Web Store listing.
+- [ ] Copy the Spanish name and Summary to the Spanish Chrome Web Store listing.
+- [ ] Copy the Portuguese name and Summary to the Portuguese (Brazil) Chrome Web Store listing.
+- [ ] Copy the Japanese name and Summary to the Japanese Chrome Web Store listing.
 - [x] Keep manifest-localized names and descriptions synchronized with this document.
 
 ## Current Screenshot Behavior
@@ -94,6 +128,7 @@ Edit Page - 网页编辑与整页截图
 - Added current-viewport and full-page screenshot capture with Clipboard and Download destinations.
 - Added optional cleanup of repeated floating elements and scrollbars in full-page screenshots.
 - Added language, screenshot, Premium activation, usage, and support settings.
+- Added Spanish, Brazilian Portuguese, and Japanese interface and store localization.
 
 ## Publishing Readiness
 

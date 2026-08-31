@@ -75,6 +75,133 @@ const messages = {
     leaveReview: "Leave Review",
     sendFeedback: "Send Feedback",
   },
+  es: {
+    documentTitle: "Panel · Edit Page",
+    title: "Panel",
+    subtitle: "Personaliza el funcionamiento de Edit Page.",
+    language: "Idioma",
+    languageHelp: "Elige el idioma de la interfaz o usa el del navegador.",
+    followBrowser: "Usar el idioma del navegador",
+    screenshotSettings: "Capturas de pantalla",
+    saveMethod: "Método de guardado",
+    screenshotDestinationHelp: "Elige dónde se guardan las capturas.",
+    saveToClipboard: "Portapapeles",
+    saveAsDownload: "Descarga",
+    whenCapturingFullPage: "Al capturar la página completa",
+    hideRepeatedElements: "Ocultar elementos repetidos",
+    hideRepeatedElementsHelp:
+      "Oculta elementos flotantes, barras de desplazamiento y otro contenido que podría repetirse en capturas de página completa.",
+    premiumIntro:
+      "Premium ofrece acceso ilimitado a todas las funciones de la extensión y a futuras mejoras.",
+    premiumLearn: "Más información sobre Premium",
+    premiumActivateLabel: "¿Ya tienes una clave de licencia?",
+    premiumCodePlaceholder: "Introduce la clave de licencia",
+    premiumActivate: "Activar",
+    premiumActivateEmpty: "Introduce tu clave de licencia.",
+    premiumActivating: "Activando...",
+    premiumActivateSuccess: "Premium se ha activado correctamente.",
+    premiumActivateInvalid: "La clave de licencia no es válida o ha caducado.",
+    premiumActivateRevoked: "Esta clave de licencia ha sido revocada.",
+    premiumActivateRefunded: "Esta clave de licencia ha sido reembolsada.",
+    premiumActivateError: "No se pudo activar. Comprueba tu conexión e inténtalo de nuevo.",
+    quotaReplaceImage: "Importaciones de imágenes",
+    quotaFullPage: "Capturas de página completa",
+    quotaRemoveElement: "Eliminar elementos",
+    quotaOfLeft: "Quedan {remaining} de {limit}",
+    quotaLimitReached: "Límite alcanzado",
+    quotaWindow:
+      "Cuando se agota cualquier cuota, todas las funciones avanzadas se pausan durante 12 horas. Actualiza a Premium para usarlas sin límites.",
+    quotaResumesIn: "Se desbloquea en {reset}",
+    supportSection: "Ayuda",
+    supportReviewPrompt: "¿Te gusta Edit Page?",
+    supportFeedbackPrompt: "¿Encontraste un error o tienes una sugerencia?",
+    leaveReview: "Dejar una reseña",
+    sendFeedback: "Enviar comentarios",
+  },
+  pt: {
+    documentTitle: "Painel · Edit Page",
+    title: "Painel",
+    subtitle: "Personalize o funcionamento do Edit Page.",
+    language: "Idioma",
+    languageHelp: "Escolha o idioma da interface ou siga o navegador.",
+    followBrowser: "Seguir o navegador",
+    screenshotSettings: "Captura de tela",
+    saveMethod: "Forma de salvar",
+    screenshotDestinationHelp: "Escolha onde as capturas serão salvas.",
+    saveToClipboard: "Área de transferência",
+    saveAsDownload: "Download",
+    whenCapturingFullPage: "Ao capturar a página inteira",
+    hideRepeatedElements: "Ocultar elementos repetidos",
+    hideRepeatedElementsHelp:
+      "Oculta elementos flutuantes, barras de rolagem e outros conteúdos que podem se repetir em capturas de página inteira.",
+    premiumIntro:
+      "O Premium oferece acesso ilimitado a todos os recursos da extensão e a melhorias futuras.",
+    premiumLearn: "Saiba mais sobre o Premium",
+    premiumActivateLabel: "Já tem uma chave de licença?",
+    premiumCodePlaceholder: "Insira a chave de licença",
+    premiumActivate: "Ativar",
+    premiumActivateEmpty: "Insira sua chave de licença.",
+    premiumActivating: "Ativando...",
+    premiumActivateSuccess: "Premium ativado com sucesso.",
+    premiumActivateInvalid: "Esta chave de licença é inválida ou expirou.",
+    premiumActivateRevoked: "Esta chave de licença foi revogada.",
+    premiumActivateRefunded: "Esta chave de licença foi reembolsada.",
+    premiumActivateError: "Não foi possível ativar. Verifique sua conexão e tente novamente.",
+    quotaReplaceImage: "Importações de imagens",
+    quotaFullPage: "Capturas de página inteira",
+    quotaRemoveElement: "Remover elementos",
+    quotaOfLeft: "Restam {remaining} de {limit}",
+    quotaLimitReached: "Limite atingido",
+    quotaWindow:
+      "Quando qualquer cota acaba, todos os recursos avançados ficam pausados por 12 horas. Assine o Premium para uso ilimitado.",
+    quotaResumesIn: "Desbloqueia em {reset}",
+    supportSection: "Suporte",
+    supportReviewPrompt: "Gostando do Edit Page?",
+    supportFeedbackPrompt: "Encontrou um erro ou tem uma sugestão?",
+    leaveReview: "Avaliar",
+    sendFeedback: "Enviar feedback",
+  },
+  ja: {
+    documentTitle: "ダッシュボード · Edit Page",
+    title: "ダッシュボード",
+    subtitle: "Edit Page の動作をカスタマイズします。",
+    language: "言語",
+    languageHelp: "表示言語を選択するか、ブラウザーの言語に合わせます。",
+    followBrowser: "ブラウザーに合わせる",
+    screenshotSettings: "スクリーンショット",
+    saveMethod: "保存方法",
+    screenshotDestinationHelp: "スクリーンショットの保存先を選択します。",
+    saveToClipboard: "クリップボード",
+    saveAsDownload: "ダウンロード",
+    whenCapturingFullPage: "ページ全体を撮影するとき",
+    hideRepeatedElements: "重複要素を非表示",
+    hideRepeatedElementsHelp:
+      "ページ全体の撮影で重複する可能性があるフローティング要素、スクロールバーなどを非表示にします。",
+    premiumIntro: "Premium では、すべての機能と今後の拡張機能を無制限で利用できます。",
+    premiumLearn: "Premium の詳細",
+    premiumActivateLabel: "ライセンスキーをお持ちですか？",
+    premiumCodePlaceholder: "ライセンスキーを入力",
+    premiumActivate: "有効化",
+    premiumActivateEmpty: "ライセンスキーを入力してください。",
+    premiumActivating: "有効化中...",
+    premiumActivateSuccess: "Premium を有効化しました。",
+    premiumActivateInvalid: "ライセンスキーが無効か、有効期限が切れています。",
+    premiumActivateRevoked: "このライセンスキーは取り消されています。",
+    premiumActivateRefunded: "このライセンスキーは返金済みです。",
+    premiumActivateError: "有効化できませんでした。接続を確認して再試行してください。",
+    quotaReplaceImage: "画像のインポート",
+    quotaFullPage: "ページ全体の撮影",
+    quotaRemoveElement: "要素の削除",
+    quotaOfLeft: "{limit} 回中残り {remaining} 回",
+    quotaLimitReached: "上限に達しました",
+    quotaWindow: "いずれかの上限に達すると、すべての高度な機能が 12 時間停止します。Premium では無制限に利用できます。",
+    quotaResumesIn: "{reset}後に解除",
+    supportSection: "サポート",
+    supportReviewPrompt: "Edit Page を気に入っていただけましたか？",
+    supportFeedbackPrompt: "不具合やご意見がありますか？",
+    leaveReview: "レビューを書く",
+    sendFeedback: "フィードバックを送る",
+  },
   zh: {
     documentTitle: "控制面板 · Edit Page",
     title: "控制面板",
@@ -125,7 +252,14 @@ let currentLanguage = "en";
 const applyLanguage = async () => {
   currentLanguage = await resolveLanguage();
   const t = (key) => messages[currentLanguage][key] || messages.en[key] || key;
-  document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+  const documentLanguages = {
+    en: "en",
+    zh: "zh-CN",
+    es: "es",
+    pt: "pt-BR",
+    ja: "ja",
+  };
+  document.documentElement.lang = documentLanguages[currentLanguage] || "en";
   document.title = t("documentTitle");
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.textContent = t(element.dataset.i18n);
@@ -190,9 +324,9 @@ const formatResetIn = (resetsAt) => {
   const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return currentLanguage === "zh"
-    ? `${hours} 小时 ${minutes} 分钟`
-    : `${hours}h ${minutes}m`;
+  if (currentLanguage === "zh") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLanguage === "ja") return `${hours} 時間 ${minutes} 分`;
+  return `${hours} h ${minutes} min`;
 };
 
 const renderQuota = async () => {

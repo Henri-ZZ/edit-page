@@ -9,7 +9,7 @@ export const STORAGE_KEYS = {
 
 export const WEBSITE_BASE_URL = "https://editpage.henriz.dev";
 export const LANGUAGE_PREFERENCE_KEY = "languagePreference";
-export const SUPPORTED_LANGUAGES = ["en", "zh"];
+export const SUPPORTED_LANGUAGES = ["en", "zh", "es", "pt", "ja"];
 export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";

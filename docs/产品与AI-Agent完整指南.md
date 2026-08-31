@@ -37,6 +37,12 @@
 6. AI Agent 修改文案前必须先检查本节，不得为了表达自然、语言多样性或 SEO 自行替换 Canonical terminology。
 7. 新增语言时可以进行自然翻译，但同一种语言内必须始终使用同一个固定术语。
 
+当前支持的界面与商店语言为 English、简体中文、Español、Português (Brasil) 和日本語。产品名在所有语言中均保持 `Edit Page`。Premium 凭证在新增语言中的固定术语为：
+
+- Español: `clave de licencia`
+- Português (Brasil): `chave de licença`
+- 日本語: `ライセンスキー`
+
 ## 2. 激活码 / License Key
 
 激活码格式为四组字符，例如：
