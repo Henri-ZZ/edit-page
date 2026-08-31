@@ -1,6 +1,8 @@
 import {
+  FEATURE_USAGE_KEY,
   STORAGE_KEYS,
   WEBSITE_BASE_URL,
+  getQuotaState,
   getState,
   getHideRepeatedElements,
   getLanguagePreference,
@@ -14,10 +16,24 @@ import {
 } from "../shared.js";
 import { activateLicense } from "../license.js";
 
+/** Official website, tagged with the source so analytics can attribute visits from the settings page. */
+const CONTACT_URL = `${WEBSITE_BASE_URL}/contact?utm_source=dashboard`;
+const STORE_REVIEW_URLS = {
+  chrome:
+    "https://chromewebstore.google.com/detail/edit-page/edjbgblhciojhakodeflnpampekciifl/reviews?utm_source=dashboard",
+  edge: "https://microsoftedge.microsoft.com/addons/detail/edit-page/kgkkdobebceimgmhbiclahicofidniik?utm_source=dashboard",
+};
+const getBrowserPlatform = (userAgent = "") => {
+  if (/Edg\//i.test(userAgent)) return "edge";
+  return "chrome";
+};
+const getStoreReviewUrl = (userAgent = "") =>
+  STORE_REVIEW_URLS[getBrowserPlatform(userAgent)];
+
 const messages = {
   en: {
-    documentTitle: "Settings · Edit Page",
-    title: "Edit Page Settings",
+    documentTitle: "Dashboard · Edit Page",
+    title: "Dashboard",
     subtitle: "Customize how Edit Page works for you.",
     language: "Language",
     languageHelp: "Choose the interface language, or follow your browser.",
@@ -31,7 +47,8 @@ const messages = {
     hideRepeatedElements: "Hide repeated elements",
     hideRepeatedElementsHelp:
       "Hide floating elements, scrollbars, and other content that may repeat in full-page screenshots.",
-    premiumIntro: "Premium unlocks every feature in this extension.",
+    premiumIntro:
+      "Premium provides unlimited access to all features of this extension, and more enhancements to come.",
     premiumLearn: "Learn about Premium",
     premiumActivateLabel: "Already have a License Key?",
     premiumCodePlaceholder: "Enter License Key",
@@ -44,10 +61,23 @@ const messages = {
     premiumActivateRefunded: "This License Key has been refunded.",
     premiumActivateError:
       "Activation failed. Check your connection and try again.",
+    quotaReplaceImage: "Image replace",
+    quotaFullPage: "Full-page screenshot",
+    quotaRemoveElement: "Remove element",
+    quotaOfLeft: "{remaining} of {limit} left",
+    quotaLimitReached: "Limit reached",
+    quotaWindow:
+      "When any quota runs out, all advanced features pause for 12 hours. Upgrade to Premium for unlimited use.",
+    quotaResumesIn: "Unlocks in {reset}",
+    supportSection: "Support",
+    supportReviewPrompt: "Enjoying Edit Page?",
+    supportFeedbackPrompt: "Found a bug or have a suggestion?",
+    leaveReview: "Leave Review",
+    sendFeedback: "Send Feedback",
   },
   zh: {
-    documentTitle: "设置 · Edit Page",
-    title: "Edit Page 设置",
+    documentTitle: "控制面板 · Edit Page",
+    title: "控制面板",
     subtitle: "按你的习惯设置 Edit Page。",
     language: "语言",
     languageHelp: "选择界面语言，或者跟随浏览器。",
@@ -61,7 +91,7 @@ const messages = {
     hideRepeatedElements: "隐藏重复元素",
     hideRepeatedElementsHelp:
       "隐藏悬浮元素、滚动条等可能在整页截图中重复出现的内容。",
-    premiumIntro: "Premium 可解锁此扩展的全部功能。",
+    premiumIntro: "Premium 可无限使用本插件全部功能，以及后续更多增强功能。",
     premiumLearn: "了解 Premium",
     premiumActivateLabel: "已经有激活码？",
     premiumCodePlaceholder: "输入激活码",
@@ -73,6 +103,19 @@ const messages = {
     premiumActivateRevoked: "该激活码已被吊销。",
     premiumActivateRefunded: "该激活码已退款。",
     premiumActivateError: "激活失败，请检查网络后重试。",
+    quotaReplaceImage: "图片替换",
+    quotaFullPage: "整页截图",
+    quotaRemoveElement: "移除元素",
+    quotaOfLeft: "剩 {remaining} / {limit} 次",
+    quotaLimitReached: "已达上限",
+    quotaWindow:
+      "任一额度用尽后，全部高级功能暂停 12 小时；升级 Premium 可无限使用。",
+    quotaResumesIn: "{reset}后恢复",
+    supportSection: "支持",
+    supportReviewPrompt: "用得感觉还不错？",
+    supportFeedbackPrompt: "遇到 Bug 或有建议？",
+    leaveReview: "去评价",
+    sendFeedback: "提交反馈",
   },
 };
 
@@ -141,6 +184,61 @@ const applyPremiumState = () => {
   document.body.classList.toggle("is-premium", isPremium());
 };
 
+// Free-tier quota: show per-feature remaining uses in the Premium card.
+// OR logic: when any limit is hit, ALL advanced features pause for 12h.
+const formatResetIn = (resetsAt) => {
+  const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return currentLanguage === "zh"
+    ? `${hours} 小时 ${minutes} 分钟`
+    : `${hours}h ${minutes}m`;
+};
+
+const renderQuota = async () => {
+  const container = document.getElementById("premiumQuota");
+  if (!container || isPremium()) return;
+
+  const t = (key) => messages[currentLanguage][key] || messages.en[key] || key;
+  const state = await getQuotaState();
+
+  const cell = (feature) => {
+    // OR logic: once any feature is locked, every row reads as exhausted even
+    // if its own count is still below the cap (the feature is blocked).
+    if (state.limited || state[feature].remaining <= 0) {
+      return { text: t("quotaLimitReached"), exhausted: true };
+    }
+    return {
+      text: t("quotaOfLeft")
+        .replace("{remaining}", String(state[feature].remaining))
+        .replace("{limit}", String(state[feature].limit)),
+      exhausted: false,
+    };
+  };
+
+  const replaceCell = cell("replaceImage");
+  const fullPageCell = cell("fullPageScreenshot");
+  const removeCell = cell("removeElement");
+
+  container.innerHTML = `
+    <div class="premium-quota-row">
+      <span>${t("quotaReplaceImage")}</span>
+      <small${replaceCell.exhausted ? ' class="is-exhausted"' : ""}>${replaceCell.text}</small>
+    </div>
+    <div class="premium-quota-row">
+      <span>${t("quotaFullPage")}</span>
+      <small${fullPageCell.exhausted ? ' class="is-exhausted"' : ""}>${fullPageCell.text}</small>
+    </div>
+    <div class="premium-quota-row">
+      <span>${t("quotaRemoveElement")}</span>
+      <small${removeCell.exhausted ? ' class="is-exhausted"' : ""}>${removeCell.text}</small>
+    </div>
+    ${state.limited ? `<p class="premium-quota-resume">${t("quotaResumesIn").replace("{reset}", formatResetIn(state.lockedUntil))}</p>` : ""}
+    <p class="premium-quota-reset">${t("quotaWindow")}</p>
+  `;
+  container.hidden = false;
+};
+
 const showGraceExhaustedNotice = async () => {
   const license = await getState(STORAGE_KEYS.LICENSE);
   if (!license) return;
@@ -168,7 +266,7 @@ const setupPremiumCard = () => {
   const status = document.getElementById("premiumActivateStatus");
 
   learnButton.addEventListener("click", () => {
-    chrome.tabs.create({ url: WEBSITE_BASE_URL });
+    chrome.tabs.create({ url: `${WEBSITE_BASE_URL}?utm_source=dashboard` });
   });
 
   const activate = async () => {
@@ -229,9 +327,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  const hideRepeatedElements = document.getElementById(
-    "hideRepeatedElements",
-  );
+  const hideRepeatedElements = document.getElementById("hideRepeatedElements");
   hideRepeatedElements.checked = await getHideRepeatedElements();
   hideRepeatedElements.addEventListener("change", async () => {
     await setHideRepeatedElements(hideRepeatedElements.checked);
@@ -240,8 +336,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   languageSelect.addEventListener("change", async () => {
     await setLanguagePreference(languageSelect.value);
     await applyLanguage();
+    await renderQuota();
   });
 
   setupPremiumCard();
   await showGraceExhaustedNotice();
+
+  // Support: Leave Review goes to the current browser's store; Send Feedback
+  // opens the website Contact page (both tagged with utm_source=dashboard).
+  const leaveReviewBtn = document.getElementById("leaveReviewBtn");
+  if (leaveReviewBtn) {
+    leaveReviewBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: getStoreReviewUrl(navigator.userAgent || "") });
+    });
+  }
+  const sendFeedbackBtn = document.getElementById("sendFeedbackBtn");
+  if (sendFeedbackBtn) {
+    sendFeedbackBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: CONTACT_URL });
+    });
+  }
+  await renderQuota();
+
+  // Keep the countdown fresh; re-render whenever usage changes.
+  setInterval(renderQuota, 60 * 1000);
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes[FEATURE_USAGE_KEY]) renderQuota();
+  });
 });

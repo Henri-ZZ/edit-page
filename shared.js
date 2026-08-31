@@ -37,6 +37,89 @@ export async function setHideRepeatedElements(value) {
   return normalized;
 }
 
+// ───────────────────────── free usage quotas ─────────────────────────
+// Free tier: each advanced feature has its own allowance, but limits are
+// OR-combined — as soon as ANY feature reaches its limit, ALL advanced
+// features are locked for 12 hours starting at that moment. When the lock
+// expires, every counter resets to zero. Premium bypasses quotas entirely.
+
+export const FEATURE_USAGE_KEY = "featureUsage";
+export const QUOTA_LOCK_MS = 12 * 60 * 60 * 1000;
+export const FREE_FEATURE_LIMITS = {
+  replaceImage: 5, // image replace: upload and pasted URL both count
+  fullPageScreenshot: 3,
+  removeElement: 5, // counted per entering remove mode, not per removed element
+};
+
+const normalizeFeatureUsage = (raw) => {
+  // Build defaults from FREE_FEATURE_LIMITS so newly added features are
+  // always present even when older stored data lacks their entries.
+  const usage = { lockedUntil: 0 };
+  for (const feature of Object.keys(FREE_FEATURE_LIMITS)) {
+    usage[feature] = { count: 0 };
+  }
+  if (raw && typeof raw === "object") {
+    for (const feature of Object.keys(FREE_FEATURE_LIMITS)) {
+      const entry = raw[feature];
+      if (entry && Number.isFinite(entry.count) && entry.count > 0) {
+        usage[feature].count = Math.floor(entry.count);
+      }
+    }
+    if (Number.isFinite(raw.lockedUntil)) {
+      usage.lockedUntil = raw.lockedUntil;
+    }
+  }
+  // Lock expired → reset every counter (lazy, no timers needed).
+  if (usage.lockedUntil && usage.lockedUntil <= Date.now()) {
+    for (const feature of Object.keys(FREE_FEATURE_LIMITS)) {
+      usage[feature].count = 0;
+    }
+    usage.lockedUntil = 0;
+  }
+  return usage;
+};
+
+export async function getFeatureUsage() {
+  try {
+    const result = await chrome.storage.sync.get(FEATURE_USAGE_KEY);
+    return normalizeFeatureUsage(result[FEATURE_USAGE_KEY]);
+  } catch {
+    return normalizeFeatureUsage(null);
+  }
+}
+
+/**
+ * Free quota state:
+ * { limited, lockedUntil, replaceImage: {used, limit, remaining}, fullPageScreenshot: {...} }
+ */
+export async function getQuotaState() {
+  const usage = await getFeatureUsage();
+  const now = Date.now();
+  const limited = usage.lockedUntil > now;
+  const state = { limited, lockedUntil: usage.lockedUntil };
+  for (const feature of Object.keys(FREE_FEATURE_LIMITS)) {
+    const limit = FREE_FEATURE_LIMITS[feature];
+    const used = usage[feature].count;
+    state[feature] = { used, limit, remaining: Math.max(0, limit - used) };
+  }
+  return state;
+}
+
+/** Consume one use; locks ALL advanced features for 12h once any limit is hit. */
+export async function consumeFeatureUse(feature) {
+  if (!FREE_FEATURE_LIMITS[feature]) return getQuotaState();
+  const usage = await getFeatureUsage();
+  usage[feature].count += 1;
+  if (
+    !usage.lockedUntil &&
+    usage[feature].count >= FREE_FEATURE_LIMITS[feature]
+  ) {
+    usage.lockedUntil = Date.now() + QUOTA_LOCK_MS;
+  }
+  await chrome.storage.sync.set({ [FEATURE_USAGE_KEY]: usage });
+  return getQuotaState();
+}
+
 /** Empty preference follows the browser UI language. */
 export async function getLanguagePreference() {
   const result = await chrome.storage.sync.get(LANGUAGE_PREFERENCE_KEY);
@@ -50,7 +133,7 @@ export async function setLanguagePreference(value) {
   return normalized;
 }
 
-/** Preference > browser UI language > English. */
+/** Preference > browser UI language (2-letter prefix) > English. */
 export async function resolveLanguage() {
   const preference = await getLanguagePreference();
   if (preference) return preference;
@@ -62,9 +145,15 @@ export async function resolveLanguage() {
   if (typeof navigator !== "undefined") {
     candidates.push(...(navigator.languages || []), navigator.language);
   }
-  return candidates.some((value) => String(value || "").toLowerCase().startsWith("zh"))
-    ? "zh"
-    : "en";
+
+  // Match by 2-letter prefix only ("zh-CN"/"zh_CN" -> "zh", "pt-BR" -> "pt")
+  // and respect candidate order: a low-priority "zh" in the accept-language
+  // list must not override an English UI language.
+  for (const value of candidates) {
+    const prefix = String(value || "").toLowerCase().slice(0, 2);
+    if (SUPPORTED_LANGUAGES.includes(prefix)) return prefix;
+  }
+  return "en";
 }
 
 const DEFAULTS = {

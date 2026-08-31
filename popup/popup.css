@@ -5,8 +5,9 @@
 }
 
 body {
-  width: 320px;
-  min-height: 390px;
+  width: 384px;
+  /* Size to content (Chrome auto-sizes popups up to 800px), so expanded
+     sections never produce a scrollbar. */
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f8fafc;
@@ -619,14 +620,29 @@ button.tertiary.active:hover {
 }
 
 .popup-footer a {
-  color: #7b8496;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 16px;
+  color: #3b6ef5;
+  background: #f5f7ff;
+  border: 1px solid #d5defa;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
   text-decoration: none;
-  font-size: 13px;
+}
+
+.popup-footer a::after {
+  content: "›";
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .popup-footer a:hover {
-  color: #172033;
-  text-decoration: underline;
+  color: #2f5ad0;
+  background: #e9efff;
 }
 
 .header-right {
@@ -635,13 +651,19 @@ button.tertiary.active:hover {
   gap: 8px;
 }
 
-.trial-badge {
+.plan-badge {
   font-size: 11px;
   padding: 3px 8px;
-  background: #f39c12;
+  background: #6b7280;
   color: #fff;
   border-radius: 10px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.plan-badge.is-exhausted {
+  background: #f39c12;
+  cursor: pointer;
 }
 
 .paywall {

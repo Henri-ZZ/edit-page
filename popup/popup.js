@@ -2,20 +2,18 @@
 // settings page; the popup only refreshes license state for feature gating.
 import { maybeCheckIn } from "../license.js";
 import {
-  WEBSITE_BASE_URL,
+  consumeFeatureUse,
+  getQuotaState,
   getScreenshotDestination,
   isPremium,
   refreshPremiumState,
   resolveLanguage,
 } from "../shared.js";
 
-const TRIAL_CLICKS = 300000000;
-const TRIAL_API_BASES = [`${WEBSITE_BASE_URL}/api/trial`];
-
 const i18n = {
   en: {
     title: "Edit Page",
-    settings: "Settings",
+    settings: "Dashboard",
     subtitle: "Make this page editable",
     chooseTool: "Choose a tool",
     editText: "Edit text",
@@ -53,7 +51,8 @@ const i18n = {
     imageLoadTimeout: "The image took too long to respond. Check the URL or your network and try again.",
     imageReadFailed:
       "Image could not be read. The file may be damaged, the URL may be invalid, or the source website may block access.",
-    trialActionUnavailable: "Your trial has ended. Activate Premium to continue.",
+    freePlan: "Free version",
+    quotaExhaustedBadge: "Features limited",
     editModeFailed: "Text editing could not start on this page.",
     replaceModeFailed: "Replacement mode could not start on this page.",
     removeModeFailed: "Remove mode could not start on this page.",
@@ -73,15 +72,12 @@ const i18n = {
     done: "Done",
     changeCount: "{count} changes",
     editWarning: "Editing may affect page behavior. Refresh to fully restore.",
-    trialExpired: "Trial Expired",
-    trialExpiredDesc: "Your free trial has ended.",
     unlockNow: "Unlock Now",
     unlockLicense: "Unlock with License",
     licensePlaceholder: "Enter License Key",
     licenseFormatHint: "Format: ABCD-2345-EFGH-6789",
     licenseFormatError:
       "License Key format should look like ABCD-2345-EFGH-6789.",
-    inTrial: "In trial",
     activating: "Activating...",
     activatingHint: "Contacting activation server...",
     activationSuccess: "Activated successfully!",
@@ -100,10 +96,12 @@ const i18n = {
     cancel: "Cancel",
     purchasePageHint:
       "Complete your purchase on the opened page, then enter your License Key here.",
+    quotaExhaustedToast:
+      "Advanced feature limit reached. Unlocks in {reset}. Upgrade to Premium for unlimited use.",
   },
   zh: {
     title: "Edit Page",
-    settings: "设置",
+    settings: "控制面板",
     subtitle: "编辑当前页面",
     chooseTool: "选择工具",
     editText: "编辑文字",
@@ -138,7 +136,8 @@ const i18n = {
     imageUrlAccessRestricted: "浏览器无法访问该图片，来源网站可能限制跨域或图片外链访问。",
     imageLoadTimeout: "图片响应时间过长，请检查 URL 或网络后重试。",
     imageReadFailed: "图片读取失败。文件可能已损坏、URL 无效，或来源网站限制了访问。",
-    trialActionUnavailable: "试用已结束，激活 Premium 后可继续使用。",
+    freePlan: "免费版",
+    quotaExhaustedBadge: "部分功能限制",
     editModeFailed: "无法在当前页面启动编辑文字模式。",
     replaceModeFailed: "无法在当前页面启动替换图片模式。",
     removeModeFailed: "无法在当前页面启动移除元素模式。",
@@ -158,14 +157,11 @@ const i18n = {
     done: "完成",
     changeCount: "已修改 {count} 项",
     editWarning: "编辑可能影响页面功能，刷新网页可完全恢复。",
-    trialExpired: "试用已结束",
-    trialExpiredDesc: "您的免费试用已结束。",
     unlockNow: "立即解锁",
     unlockLicense: "使用激活码解锁",
     licensePlaceholder: "请输入激活码",
     licenseFormatHint: "格式：ABCD-2345-EFGH-6789",
     licenseFormatError: "激活码格式不正确，应类似 ABCD-2345-EFGH-6789。",
-    inTrial: "试用中",
     activating: "激活中...",
     activatingHint: "正在连接激活服务器...",
     activationSuccess: "激活成功！",
@@ -183,21 +179,29 @@ const i18n = {
     haveLicense: "已有激活码？",
     cancel: "取消",
     purchasePageHint: "请在打开的页面完成购买，然后回到这里输入激活码。",
+    quotaExhaustedToast:
+      "高级功能额度已用尽，{reset}后恢复。升级 Premium 可无限使用。",
     cannotEditThisPage: "无法编辑此页面",
     pageNotSupported: "此类页面不支持编辑",
   },
 };
 
 let currentLang = "en";
-let trialInfo = {
-  isUnlocked: false,
-  clicksLeft: TRIAL_CLICKS,
-  clicksUsed: 0,
-  isExpired: false,
-  isOffline: true,
-};
 
 const t = (key) => i18n[currentLang][key] || key;
+
+// Free-tier quota feedback: humanize the time until the 12h lock lifts.
+const formatResetIn = (resetsAt) => {
+  const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return currentLang === "zh"
+    ? `${hours} 小时 ${minutes} 分钟`
+    : `${hours}h ${minutes}m`;
+};
+
+const quotaExhaustedMessage = (state) =>
+  t("quotaExhaustedToast").replace("{reset}", formatResetIn(state.lockedUntil));
 
 document.addEventListener("DOMContentLoaded", async () => {
   const editBtn = document.getElementById("editBtn");
@@ -224,7 +228,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsBtn = document.getElementById("settingsBtn");
   const unsupportedPage = document.getElementById("unsupportedPage");
   const mainContent = document.getElementById("mainContent");
-  const trialBadge = document.getElementById("trialBadge");
+  const planBadge = document.getElementById("planBadge");
   const imageInput = document.getElementById("imageInput");
   const selectImageBtn = document.getElementById("selectImageBtn");
   const imageSourceOptions = document.getElementById("imageSourceOptions");
@@ -247,168 +251,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     () => "clipboard",
   );
 
-  const getStoredTrialState = async () => {
-    const syncResult = await chrome.storage.sync.get(["trialClicksUsed"]);
-    return {
-      trialClicksUsed:
-        typeof syncResult.trialClicksUsed === "number"
-          ? syncResult.trialClicksUsed
-          : null,
-    };
-  };
-
-  const postTrialApi = async (path, payload) => {
-    let lastError = null;
-
-    for (const baseUrl of TRIAL_API_BASES) {
-      try {
-        const response = await fetch(`${baseUrl}${path}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (response.ok) {
-          return { ok: true, data };
-        }
-
-        const looksLikeTrialApiResponse =
-          typeof data === "object" &&
-          data !== null &&
-          ("exhausted" in data ||
-            "found" in data ||
-            "error" in data ||
-            "ok" in data);
-
-        if (looksLikeTrialApiResponse) {
-          return { ok: false, data };
-        }
-
-        if (
-          response.status === 401 ||
-          response.status === 403 ||
-          response.status === 404 ||
-          response.status === 405 ||
-          response.status >= 500
-        ) {
-          lastError = data;
-          continue;
-        }
-
-        return { ok: false, data };
-      } catch (error) {
-        lastError = error;
-      }
-    }
-
-    throw lastError || new Error("Network error");
-  };
-
-  const sha256Hex = async (value) => {
-    const input = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest("SHA-256", input);
-    return Array.from(new Uint8Array(digest))
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-  };
-
-  const getTrialFingerprintPayload = async () => {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-    const screenInfo = `${screen.width || 0}x${screen.height || 0}x${screen.colorDepth || 0}`;
-    const platform = [
-      navigator.platform || "",
-      navigator.vendor || "",
-      String(navigator.hardwareConcurrency || 0),
-      String(navigator.deviceMemory || 0),
-      navigator.userAgentData?.platform || "",
-    ].join("|");
-    const rawFingerprint = [
-      navigator.userAgent || "",
-      navigator.language || "",
-      timeZone,
-      screenInfo,
-      platform,
-    ].join("||");
-
-    return {
-      fingerprintHash: await sha256Hex(rawFingerprint),
-      language: navigator.language || null,
-      platform,
-      screen: screenInfo,
-      timeZone: timeZone || null,
-      userAgent: navigator.userAgent || null,
-    };
-  };
-
-  const markTrialExhaustedOnBackend = async () => {
-    try {
-      const payload = await getTrialFingerprintPayload();
-      await postTrialApi("/exhaust", payload);
-    } catch (error) {}
-  };
-
-  const restoreTrialExhaustedState = async () => {
-    try {
-      const payload = await getTrialFingerprintPayload();
-      const response = await postTrialApi("/status", payload);
-
-      if (response.ok && response.data.exhausted) {
-        await chrome.storage.sync.set({ trialClicksUsed: TRIAL_CLICKS });
-        return true;
-      }
-    } catch (error) {}
-
-    return false;
-  };
-
-  const getTrialInfo = async () => {
-    try {
-      await refreshPremiumState();
-      if (isPremium()) {
-        return { isUnlocked: true, clicksLeft: null, isOffline: false };
-      }
-
-      const result = await getStoredTrialState();
-      const clicksUsed = result.trialClicksUsed ?? 0;
-      const clicksLeft = TRIAL_CLICKS - clicksUsed;
-
-      return {
-        isUnlocked: false,
-        clicksLeft,
-        clicksUsed,
-        isExpired: clicksLeft <= 0,
-        isOffline: false,
-      };
-    } catch (e) {
-      return {
-        isUnlocked: false,
-        clicksLeft: TRIAL_CLICKS,
-        clicksUsed: 0,
-        isExpired: false,
-        isOffline: false,
-      };
-    }
-  };
-
-  const incrementTrialClick = async () => {
-    try {
-      await refreshPremiumState();
-      if (!isPremium()) {
-        const result = await getStoredTrialState();
-        const clicksUsed = (result.trialClicksUsed ?? 0) + 1;
-        await chrome.storage.sync.set({ trialClicksUsed: clicksUsed });
-        if (clicksUsed >= TRIAL_CLICKS) {
-          await markTrialExhaustedOnBackend();
-        }
-      }
-    } catch (e) {}
-    return await getTrialInfo();
-  };
-
   const refreshLicenseStatus = async () => {
     await refreshPremiumState();
     if (isPremium()) {
@@ -422,26 +264,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     return isPremium() || result.ok === true;
   };
 
-  const updateTrialUI = (info) => {
-    trialInfo = info;
+  // Header badge: premium hides it; free shows "Free version", or
+  // "Advanced feature limit reached" (click opens Options) when any quota is out.
+  const updatePlanUI = async () => {
+    document.body.classList.toggle("is-premium", isPremium());
 
-    if (info.isUnlocked) {
-      mainContent.classList.remove("hidden");
-      trialBadge.style.display = "none";
-      return;
-    }
-
-    if (info.isExpired) {
-      mainContent.classList.remove("hidden");
-      trialBadge.textContent = t("trialExpired");
-      trialBadge.style.display = "inline-block";
+    if (isPremium()) {
+      planBadge.style.display = "none";
+      planBadge.onclick = null;
+      planBadge.classList.remove("is-exhausted");
       return;
     }
 
     mainContent.classList.remove("hidden");
 
-    trialBadge.textContent = t("inTrial");
-    trialBadge.style.display = "inline-block";
+    const state = await getQuotaState();
+
+    planBadge.textContent = state.limited
+      ? t("quotaExhaustedBadge")
+      : t("freePlan");
+    planBadge.classList.toggle("is-exhausted", state.limited);
+    planBadge.onclick = state.limited
+      ? () => chrome.runtime.openOptionsPage()
+      : null;
+    planBadge.style.display = "inline-block";
   };
 
   const applyLanguage = () => {
@@ -478,11 +324,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusDiv.className = "status";
       statusTimer = null;
     }, 4000);
-  };
-
-  const showTrialExpiredToast = (info) => {
-    updateTrialUI(info);
-    showStatus(t("trialActionUnavailable"), false);
   };
 
   const updateButton = (isEditing) => {
@@ -1091,9 +932,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       captureProgressBar.style.width = "100%";
       captureProgressText.textContent = successMessage;
       showStatus(successMessage, true);
+      return true;
     } catch (error) {
       console.error("Full-page screenshot failed:", error);
       showStatus(t("statusScreenshotFailed") + error.message, false);
+      return false;
     } finally {
       fullPageScreenshotBtn.disabled = false;
       visibleScreenshotBtn.disabled = false;
@@ -1536,408 +1379,386 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await refreshLicenseStatus();
-  document.body.classList.toggle("is-premium", isPremium());
-
-  const initialStoredState = await getStoredTrialState();
-  if (!isPremium() && initialStoredState.trialClicksUsed == null) {
-    await restoreTrialExhaustedState();
-  }
-
-  trialInfo = await getTrialInfo();
 
   clearTimeout(startupStatusTimer);
 
-  updateTrialUI(trialInfo);
+  await updatePlanUI();
   statusDiv.classList.remove("visible");
 
-  if (!trialInfo.isExpired || trialInfo.isUnlocked) {
-    const isEditing = await getIsEditing();
-    updateButton(isEditing);
+  const isEditing = await getIsEditing();
+  updateButton(isEditing);
 
-    const savedImage = await loadImageData();
-    if (savedImage) {
-      selectedImageData = savedImage;
-      previewImg.src = selectedImageData;
-      imagePreview.classList.remove("hidden");
-      replaceImageBtn.classList.remove("hidden");
+  const savedImage = await loadImageData();
+  if (savedImage) {
+    selectedImageData = savedImage;
+    previewImg.src = selectedImageData;
+    imagePreview.classList.remove("hidden");
+    replaceImageBtn.classList.remove("hidden");
+  }
+
+  const replaceModeActive = await checkReplaceModeActive();
+  if (replaceModeActive && selectedImageData) {
+    isReplaceMode = true;
+    updateReplaceButton();
+  }
+
+  const removeModeActive = await checkRemoveModeActive();
+  if (removeModeActive) {
+    isRemoveMode = true;
+    updateRemoveButton();
+  }
+
+  editBtn.addEventListener("click", async () => {
+    if (isEditModeTransitioning) return;
+    isEditModeTransitioning = true;
+    editBtn.disabled = true;
+    editBtn.setAttribute("aria-busy", "true");
+    try {
+      const willEnableEdit = !(await getIsEditing());
+      if (willEnableEdit) {
+        await ensureHistoryManager();
+        if (isReplaceMode) {
+          await stopReplaceMode();
+          isReplaceMode = false;
+          updateReplaceButton();
+        }
+        if (isRemoveMode) {
+          await stopRemoveMode();
+          isRemoveMode = false;
+          updateRemoveButton();
+        }
+      }
+      await toggleEdit();
+      const newIsEditing = await getIsEditing();
+      updateButton(newIsEditing);
+      if (!newIsEditing) {
+        await finishEditingSession();
+      }
+    } catch (error) {
+      console.error("Failed to toggle text editing mode", error);
+      showStatus(t("editModeFailed"), false);
+    } finally {
+      isEditModeTransitioning = false;
+      editBtn.disabled = false;
+      editBtn.removeAttribute("aria-busy");
     }
+  });
 
-    const replaceModeActive = await checkReplaceModeActive();
-    if (replaceModeActive && selectedImageData) {
-      isReplaceMode = true;
+  const prepareForScreenshot = async () => {
+    await stopEditMode();
+    if (isReplaceMode) {
+      isReplaceMode = false;
+      await stopReplaceMode();
       updateReplaceButton();
     }
-
-    const removeModeActive = await checkRemoveModeActive();
-    if (removeModeActive) {
-      isRemoveMode = true;
+    if (isRemoveMode) {
+      isRemoveMode = false;
+      await stopRemoveMode();
       updateRemoveButton();
     }
+    await finishEditingSession();
+  };
 
-    editBtn.addEventListener("click", async () => {
-      if (isEditModeTransitioning) return;
-      isEditModeTransitioning = true;
-      editBtn.disabled = true;
-      editBtn.setAttribute("aria-busy", "true");
-      try {
-        const currentTrialInfo = await getTrialInfo();
-        if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-          showTrialExpiredToast(currentTrialInfo);
-          return;
-        }
-        trialInfo = await incrementTrialClick();
-        const willEnableEdit = !(await getIsEditing());
-        if (willEnableEdit) {
-          await ensureHistoryManager();
-          if (isReplaceMode) {
-            await stopReplaceMode();
-            isReplaceMode = false;
-            updateReplaceButton();
-          }
-          if (isRemoveMode) {
-            await stopRemoveMode();
-            isRemoveMode = false;
-            updateRemoveButton();
-          }
-        }
-        await toggleEdit();
-        const newIsEditing = await getIsEditing();
-        updateButton(newIsEditing);
-        if (!newIsEditing) {
-          await finishEditingSession();
-        }
-        updateTrialUI(trialInfo);
-      } catch (error) {
-        console.error("Failed to toggle text editing mode", error);
-        showStatus(t("editModeFailed"), false);
-      } finally {
-        isEditModeTransitioning = false;
-        editBtn.disabled = false;
-        editBtn.removeAttribute("aria-busy");
-      }
-    });
+  screenshotBtn.addEventListener("click", () => {
+    const expanded = screenshotBtn.getAttribute("aria-expanded") === "true";
+    screenshotBtn.setAttribute("aria-expanded", String(!expanded));
+    screenshotOptions.classList.toggle("hidden", expanded);
+  });
 
-    const prepareForScreenshot = async () => {
-      await stopEditMode();
-      if (isReplaceMode) {
-        isReplaceMode = false;
-        await stopReplaceMode();
-        updateReplaceButton();
-      }
-      if (isRemoveMode) {
-        isRemoveMode = false;
-        await stopRemoveMode();
-        updateRemoveButton();
-      }
-      await finishEditingSession();
-    };
+  visibleScreenshotBtn.addEventListener("click", async () => {
+    await prepareForScreenshot();
+    await takeVisibleScreenshot();
+  });
 
-    screenshotBtn.addEventListener("click", () => {
-      const expanded = screenshotBtn.getAttribute("aria-expanded") === "true";
-      screenshotBtn.setAttribute("aria-expanded", String(!expanded));
-      screenshotOptions.classList.toggle("hidden", expanded);
-    });
-
-    visibleScreenshotBtn.addEventListener("click", async () => {
-      const currentTrialInfo = await getTrialInfo();
-      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-        showTrialExpiredToast(currentTrialInfo);
+  fullPageScreenshotBtn.addEventListener("click", async () => {
+    let billUse = false;
+    if (!isPremium()) {
+      const state = await getQuotaState();
+      if (state.limited) {
+        showStatus(quotaExhaustedMessage(state), false);
         return;
       }
-      trialInfo = await incrementTrialClick();
-      await prepareForScreenshot();
-      await takeVisibleScreenshot();
-      updateTrialUI(trialInfo);
-    });
+      billUse = true;
+    }
+    await prepareForScreenshot();
+    const captured = await takeFullPageScreenshot();
+    // Only bill the free allowance for completed captures.
+    if (captured && billUse) await consumeFeatureUse("fullPageScreenshot");
+    await updatePlanUI();
+  });
 
-    fullPageScreenshotBtn.addEventListener("click", async () => {
-      const currentTrialInfo = await getTrialInfo();
-      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-        showTrialExpiredToast(currentTrialInfo);
+  const setSelectedImage = async (imageSource) => {
+    // Advanced-feature quota: upload and pasted URL both count as one use.
+    let billUse = false;
+    if (!isPremium()) {
+      const state = await getQuotaState();
+      if (state.limited) {
+        showStatus(quotaExhaustedMessage(state), false);
         return;
       }
-      trialInfo = await incrementTrialClick();
-      await prepareForScreenshot();
-      await takeFullPageScreenshot();
-      updateTrialUI(trialInfo);
-    });
+      billUse = true;
+    }
+    selectedImageData = imageSource;
+    previewImg.src = imageSource;
+    imagePreview.classList.remove("hidden");
+    replaceImageBtn.classList.remove("hidden");
+    imageSourceOptions.classList.add("hidden");
+    selectImageBtn.setAttribute("aria-expanded", "false");
+    await saveImageData(imageSource);
+    if (billUse) await consumeFeatureUse("replaceImage");
+    showStatus(t("imageSelected"), true);
+  };
 
-    const setSelectedImage = async (imageSource) => {
-      selectedImageData = imageSource;
-      previewImg.src = imageSource;
-      imagePreview.classList.remove("hidden");
-      replaceImageBtn.classList.remove("hidden");
-      imageSourceOptions.classList.add("hidden");
-      selectImageBtn.setAttribute("aria-expanded", "false");
-      await saveImageData(imageSource);
-      showStatus(t("imageSelected"), true);
-    };
+  const getValidImageUrl = (value) => {
+    try {
+      const url = new URL(value.trim());
+      return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+    } catch {
+      return null;
+    }
+  };
 
-    const getValidImageUrl = (value) => {
-      try {
-        const url = new URL(value.trim());
-        return ["http:", "https:"].includes(url.protocol) ? url.href : null;
-      } catch {
-        return null;
-      }
-    };
-
-    const testImageLoad = (source, timeoutMs = 10000) =>
-      new Promise((resolve) => {
-        const image = new Image();
-        let settled = false;
-        const finish = (result) => {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timer);
-          image.onload = null;
-          image.onerror = null;
-          resolve(result);
-        };
-        const timer = setTimeout(
-          () => finish({ ok: false, reason: "timeout" }),
-          timeoutMs,
-        );
-        image.onload = () =>
-          finish({
-            ok: image.naturalWidth > 0 && image.naturalHeight > 0,
-            reason: "decode",
-          });
-        image.onerror = () => finish({ ok: false, reason: "load" });
-        image.src = source;
-      });
-
-    const inspectImageResponse = async (url, signal) => {
-      try {
-        const response = await fetch(url, {
-          method: "HEAD",
-          cache: "no-store",
-          signal,
+  const testImageLoad = (source, timeoutMs = 10000) =>
+    new Promise((resolve) => {
+      const image = new Image();
+      let settled = false;
+      const finish = (result) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        image.onload = null;
+        image.onerror = null;
+        resolve(result);
+      };
+      const timer = setTimeout(
+        () => finish({ ok: false, reason: "timeout" }),
+        timeoutMs,
+      );
+      image.onload = () =>
+        finish({
+          ok: image.naturalWidth > 0 && image.naturalHeight > 0,
+          reason: "decode",
         });
-        return {
-          kind: "response",
-          status: response.status,
-          ok: response.ok,
-          contentType: response.headers.get("content-type") || "",
-        };
-      } catch (error) {
-        return {
-          kind: error.name === "AbortError" ? "timeout" : "network",
-        };
-      }
-    };
+      image.onerror = () => finish({ ok: false, reason: "load" });
+      image.src = source;
+    });
 
-    const validateRemoteImage = async (url) => {
-      const controller = new AbortController();
-      const responseTimer = setTimeout(() => controller.abort(), 6000);
-      const responsePromise = inspectImageResponse(url, controller.signal);
-      const loadResult = await testImageLoad(url);
+  const inspectImageResponse = async (url, signal) => {
+    try {
+      const response = await fetch(url, {
+        method: "HEAD",
+        cache: "no-store",
+        signal,
+      });
+      return {
+        kind: "response",
+        status: response.status,
+        ok: response.ok,
+        contentType: response.headers.get("content-type") || "",
+      };
+    } catch (error) {
+      return {
+        kind: error.name === "AbortError" ? "timeout" : "network",
+      };
+    }
+  };
 
-      if (loadResult.ok) {
-        clearTimeout(responseTimer);
-        controller.abort();
-        return null;
-      }
+  const validateRemoteImage = async (url) => {
+    const controller = new AbortController();
+    const responseTimer = setTimeout(() => controller.abort(), 6000);
+    const responsePromise = inspectImageResponse(url, controller.signal);
+    const loadResult = await testImageLoad(url);
 
-      const responseInfo = await responsePromise;
+    if (loadResult.ok) {
       clearTimeout(responseTimer);
+      controller.abort();
+      return null;
+    }
 
-      if (loadResult.reason === "timeout") return t("imageLoadTimeout");
-      if (responseInfo.kind === "network")
-        return t("imageUrlAccessRestricted");
-      if (responseInfo.kind === "timeout") return t("imageLoadTimeout");
-      if (responseInfo.status === 401 || responseInfo.status === 403)
-        return t("imageUrlDenied");
-      if (responseInfo.status === 404) return t("imageUrlNotFound");
-      if (!responseInfo.ok) {
-        if (responseInfo.status === 405) return t("imageReadFailed");
-        return t("imageUrlHttpError").replace(
-          "{status}",
-          String(responseInfo.status),
-        );
-      }
-      if (
-        responseInfo.contentType &&
-        !responseInfo.contentType.toLowerCase().startsWith("image/") &&
-        !responseInfo.contentType.toLowerCase().includes("octet-stream")
-      ) {
-        return t("imageUrlNotImage");
-      }
-      return t("imageReadFailed");
-    };
+    const responseInfo = await responsePromise;
+    clearTimeout(responseTimer);
 
-    selectImageBtn.addEventListener("click", async () => {
-      const currentTrialInfo = await getTrialInfo();
-      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-        showTrialExpiredToast(currentTrialInfo);
-        return;
-      }
-      const isExpanded =
-        selectImageBtn.getAttribute("aria-expanded") === "true";
-      selectImageBtn.setAttribute("aria-expanded", String(!isExpanded));
-      imageSourceOptions.classList.toggle("hidden", isExpanded);
-    });
+    if (loadResult.reason === "timeout") return t("imageLoadTimeout");
+    if (responseInfo.kind === "network")
+      return t("imageUrlAccessRestricted");
+    if (responseInfo.kind === "timeout") return t("imageLoadTimeout");
+    if (responseInfo.status === 401 || responseInfo.status === 403)
+      return t("imageUrlDenied");
+    if (responseInfo.status === 404) return t("imageUrlNotFound");
+    if (!responseInfo.ok) {
+      if (responseInfo.status === 405) return t("imageReadFailed");
+      return t("imageUrlHttpError").replace(
+        "{status}",
+        String(responseInfo.status),
+      );
+    }
+    if (
+      responseInfo.contentType &&
+      !responseInfo.contentType.toLowerCase().startsWith("image/") &&
+      !responseInfo.contentType.toLowerCase().includes("octet-stream")
+    ) {
+      return t("imageUrlNotImage");
+    }
+    return t("imageReadFailed");
+  };
 
-    uploadImageBtn.addEventListener("click", () => {
-      imageInput.click();
-    });
+  selectImageBtn.addEventListener("click", async () => {
+    const isExpanded =
+      selectImageBtn.getAttribute("aria-expanded") === "true";
+    selectImageBtn.setAttribute("aria-expanded", String(!isExpanded));
+    imageSourceOptions.classList.toggle("hidden", isExpanded);
+  });
 
-    imageInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageSource = event.target.result;
-          const loadResult = await testImageLoad(imageSource);
-          if (!loadResult.ok) {
-            showStatus(t("imageReadFailed"), false);
-            imageInput.value = "";
-            return;
-          }
-          await setSelectedImage(imageSource);
-        };
-        reader.onerror = () => {
+  uploadImageBtn.addEventListener("click", () => {
+    imageInput.click();
+  });
+
+  imageInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const imageSource = event.target.result;
+        const loadResult = await testImageLoad(imageSource);
+        if (!loadResult.ok) {
           showStatus(t("imageReadFailed"), false);
           imageInput.value = "";
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    useImageUrlBtn.addEventListener("click", async () => {
-      const imageUrl = getValidImageUrl(imageUrlInput.value);
-      if (!imageUrl) {
-        imageUrlInput.setAttribute("aria-invalid", "true");
-        showStatus(t("invalidImageUrl"), false);
-        imageUrlInput.focus();
-        return;
-      }
-      useImageUrlBtn.disabled = true;
-      useImageUrlBtn.setAttribute("aria-busy", "true");
-      useImageUrlBtn.textContent = t("checkingImageUrl");
-      try {
-        const validationError = await validateRemoteImage(imageUrl);
-        if (validationError) {
-          imageUrlInput.setAttribute("aria-invalid", "true");
-          showStatus(validationError, false);
           return;
         }
-        imageUrlInput.removeAttribute("aria-invalid");
-        await setSelectedImage(imageUrl);
-      } catch (error) {
-        console.error("Failed to validate image URL", error);
+        await setSelectedImage(imageSource);
+      };
+      reader.onerror = () => {
         showStatus(t("imageReadFailed"), false);
-      } finally {
-        useImageUrlBtn.disabled = false;
-        useImageUrlBtn.removeAttribute("aria-busy");
-        useImageUrlBtn.textContent = t("useImageUrl");
-      }
-    });
+        imageInput.value = "";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
-    imageUrlInput.addEventListener("input", () => {
+  useImageUrlBtn.addEventListener("click", async () => {
+    const imageUrl = getValidImageUrl(imageUrlInput.value);
+    if (!imageUrl) {
+      imageUrlInput.setAttribute("aria-invalid", "true");
+      showStatus(t("invalidImageUrl"), false);
+      imageUrlInput.focus();
+      return;
+    }
+    useImageUrlBtn.disabled = true;
+    useImageUrlBtn.setAttribute("aria-busy", "true");
+    useImageUrlBtn.textContent = t("checkingImageUrl");
+    try {
+      const validationError = await validateRemoteImage(imageUrl);
+      if (validationError) {
+        imageUrlInput.setAttribute("aria-invalid", "true");
+        showStatus(validationError, false);
+        return;
+      }
       imageUrlInput.removeAttribute("aria-invalid");
-    });
+      await setSelectedImage(imageUrl);
+    } catch (error) {
+      console.error("Failed to validate image URL", error);
+      showStatus(t("imageReadFailed"), false);
+    } finally {
+      useImageUrlBtn.disabled = false;
+      useImageUrlBtn.removeAttribute("aria-busy");
+      useImageUrlBtn.textContent = t("useImageUrl");
+    }
+  });
 
-    imageUrlInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        useImageUrlBtn.click();
-      }
-    });
+  imageUrlInput.addEventListener("input", () => {
+    imageUrlInput.removeAttribute("aria-invalid");
+  });
 
-    clearImageBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await clearImage();
-      imageInput.value = "";
-    });
+  imageUrlInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      useImageUrlBtn.click();
+    }
+  });
 
-    replaceImageBtn.addEventListener("click", async () => {
-      if (isReplaceModeTransitioning) return;
-      const currentTrialInfo = await getTrialInfo();
-      if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-        showTrialExpiredToast(currentTrialInfo);
-        return;
-      }
-      if (!selectedImageData) {
-        showStatus(t("pleaseSelectImageFirst"), false);
-        return;
-      }
-      isReplaceModeTransitioning = true;
-      replaceImageBtn.disabled = true;
-      replaceImageBtn.setAttribute("aria-busy", "true");
-      const nextReplaceMode = !isReplaceMode;
-      try {
-        trialInfo = await incrementTrialClick();
-        if (nextReplaceMode) {
-          await ensureHistoryManager();
-          await stopEditMode();
-          if (isRemoveMode) {
-            await stopRemoveMode();
-            isRemoveMode = false;
-            updateRemoveButton();
-          }
-          await startReplaceMode();
-        } else {
-          await stopReplaceMode();
-          await finishEditingSession();
-        }
-        isReplaceMode = nextReplaceMode;
-        updateReplaceButton();
-        updateTrialUI(trialInfo);
-      } catch (error) {
-        console.error("Failed to toggle replacement mode", error);
-        showStatus(t("replaceModeFailed"), false);
-      } finally {
-        isReplaceModeTransitioning = false;
-        replaceImageBtn.disabled = false;
-        replaceImageBtn.removeAttribute("aria-busy");
-      }
-    });
+  clearImageBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await clearImage();
+    imageInput.value = "";
+  });
 
-    removeBtn.addEventListener("click", async () => {
-      if (isRemoveModeTransitioning) return;
-      isRemoveModeTransitioning = true;
-      removeBtn.disabled = true;
-      removeBtn.setAttribute("aria-busy", "true");
-      try {
-        const currentTrialInfo = await getTrialInfo();
-        if (currentTrialInfo.isExpired && !currentTrialInfo.isUnlocked) {
-          showTrialExpiredToast(currentTrialInfo);
-          return;
-        }
-
-        trialInfo = await incrementTrialClick();
-        const nextRemoveMode = !isRemoveMode;
-        if (nextRemoveMode) {
-          await ensureHistoryManager();
-          await stopEditMode();
-          if (isReplaceMode) {
-            await stopReplaceMode();
-            isReplaceMode = false;
-            updateReplaceButton();
-          }
-          await startRemoveMode();
-        } else {
+  replaceImageBtn.addEventListener("click", async () => {
+    if (isReplaceModeTransitioning) return;
+    if (!selectedImageData) {
+      showStatus(t("pleaseSelectImageFirst"), false);
+      return;
+    }
+    isReplaceModeTransitioning = true;
+    replaceImageBtn.disabled = true;
+    replaceImageBtn.setAttribute("aria-busy", "true");
+    const nextReplaceMode = !isReplaceMode;
+    try {
+      if (nextReplaceMode) {
+        await ensureHistoryManager();
+        await stopEditMode();
+        if (isRemoveMode) {
           await stopRemoveMode();
-          await finishEditingSession();
+          isRemoveMode = false;
+          updateRemoveButton();
         }
-        isRemoveMode = nextRemoveMode;
-        updateRemoveButton();
-        updateTrialUI(trialInfo);
-      } catch (error) {
-        console.error("Failed to toggle remove mode", error);
-        showStatus(t("removeModeFailed"), false);
-      } finally {
-        isRemoveModeTransitioning = false;
-        removeBtn.disabled = false;
-        removeBtn.removeAttribute("aria-busy");
+        await startReplaceMode();
+      } else {
+        await stopReplaceMode();
+        await finishEditingSession();
       }
-    });
-  } else {
-    mainContent.addEventListener("click", (event) => {
-      if (event.target.closest("button")) {
-        showTrialExpiredToast(trialInfo);
+      isReplaceMode = nextReplaceMode;
+      updateReplaceButton();
+    } catch (error) {
+      console.error("Failed to toggle replacement mode", error);
+      showStatus(t("replaceModeFailed"), false);
+    } finally {
+      isReplaceModeTransitioning = false;
+      replaceImageBtn.disabled = false;
+      replaceImageBtn.removeAttribute("aria-busy");
+    }
+  });
+
+  removeBtn.addEventListener("click", async () => {
+    if (isRemoveModeTransitioning) return;
+    const nextRemoveMode = !isRemoveMode;
+    // Advanced-feature quota: entering remove mode consumes one use.
+    let billUse = false;
+    if (nextRemoveMode && !isPremium()) {
+      const state = await getQuotaState();
+      if (state.limited) {
+        showStatus(quotaExhaustedMessage(state), false);
+        return;
       }
-    });
-  }
+      billUse = true;
+    }
+    isRemoveModeTransitioning = true;
+    removeBtn.disabled = true;
+    removeBtn.setAttribute("aria-busy", "true");
+    try {
+      if (nextRemoveMode) {
+        await ensureHistoryManager();
+        await stopEditMode();
+        if (isReplaceMode) {
+          await stopReplaceMode();
+          isReplaceMode = false;
+          updateReplaceButton();
+        }
+        await startRemoveMode();
+      } else {
+        await stopRemoveMode();
+        await finishEditingSession();
+      }
+      isRemoveMode = nextRemoveMode;
+      updateRemoveButton();
+      if (billUse) await consumeFeatureUse("removeElement");
+      await updatePlanUI();
+    } catch (error) {
+      console.error("Failed to toggle remove mode", error);
+      showStatus(t("removeModeFailed"), false);
+    } finally {
+      isRemoveModeTransitioning = false;
+      removeBtn.disabled = false;
+      removeBtn.removeAttribute("aria-busy");
+    }
+  });
 });
