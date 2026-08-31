@@ -112,6 +112,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Periodic Premium validation sends the stored License Key and hashed device fingerprint to `https://licentra.henriz.dev`.
 - The device fingerprint is derived from operating-system type, CPU architecture, logical processor count, and reported device memory. Screen dimensions, browsing history, webpage content, and screenshot content are not included.
 - Clicking website, review, or feedback links opens the relevant external page. `utm_source=dashboard` may be included in the opened URL for source attribution.
+- On first installation, Edit Page opens `https://editpage.henriz.dev/getting-started` with the browser type in the query string. After uninstalling, Chrome opens `https://editpage.henriz.dev/goodbye`. These lifecycle links do not include webpage content, license information, or locally stored usage data.
 
 ### Data not collected by the extension
 
@@ -129,6 +130,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Added optional cleanup of repeated floating elements and scrollbars in full-page screenshots.
 - Added language, screenshot, Premium activation, usage, and support settings.
 - Added Spanish, Brazilian Portuguese, and Japanese interface and store localization.
+- Added first-install Getting Started and post-uninstall Goodbye links.
 
 ## Publishing Readiness
 

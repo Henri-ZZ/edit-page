@@ -8,11 +8,26 @@ export const STORAGE_KEYS = {
 };
 
 export const WEBSITE_BASE_URL = "https://editpage.henriz.dev";
+export const UNINSTALL_URL = `${WEBSITE_BASE_URL}/goodbye`;
+export const GETTING_STARTED_URL = `${WEBSITE_BASE_URL}/getting-started`;
 export const LANGUAGE_PREFERENCE_KEY = "languagePreference";
 export const SUPPORTED_LANGUAGES = ["en", "zh", "es", "pt", "ja"];
 export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
+
+export function getBrowserPlatform(userAgent = "") {
+  const firefoxApi = typeof globalThis.browser !== "undefined" &&
+    globalThis.browser?.runtime?.getBrowserInfo;
+  if (firefoxApi || /Firefox\//i.test(userAgent)) return "firefox";
+  if (/Edg\//i.test(userAgent)) return "edge";
+  return "chrome";
+}
+
+export function getGettingStartedUrl(userAgent = "") {
+  const browser = getBrowserPlatform(userAgent);
+  return `${GETTING_STARTED_URL}?installed=1&browser=${browser}`;
+}
 
 export async function getScreenshotDestination() {
   const result = await chrome.storage.sync.get(SCREENSHOT_DESTINATION_KEY);

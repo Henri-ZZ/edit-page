@@ -67,13 +67,12 @@
 输出目录：
 
 ```text
-/Users/conghua/code/edit-page-release/
+/Users/conghua/code/edit-page/dist/
 ```
 
 生成的文件：
 
-- `edit-page-chrome-web-store-v版本号.zip`
-- `edit-page-chrome-web-store.zip`
+- `editpage-版本号.zip`（例如 `editpage-2.0.zip`）
 
 每次准备重新上架或更新时，建议顺序：
 

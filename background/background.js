@@ -7,10 +7,17 @@
 
 import {
   STORAGE_KEYS,
+  UNINSTALL_URL,
+  getGettingStartedUrl,
   getHideRepeatedElements,
   refreshPremiumState
 } from '../shared.js';
 import { maybeCheckIn } from '../license.js';
+
+// Chrome opens this page only after the extension has been uninstalled.
+chrome.runtime.setUninstallURL(UNINSTALL_URL, () => {
+  void chrome.runtime.lastError;
+});
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
@@ -538,6 +545,16 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 chrome.runtime.onStartup.addListener(() => {
   initializeLicenseState().catch(() => {});
+});
+
+chrome.runtime.onInstalled.addListener((details) => {
+  // Updates and re-enables must not reopen the onboarding page.
+  if (details.reason !== 'install') return;
+
+  const userAgent = globalThis.navigator?.userAgent || '';
+  chrome.tabs.create({ url: getGettingStartedUrl(userAgent) }, () => {
+    void chrome.runtime.lastError;
+  });
 });
 
 // Service-worker module load also covers extension re-enable, where Chrome
