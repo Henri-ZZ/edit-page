@@ -24,6 +24,60 @@ const withTimeout = (promise, milliseconds, message) => Promise.race([
 const setCaptureProgress = (progress) =>
   chrome.storage.local.set({ fullPageCaptureProgress: progress });
 
+const CAPTURE_LOCK_KEY = 'fullPageCaptureLock';
+const CAPTURE_LOCK_MAX_AGE_MS = 4 * 60 * 1000;
+let captureTaskActive = false;
+
+async function acquireCaptureLock(captureId) {
+  // This synchronous guard closes the read/write race between two messages
+  // handled by the same worker. storage.session also survives a worker restart.
+  if (captureTaskActive) return false;
+  captureTaskActive = true;
+
+  try {
+    const result = await chrome.storage.session.get(CAPTURE_LOCK_KEY);
+    const existing = result[CAPTURE_LOCK_KEY];
+    if (
+      existing?.captureId &&
+      Number.isFinite(existing.startedAt) &&
+      Date.now() - existing.startedAt < CAPTURE_LOCK_MAX_AGE_MS
+    ) {
+      captureTaskActive = false;
+      return false;
+    }
+    await chrome.storage.session.set({
+      [CAPTURE_LOCK_KEY]: { captureId, startedAt: Date.now() }
+    });
+    return true;
+  } catch (error) {
+    captureTaskActive = false;
+    throw error;
+  }
+}
+
+async function releaseCaptureLock(captureId) {
+  try {
+    const result = await chrome.storage.session.get(CAPTURE_LOCK_KEY);
+    if (result[CAPTURE_LOCK_KEY]?.captureId === captureId) {
+      await chrome.storage.session.remove(CAPTURE_LOCK_KEY);
+    }
+  } catch {
+    // The in-memory guard is still released below. A stale session lock has a
+    // maximum age and therefore cannot block screenshots permanently.
+  } finally {
+    captureTaskActive = false;
+  }
+}
+
+async function assertTargetTabActive(tabId, windowId) {
+  const [activeTab] = await chrome.tabs.query({ active: true, windowId });
+  if (activeTab?.id !== tabId) {
+    const error = new Error('Keep the page tab active until the full-page screenshot finishes');
+    error.code = 'tab_changed';
+    throw error;
+  }
+}
+
 async function ensureOffscreenDocument() {
   if (chrome.runtime.getContexts) {
     const contexts = await chrome.runtime.getContexts({
@@ -323,16 +377,28 @@ async function restorePageAfterCapture(tabId) {
 }
 
 async function captureFullPage(tabId, windowId) {
-  let prepared = false;
+  const captureId = crypto.randomUUID();
+  let lockAcquired = false;
+  let prepareAttempted = false;
   try {
-    await setCaptureProgress({ status: 'preparing' });
+    lockAcquired = await acquireCaptureLock(captureId);
+    if (!lockAcquired) {
+      return {
+        ok: false,
+        errorCode: 'capture_in_progress',
+        error: 'A full-page screenshot is already in progress'
+      };
+    }
+
+    await assertTargetTabActive(tabId, windowId);
+    await setCaptureProgress({ status: 'preparing', captureId });
     const hideRepeatedElements = await getHideRepeatedElements();
+    prepareAttempted = true;
     const metrics = await withTimeout(
       preparePageForCapture(tabId, hideRepeatedElements),
       8000,
       'Page preparation timed out'
     );
-    prepared = true;
 
     const { totalHeight, viewportHeight, viewportWidth, dpr } = metrics;
     const totalSegments = Math.ceil(totalHeight / viewportHeight);
@@ -340,6 +406,7 @@ async function captureFullPage(tabId, windowId) {
     await withTimeout(
       sendToStitcher({
         type: 'EDIT_PAGE_STITCH_START',
+        captureId,
         width: viewportWidth,
         height: totalHeight,
         dpr
@@ -349,6 +416,7 @@ async function captureFullPage(tabId, windowId) {
     );
 
     for (let index = 0; index < totalSegments; index += 1) {
+      await assertTargetTabActive(tabId, windowId);
       const targetY = index * viewportHeight;
       const isFirst = index === 0;
       const isLast = index === totalSegments - 1;
@@ -358,12 +426,17 @@ async function captureFullPage(tabId, windowId) {
         `Page did not scroll to segment ${index + 1}`
       );
       if (index > 0) await wait(330);
+      await assertTargetTabActive(tabId, windowId);
 
       const dataUrl = await withTimeout(
         captureVisibleTab(windowId),
         10000,
         `Segment ${index + 1} capture timed out`
       );
+      // Close the small race between the pre-capture check and
+      // captureVisibleTab. If the user switched during that interval, discard
+      // this bitmap before it can enter the stitched result.
+      await assertTargetTabActive(tabId, windowId);
       const sourceY = Math.max(0, targetY - actualY);
       const segmentHeight = Math.min(
         viewportHeight - sourceY,
@@ -373,6 +446,7 @@ async function captureFullPage(tabId, windowId) {
       await withTimeout(
         sendToStitcher({
           type: 'EDIT_PAGE_STITCH_ADD',
+          captureId,
           dataUrl,
           y: targetY,
           height: segmentHeight,
@@ -384,24 +458,26 @@ async function captureFullPage(tabId, windowId) {
       );
       await setCaptureProgress({
         status: 'capturing',
+        captureId,
         current: index + 1,
         total: totalSegments
       });
     }
 
-    await setCaptureProgress({ status: 'stitching' });
+    await setCaptureProgress({ status: 'stitching', captureId });
     const result = await withTimeout(
-      sendToStitcher({ type: 'EDIT_PAGE_STITCH_FINISH' }),
+      sendToStitcher({ type: 'EDIT_PAGE_STITCH_FINISH', captureId }),
       15000,
       'Final image stitching timed out'
     );
-    await setCaptureProgress({ status: 'done' });
+    await setCaptureProgress({ status: 'done', captureId });
     return { ok: true, dataUrl: result.dataUrl };
   } catch (error) {
-    await setCaptureProgress({ status: 'error', error: error.message });
-    return { ok: false, error: error.message };
+    await setCaptureProgress({ status: 'error', captureId, error: error.message }).catch(() => {});
+    return { ok: false, errorCode: error.code || null, error: error.message };
   } finally {
-    if (prepared) await restorePageAfterCapture(tabId);
+    if (prepareAttempted) await restorePageAfterCapture(tabId);
+    if (lockAcquired) await releaseCaptureLock(captureId);
   }
 }
 

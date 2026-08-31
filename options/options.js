@@ -61,7 +61,7 @@ const messages = {
     premiumActivateRefunded: "This License Key has been refunded.",
     premiumActivateError:
       "Activation failed. Check your connection and try again.",
-    quotaReplaceImage: "Image replace",
+    quotaReplaceImage: "Image imports",
     quotaFullPage: "Full-page screenshot",
     quotaRemoveElement: "Remove element",
     quotaOfLeft: "{remaining} of {limit} left",
@@ -103,7 +103,7 @@ const messages = {
     premiumActivateRevoked: "该激活码已被吊销。",
     premiumActivateRefunded: "该激活码已退款。",
     premiumActivateError: "激活失败，请检查网络后重试。",
-    quotaReplaceImage: "图片替换",
+    quotaReplaceImage: "图片导入",
     quotaFullPage: "整页截图",
     quotaRemoveElement: "移除元素",
     quotaOfLeft: "剩 {remaining} / {limit} 次",

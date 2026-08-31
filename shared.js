@@ -46,7 +46,7 @@ export async function setHideRepeatedElements(value) {
 export const FEATURE_USAGE_KEY = "featureUsage";
 export const QUOTA_LOCK_MS = 12 * 60 * 60 * 1000;
 export const FREE_FEATURE_LIMITS = {
-  replaceImage: 5, // image replace: upload and pasted URL both count
+  replaceImage: 5, // image imports: upload and pasted URL both count
   fullPageScreenshot: 3,
   removeElement: 5, // counted per entering remove mode, not per removed element
 };

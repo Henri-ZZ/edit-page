@@ -45,3 +45,60 @@ Edit Page - 网页编辑与整页截图
 - Full-page capture automatically de-duplicates fixed headers and footers.
 - When “Hide repeated elements” is enabled, small floating controls, supported developer overlays such as Vercel Toolbar, and scrollbars are temporarily hidden during capture and restored afterward.
 - Screenshot cleanup does not permanently modify the webpage.
+
+## Permissions Justification
+
+### Extension permissions
+
+- `tabs`: Reads the active tab URL to identify browser-internal pages where Chrome does not allow extensions to run, and verifies that the same tab remains active throughout a full-page screenshot.
+- `scripting`: Runs the user-selected editing, image replacement, element removal, and full-page screenshot behavior in the current webpage.
+- `storage`: Saves interface language, screenshot preferences, free-feature usage, selected replacement-image data, and locally verified Premium activation state. Preferences and free-feature usage use Chrome sync storage; activation and temporary image data use local storage; the full-page screenshot task lock uses session storage.
+- `alarms`: Periodically checks an existing Premium activation so revoked, refunded, expired, or moved activations are reflected without requiring the user to open the extension.
+- `offscreen`: Creates a hidden extension document that combines locally captured viewport segments into one full-page PNG. The image is not uploaded by this process.
+- `clipboardWrite`: Writes a screenshot to the clipboard when the user has selected Clipboard as the save method.
+- `downloads`: Saves a screenshot as a PNG file when the user has selected Download as the save method.
+
+### Host permission
+
+- `<all_urls>`: Edit Page is designed to edit and capture user-selected webpages on arbitrary sites. It also allows the extension page to validate an image URL supplied by the user before that image is used. Chrome-controlled pages and other pages where injection is prohibited remain unsupported.
+
+## Privacy & Data Use
+
+### Data processed locally
+
+- Webpage text, images, DOM elements, and screenshot pixels are processed locally in the browser.
+- Screenshots are written only to the destination selected by the user: Clipboard or Download.
+- A locally uploaded replacement image is temporarily stored in Chrome local extension storage so the selection survives reopening the popup. It is not sent to Edit Page or Licentra.
+- Screenshot preferences, language preference, and free-feature counters are stored through Chrome extension storage.
+
+### Network requests
+
+- When a user pastes an image URL, Edit Page contacts that URL directly to confirm that the resource can be read as an image. The extension does not send the URL to Edit Page or Licentra.
+- When a user activates Premium, Edit Page sends the License Key, a device label, and a hashed device fingerprint to `https://licentra.henriz.dev`.
+- Periodic Premium validation sends the stored License Key and hashed device fingerprint to `https://licentra.henriz.dev`.
+- The device fingerprint is derived from operating-system type, CPU architecture, logical processor count, and reported device memory. Screen dimensions, browsing history, webpage content, and screenshot content are not included.
+- Clicking website, review, or feedback links opens the relevant external page. `utm_source=dashboard` may be included in the opened URL for source attribution.
+
+### Data not collected by the extension
+
+- No browsing history, webpage content, replacement images, or screenshots are uploaded to Edit Page or Licentra.
+- The extension contains no advertising SDK or behavioral analytics SDK.
+- License information is used only to activate and validate Premium access; it is not sold or used for advertising.
+
+## Version History
+
+### 2.0 — 2026-08-31
+
+- Added text, image, and element editing with shared undo and redo controls.
+- Added local image upload and Image URL import.
+- Added current-viewport and full-page screenshot capture with Clipboard and Download destinations.
+- Added optional cleanup of repeated floating elements and scrollbars in full-page screenshots.
+- Added language, screenshot, Premium activation, usage, and support settings.
+
+## Publishing Readiness
+
+- [ ] Confirm the public privacy policy contains the same data and permission disclosures as this document.
+- [ ] Complete the Chrome Web Store data-use questionnaire using the disclosures above.
+- [ ] Provide at least one current 1280×800 or 640×400 store screenshot.
+- [ ] Confirm every requested permission in the uploaded ZIP matches this document.
+- [ ] Verify that the release ZIP excludes repository files, development files, and this document.

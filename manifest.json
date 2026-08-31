@@ -29,7 +29,6 @@
   },
   "permissions": [
     "tabs",
-    "activeTab",
     "scripting",
     "storage",
     "alarms",
@@ -38,8 +37,6 @@
     "downloads"
   ],
   "host_permissions": [
-    "<all_urls>",
-    "https://editpage.henriz.dev/*",
-    "https://licentra.henriz.dev/*"
+    "<all_urls>"
   ]
 }

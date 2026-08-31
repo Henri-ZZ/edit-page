@@ -22,6 +22,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       canvas.width = Math.max(1, Math.round(message.width * outputScale));
       canvas.height = Math.max(1, Math.round(message.height * outputScale));
       stitchState = {
+        captureId: message.captureId,
         canvas,
         context: canvas.getContext('2d'),
         outputScale
@@ -30,7 +31,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return;
     }
 
-    if (!stitchState) throw new Error('Screenshot stitcher is not initialized');
+    if (!stitchState || stitchState.captureId !== message.captureId) {
+      throw new Error('Screenshot stitcher task no longer matches');
+    }
 
     if (message.type === 'EDIT_PAGE_STITCH_ADD') {
       const image = await loadImage(message.dataUrl);
@@ -57,7 +60,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ok: true, dataUrl });
     }
   })().catch((error) => {
-    stitchState = null;
+    // A timed-out message from an older task must not erase a newer canvas.
+    if (stitchState?.captureId === message.captureId) stitchState = null;
     sendResponse({ ok: false, error: error.message });
   });
 

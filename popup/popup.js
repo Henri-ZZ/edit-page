@@ -27,6 +27,9 @@ const i18n = {
     preparingFullPage: "Preparing full-page capture...",
     capturingFullPage: "Capturing {current} of {total}...",
     stitchingFullPage: "Stitching the final image...",
+    fullPageCaptureInProgress: "A full-page screenshot is already in progress.",
+    fullPageTabChanged:
+      "The screenshot stopped because you switched tabs. Keep this page active and try again.",
     screenshotting: "Screenshotting...",
     statusScreenshotting: "Taking screenshot...",
     statusScreenshotSuccess: "Screenshot copied to clipboard!",
@@ -115,6 +118,8 @@ const i18n = {
     preparingFullPage: "正在准备整页截图...",
     capturingFullPage: "正在截取第 {current}/{total} 段...",
     stitchingFullPage: "正在拼接完整图片...",
+    fullPageCaptureInProgress: "已有一个整页截图任务正在进行。",
+    fullPageTabChanged: "因切换了标签页，截图已停止。请保持当前页面激活后重试。",
     screenshotting: "截图中...",
     statusScreenshotting: "正在截图...",
     statusScreenshotSuccess: "截图已保存到剪贴板！",
@@ -925,7 +930,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       ]);
 
       if (!result?.ok || !result.dataUrl) {
-        throw new Error(result?.error || "Full-page capture failed");
+        const localizedError = {
+          capture_in_progress: t("fullPageCaptureInProgress"),
+          tab_changed: t("fullPageTabChanged"),
+        }[result?.errorCode];
+        throw new Error(
+          localizedError || result?.error || "Full-page capture failed",
+        );
       }
 
       const successMessage = await saveScreenshot(result.dataUrl, "full-page");
@@ -1488,7 +1499,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   const setSelectedImage = async (imageSource) => {
-    // Advanced-feature quota: upload and pasted URL both count as one use.
+    // Advanced-feature quota: each successful image import (upload or URL)
+    // counts once; replacing multiple page elements with that import does not.
     let billUse = false;
     if (!isPremium()) {
       const state = await getQuotaState();

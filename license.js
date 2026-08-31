@@ -142,10 +142,10 @@ export async function verifySignature(
  * NOT a persisted random value, so it survives storage clears on the same
  * machine. Computed fresh on each activation (deterministic), never stored.
  *
- * Signals: platform os/arch, logical CPU cores, device memory (GB, Chrome),
- * and screen size/color depth. Browser updates or display changes can alter
- * it; different profiles on the same machine share one fingerprint (treats
- * "one computer = one device", matching how the server counts activations).
+ * Signals: platform os/arch, logical CPU cores, and device memory (GB,
+ * Chrome). Screen dimensions are deliberately excluded because connecting a
+ * display or changing display scaling must not turn one computer into a new
+ * activation. Different profiles on the same machine share one fingerprint.
  */
 export async function getDeviceFingerprint() {
   let os = "";
@@ -158,15 +158,11 @@ export async function getDeviceFingerprint() {
     // Non-fatal — fall through with empty platform fields.
   }
 
-  const screenInfo =
-    typeof screen !== "undefined"
-      ? `${screen.width}x${screen.height}x${screen.colorDepth}`
-      : "";
   const cores = navigator.hardwareConcurrency || "";
   const mem =
     typeof navigator.deviceMemory === "number" ? navigator.deviceMemory : "";
 
-  const raw = JSON.stringify({ os, arch, cores, mem, screen: screenInfo });
+  const raw = JSON.stringify({ os, arch, cores, mem });
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(raw),

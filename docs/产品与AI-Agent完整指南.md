@@ -67,7 +67,7 @@ ABCD-2345-EFGH-6789
 
 1. 用户在 Settings 的 Premium 卡片中输入激活码。
 2. 扩展将输入标准化为大写的 `4-4-4-4` 格式。
-3. 扩展生成设备 fingerprint，并向 Licentra 激活接口发送激活码、fingerprint 和设备标签。
+3. 扩展根据操作系统、CPU 架构、逻辑核心数和设备内存生成设备 fingerprint（不使用屏幕尺寸），并向 Licentra 激活接口发送激活码、fingerprint 和设备标签。
 4. 扩展使用内置的 ECDSA P-256 公钥验证服务端签名。
 5. 只有产品标识、有效期和签名全部通过后，才保存 Premium 状态。
 6. Service Worker 启动、扩展重新启用、Settings 或 Popup 打开时会按需恢复并刷新 Premium 状态。
