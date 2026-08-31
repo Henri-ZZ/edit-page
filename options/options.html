@@ -14,19 +14,34 @@
         <h1 data-i18n="title">Edit Page Settings</h1>
         <p data-i18n="subtitle">Customize how Edit Page works for you.</p>
       </div>
+      <img class="premium-badge" src="../assets/premium.png" alt="Premium" width="28" height="28">
     </header>
 
-    <section class="card screenshot-card" aria-labelledby="screenshotDestinationHeading">
-      <h2 id="screenshotDestinationHeading" data-i18n="screenshotDestination">Screenshot save method</h2>
-      <p class="help" data-i18n="screenshotDestinationHelp">Choose where screenshots are saved.</p>
-      <div class="radio-group" role="radiogroup" aria-labelledby="screenshotDestinationHeading">
-        <label class="radio-option">
-          <input type="radio" name="screenshotDestination" value="clipboard">
-          <span data-i18n="saveToClipboard">Clipboard</span>
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="screenshotDestination" value="download">
-          <span data-i18n="saveAsDownload">Download</span>
+    <section class="card screenshot-card" aria-labelledby="screenshotHeading">
+      <h2 id="screenshotHeading" data-i18n="screenshotSettings">Screenshot</h2>
+      <div class="setting-group">
+        <h3 id="screenshotDestinationHeading" data-i18n="saveMethod">Save method</h3>
+        <p class="help" data-i18n="screenshotDestinationHelp">Choose where screenshots are saved.</p>
+        <div class="radio-group" role="radiogroup" aria-labelledby="screenshotDestinationHeading">
+          <label class="radio-option">
+            <input type="radio" name="screenshotDestination" value="clipboard">
+            <span data-i18n="saveToClipboard">Clipboard</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="screenshotDestination" value="download">
+            <span data-i18n="saveAsDownload">Download</span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-divider" aria-hidden="true"></div>
+      <div class="setting-group">
+        <h3 data-i18n="whenCapturingFullPage">When capturing a full page</h3>
+        <label class="checkbox-option">
+          <input id="hideRepeatedElements" type="checkbox" aria-describedby="hideRepeatedElementsHelp">
+          <span class="checkbox-copy">
+            <strong data-i18n="hideRepeatedElements">Hide repeated elements</strong>
+            <small id="hideRepeatedElementsHelp" data-i18n="hideRepeatedElementsHelp">Hide floating elements, scrollbars, and other content that may repeat in full-page screenshots.</small>
+          </span>
         </label>
       </div>
     </section>

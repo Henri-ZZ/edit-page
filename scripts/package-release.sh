@@ -15,12 +15,11 @@ VERSION="$(node -e "
   const fs = require('fs');
   const path = process.argv[1];
   const manifest = JSON.parse(fs.readFileSync(path, 'utf8'));
-  const parts = String(manifest.version || '1.0.0').split('.').map(Number);
-  while (parts.length < 3) parts.push(0);
-  parts[2] += 1;
-  manifest.version = parts.join('.');
-  fs.writeFileSync(path, JSON.stringify(manifest, null, 2) + '\n');
-  process.stdout.write(manifest.version);
+  if (!manifest.version) {
+    console.error('[package-release] manifest.json version is missing');
+    process.exit(1);
+  }
+  process.stdout.write(String(manifest.version));
 " "$MANIFEST_PATH")"
 ZIP_NAME="edit-page-chrome-web-store-v${VERSION}.zip"
 ZIP_PATH="$RELEASE_DIR/$ZIP_NAME"
@@ -35,12 +34,14 @@ mkdir -p "$RELEASE_DIR"
 cd "$ROOT_DIR"
 zip -qr "$ZIP_PATH" \
   _locales \
+  assets \
   background \
   content \
   icons \
   offscreen \
   options \
   popup \
+  public \
   license.js \
   shared.js \
   manifest.json

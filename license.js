@@ -13,10 +13,10 @@
 // the bytes match. WebCrypto only accepts raw r‖s (P1363) signatures, so the DER
 // blob is converted first.
 
-import { STORAGE_KEYS, getState, setState } from './shared.js';
+import { STORAGE_KEYS, getState, setState } from "./shared.js";
 
-export const LICENTRA_BASE_URL = 'https://licentra.henri.ren';
-export const PRODUCT_SLUG = 'edit-page';
+export const LICENTRA_BASE_URL = "https://licentra.henriz.dev";
+export const PRODUCT_SLUG = "edit-page";
 
 // ───────────────────────── offline grace window ─────────────────────────
 //
@@ -48,11 +48,15 @@ const KEY_REGEX = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
  * chars re-group them 4-4-4-4 (forgiving of missing/extra dashes).
  */
 export function normalizeLicenseKey(raw) {
-  const cleaned = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const cleaned = String(raw || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
   if (cleaned.length === 16) {
-    return [0, 4, 8, 12].map((i) => cleaned.slice(i, i + 4)).join('-');
+    return [0, 4, 8, 12].map((i) => cleaned.slice(i, i + 4)).join("-");
   }
-  return String(raw || '').trim().toUpperCase();
+  return String(raw || "")
+    .trim()
+    .toUpperCase();
 }
 
 // ───────────────────────── encoding helpers ─────────────────────────
@@ -66,9 +70,9 @@ function base64ToBytes(b64) {
 
 function pemToBytes(pem) {
   const b64 = pem
-    .replace(/-----BEGIN [^-]+-----/, '')
-    .replace(/-----END [^-]+-----/, '')
-    .replace(/\s+/g, '');
+    .replace(/-----BEGIN [^-]+-----/, "")
+    .replace(/-----END [^-]+-----/, "")
+    .replace(/\s+/g, "");
   return base64ToBytes(b64);
 }
 
@@ -104,20 +108,24 @@ export function derToRaw(der) {
  * object must be the exact object parsed from the server response (insertion
  * order determines the signed bytes).
  */
-export async function verifySignature(payload, signatureB64, publicKeyPem = PUBLIC_KEY_PEM) {
+export async function verifySignature(
+  payload,
+  signatureB64,
+  publicKeyPem = PUBLIC_KEY_PEM,
+) {
   try {
     const publicKey = await crypto.subtle.importKey(
-      'spki',
+      "spki",
       pemToBytes(publicKeyPem),
-      { name: 'ECDSA', namedCurve: 'P-256' },
+      { name: "ECDSA", namedCurve: "P-256" },
       false,
-      ['verify'],
+      ["verify"],
     );
     const rawSig = derToRaw(base64ToBytes(signatureB64));
     if (!rawSig) return false;
     const data = new TextEncoder().encode(JSON.stringify(payload));
     return await crypto.subtle.verify(
-      { name: 'ECDSA', hash: 'SHA-256' },
+      { name: "ECDSA", hash: "SHA-256" },
       publicKey,
       rawSig,
       data,
@@ -140,25 +148,32 @@ export async function verifySignature(payload, signatureB64, publicKeyPem = PUBL
  * "one computer = one device", matching how the server counts activations).
  */
 export async function getDeviceFingerprint() {
-  let os = '';
-  let arch = '';
+  let os = "";
+  let arch = "";
   try {
     const info = await chrome.runtime.getPlatformInfo();
-    os = info.os || '';
-    arch = info.arch || '';
+    os = info.os || "";
+    arch = info.arch || "";
   } catch {
     // Non-fatal — fall through with empty platform fields.
   }
 
-  const screenInfo = typeof screen !== 'undefined'
-    ? `${screen.width}x${screen.height}x${screen.colorDepth}`
-    : '';
-  const cores = navigator.hardwareConcurrency || '';
-  const mem = typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : '';
+  const screenInfo =
+    typeof screen !== "undefined"
+      ? `${screen.width}x${screen.height}x${screen.colorDepth}`
+      : "";
+  const cores = navigator.hardwareConcurrency || "";
+  const mem =
+    typeof navigator.deviceMemory === "number" ? navigator.deviceMemory : "";
 
   const raw = JSON.stringify({ os, arch, cores, mem, screen: screenInfo });
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(raw),
+  );
+  return [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
@@ -172,14 +187,14 @@ export async function getDeviceFingerprint() {
  */
 async function verifyResponse(resp) {
   if (!resp || resp.valid !== true) {
-    return { ok: false, reason: resp?.reason || 'invalid' };
+    return { ok: false, reason: resp?.reason || "invalid" };
   }
   const { payload, signature } = resp;
-  if (!payload || !signature) return { ok: false, reason: 'invalid' };
-  if (payload.product !== PRODUCT_SLUG) return { ok: false, reason: 'invalid' };
+  if (!payload || !signature) return { ok: false, reason: "invalid" };
+  if (payload.product !== PRODUCT_SLUG) return { ok: false, reason: "invalid" };
   const validUntil = Date.parse(payload.valid_until);
   if (!Number.isFinite(validUntil) || validUntil <= Date.now()) {
-    return { ok: false, reason: 'stale' };
+    return { ok: false, reason: "stale" };
   }
   // Business-level expiry (null = lifetime). The server signs this into the
   // payload, so enforce it client-side too — a fresh signature for a lapsed
@@ -187,17 +202,17 @@ async function verifyResponse(resp) {
   if (payload.license_expires_at != null) {
     const expiresAt = Date.parse(payload.license_expires_at);
     if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
-      return { ok: false, reason: 'expired' };
+      return { ok: false, reason: "expired" };
     }
   }
   const ok = await verifySignature(payload, signature);
-  return ok ? { ok: true, payload } : { ok: false, reason: 'bad_signature' };
+  return ok ? { ok: true, payload } : { ok: false, reason: "bad_signature" };
 }
 
 async function post(endpoint, body) {
   const res = await fetch(`${LICENTRA_BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
     // Don't let a hung server hold the service worker open indefinitely.
     signal: AbortSignal.timeout(10_000),
@@ -242,14 +257,15 @@ function persistLicense(key, fingerprint, payload, certificate) {
  */
 export async function activateLicense(rawKey, label) {
   const key = normalizeLicenseKey(rawKey);
-  if (!KEY_REGEX.test(key)) return { ok: false, reason: 'invalid_format' };
+  if (!KEY_REGEX.test(key)) return { ok: false, reason: "invalid_format" };
 
   const fingerprint = await getDeviceFingerprint();
   let resp;
   try {
-    resp = (await post('/api/license/activate', { key, fingerprint, label })).body;
+    resp = (await post("/api/license/activate", { key, fingerprint, label }))
+      .body;
   } catch {
-    return { ok: false, reason: 'network' };
+    return { ok: false, reason: "network" };
   }
 
   const result = await verifyResponse(resp);
@@ -274,12 +290,12 @@ export async function activateLicense(rawKey, label) {
 export async function checkInLicense() {
   const license = await getState(STORAGE_KEYS.LICENSE);
   if (!license || !license.key || !license.fingerprint) {
-    return { ok: false, reason: 'no_license' };
+    return { ok: false, reason: "no_license" };
   }
 
   let http;
   try {
-    http = await post('/api/license/check-in', {
+    http = await post("/api/license/check-in", {
       key: license.key,
       fingerprint: license.fingerprint,
     });
@@ -293,20 +309,26 @@ export async function checkInLicense() {
   // Server answered with an HTTP error (5xx / 400 / 429 / …) — keep the
   // status + body error so the UI can surface the actual server error after
   // the grace window expires. body may be null (non-JSON reply).
-  const serverError = http.status >= 400
-    ? { status: http.status, error: resp?.error ?? `HTTP ${http.status}` }
-    : null;
+  const serverError =
+    http.status >= 400
+      ? { status: http.status, error: resp?.error ?? `HTTP ${http.status}` }
+      : null;
 
   // Server answered but not with a license verdict (5xx, rate limit, or a
   // body we couldn't parse into `valid`). Same treatment: server-side
   // problem, not a license problem — use the grace window.
-  if (!resp || typeof resp.valid !== 'boolean') {
+  if (!resp || typeof resp.valid !== "boolean") {
     return grantGrace(license, serverError);
   }
 
   const result = await verifyResponse(resp);
   if (result.ok) {
-    await persistLicense(license.key, license.fingerprint, result.payload, resp.certificate);
+    await persistLicense(
+      license.key,
+      license.fingerprint,
+      result.payload,
+      resp.certificate,
+    );
   } else if (TERMINAL_REASONS.has(result.reason)) {
     // License is gone for good — clear local state so isPremium() turns off.
     await clearLicense();
@@ -330,17 +352,21 @@ async function grantGrace(license, serverError = null) {
   const now = Date.now();
   // Old stored licenses (before grace existed) have no graceUntil — fall back
   // to a full window so existing users aren't locked out on first failure.
-  const graceUntil = typeof license.graceUntil === 'number'
-    ? license.graceUntil
-    : now + GRACE_WINDOW_MS;
+  const graceUntil =
+    typeof license.graceUntil === "number"
+      ? license.graceUntil
+      : now + GRACE_WINDOW_MS;
 
   if (now >= graceUntil) {
     // Also persist the latest server error on exhaustion, so the UI (which
     // reads storage, not this return value) can surface it.
     if (serverError) {
-      await setState(STORAGE_KEYS.LICENSE, { ...license, lastServerError: serverError });
+      await setState(STORAGE_KEYS.LICENSE, {
+        ...license,
+        lastServerError: serverError,
+      });
     }
-    return { ok: false, reason: 'grace_exhausted', serverError };
+    return { ok: false, reason: "grace_exhausted", serverError };
   }
 
   const nextValidUntil = Math.min(now + GRACE_STEP_MS, graceUntil);
@@ -357,11 +383,11 @@ async function grantGrace(license, serverError = null) {
 // leave it alone — `expired` may resolve after the customer renews, and the
 // next successful check-in will refresh the persisted state.
 const TERMINAL_REASONS = new Set([
-  'license_not_found',
-  'license_revoked',
-  'license_refunded',
-  'license_expired',
-  'activation_evicted',
+  "license_not_found",
+  "license_revoked",
+  "license_refunded",
+  "license_expired",
+  "activation_evicted",
 ]);
 
 /**
@@ -369,9 +395,12 @@ const TERMINAL_REASONS = new Set([
  */
 export async function maybeCheckIn() {
   const license = await getState(STORAGE_KEYS.LICENSE);
-  if (!license || !license.key) return { ok: false, reason: 'no_license' };
+  if (!license || !license.key) return { ok: false, reason: "no_license" };
   const HALF_TTL_MS = 12 * 60 * 60 * 1000; // refresh during the last half of the window
-  if (typeof license.validUntil === 'number' && license.validUntil - Date.now() > HALF_TTL_MS) {
+  if (
+    typeof license.validUntil === "number" &&
+    license.validUntil - Date.now() > HALF_TTL_MS
+  ) {
     return { ok: true, fresh: true };
   }
   return checkInLicense();

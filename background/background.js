@@ -5,7 +5,11 @@
 // revocations / refunds take effect without waiting for the user to open the
 // popup again.
 
-import { STORAGE_KEYS, refreshPremiumState } from '../shared.js';
+import {
+  STORAGE_KEYS,
+  getHideRepeatedElements,
+  refreshPremiumState
+} from '../shared.js';
 import { maybeCheckIn } from '../license.js';
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -62,10 +66,10 @@ const captureVisibleTab = (windowId) => new Promise((resolve, reject) => {
   });
 });
 
-async function preparePageForCapture(tabId) {
+async function preparePageForCapture(tabId, hideRepeatedElements) {
   const [result] = await chrome.scripting.executeScript({
     target: { tabId },
-    func: () => {
+    func: (shouldHideRepeatedElements) => {
       const root = document.documentElement;
       const body = document.body;
       const totalHeight = Math.max(
@@ -81,47 +85,158 @@ async function preparePageForCapture(tabId) {
         scrollY: window.scrollY,
         rootScrollBehavior: root.style.getPropertyValue('scroll-behavior'),
         rootScrollBehaviorPriority: root.style.getPropertyPriority('scroll-behavior'),
-        fixedElements: []
+        fixedElements: [],
+        scrollbarStyle: null,
+        scrollbarElements: []
       };
       root.style.setProperty('scroll-behavior', 'auto', 'important');
+
+      if (shouldHideRepeatedElements) {
+        document.getElementById('edit-page-capture-scrollbar-style')?.remove();
+        const scrollbarStyle = document.createElement('style');
+        scrollbarStyle.id = 'edit-page-capture-scrollbar-style';
+        scrollbarStyle.textContent = `
+          html, body, * { scrollbar-width: none !important; }
+          html::-webkit-scrollbar,
+          body::-webkit-scrollbar,
+          *::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+        `;
+        (document.head || root).appendChild(scrollbarStyle);
+        window._editPageFullCaptureState.scrollbarStyle = scrollbarStyle;
+
+        // Root scrollbars are browser UI around the document viewport and are
+        // not reliably suppressed by pseudo-element styling alone. Chrome
+        // still permits window.scrollTo while overflow is hidden, so capture
+        // can continue normally without painting the scrollbars.
+        for (const element of new Set([root, body].filter(Boolean))) {
+          const item = {
+            element,
+            overflowX: element.style.getPropertyValue('overflow-x'),
+            overflowXPriority: element.style.getPropertyPriority('overflow-x'),
+            overflowY: element.style.getPropertyValue('overflow-y'),
+            overflowYPriority: element.style.getPropertyPriority('overflow-y')
+          };
+          window._editPageFullCaptureState.scrollbarElements.push(item);
+          element.style.setProperty('overflow-x', 'hidden', 'important');
+          element.style.setProperty('overflow-y', 'hidden', 'important');
+        }
+      }
 
       // Sampling elements visible in the viewport is dramatically cheaper than
       // calling getComputedStyle for every node on large application pages.
       const visibleCandidates = new Set();
-      const xPoints = [2, window.innerWidth * 0.25, window.innerWidth * 0.5, window.innerWidth * 0.75, window.innerWidth - 2];
-      const yStep = Math.max(48, Math.floor(window.innerHeight / 12));
+      const addCandidateChain = (element) => {
+        let current = element;
+        while (current instanceof Element && current !== root) {
+          visibleCandidates.add(current);
+          current = current.parentElement;
+        }
+      };
+      const addCandidatesAtPoint = (x, y) => {
+        for (const element of document.elementsFromPoint(x, y)) {
+          addCandidateChain(element);
+
+          // Events and document.elementsFromPoint stop at a shadow host. Walk
+          // open shadow roots so fixed controls inside web components can also
+          // be de-duplicated. Closed roots are handled through known hosts.
+          let shadowHost = element;
+          while (shadowHost?.shadowRoot?.elementFromPoint) {
+            const shadowElement = shadowHost.shadowRoot.elementFromPoint(x, y);
+            if (!(shadowElement instanceof Element) || shadowElement === shadowHost) break;
+            addCandidateChain(shadowElement);
+            shadowHost = shadowElement;
+          }
+        }
+      };
+
+      const xPoints = Array.from(new Set([
+        2,
+        18,
+        42,
+        window.innerWidth * 0.25,
+        window.innerWidth * 0.5,
+        window.innerWidth * 0.75,
+        window.innerWidth - 42,
+        window.innerWidth - 18,
+        window.innerWidth - 2
+      ].map((x) => Math.max(0, Math.min(window.innerWidth - 1, Math.round(x))))));
+      const yStep = Math.max(32, Math.floor(window.innerHeight / 20));
       for (let y = 2; y < window.innerHeight; y += yStep) {
         for (const x of xPoints) {
-          for (const element of document.elementsFromPoint(x, y)) {
-            let current = element;
-            while (current && current !== root) {
-              visibleCandidates.add(current);
-              current = current.parentElement;
-            }
-          }
+          addCandidatesAtPoint(x, y);
         }
       }
 
+      // Developer overlays often render their UI inside a closed shadow root,
+      // so the host is the only reliable element available to page scripts.
+      const alwaysHiddenHosts = new Set([
+        ...document.querySelectorAll('#edit-page-history-toolbar')
+      ]);
+      if (shouldHideRepeatedElements) {
+        document
+          .querySelectorAll('vercel-live-feedback')
+          .forEach((element) => alwaysHiddenHosts.add(element));
+      }
+      alwaysHiddenHosts.forEach((element) => visibleCandidates.add(element));
+
+      const capturedElements = new Map();
+      const rememberElement = (element, showOn) => {
+        const existing = capturedElements.get(element);
+        if (existing) {
+          if (showOn === 'never') existing.showOn = 'never';
+          return;
+        }
+        const item = {
+          element,
+          showOn,
+          opacity: element.style.getPropertyValue('opacity'),
+          opacityPriority: element.style.getPropertyPriority('opacity')
+        };
+        capturedElements.set(element, item);
+        window._editPageFullCaptureState.fixedElements.push(item);
+      };
+
       visibleCandidates.forEach((element) => {
+        if (alwaysHiddenHosts.has(element)) {
+          rememberElement(element, 'never');
+          return;
+        }
+
         const styles = getComputedStyle(element);
         if (styles.position !== 'fixed' && styles.position !== 'sticky') return;
         if (styles.position === 'sticky' && styles.top === 'auto' && styles.bottom === 'auto') return;
         const rect = element.getBoundingClientRect();
-        window._editPageFullCaptureState.fixedElements.push({
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const isSmallOverlay =
+          rect.width <= Math.min(240, window.innerWidth * 0.3) &&
+          rect.height <= Math.min(240, window.innerHeight * 0.3);
+        const isAtSideEdge =
+          rect.left <= 80 || rect.right >= window.innerWidth - 80;
+
+        // Small edge controls (chat, feedback, back-to-top, developer tools)
+        // have no natural location in a long screenshot, so omit them instead
+        // of repeating them or keeping an arbitrary copy.
+        if (shouldHideRepeatedElements && isSmallOverlay && isAtSideEdge) {
+          rememberElement(element, 'never');
+          return;
+        }
+
+        rememberElement(
           element,
-          isBottom: rect.top > window.innerHeight / 2,
-          opacity: element.style.getPropertyValue('opacity'),
-          opacityPriority: element.style.getPropertyPriority('opacity')
-        });
+          rect.top > window.innerHeight / 2 ? 'last' : 'first'
+        );
       });
 
       return {
         totalHeight,
         viewportHeight: window.innerHeight,
         viewportWidth: window.innerWidth,
-        dpr: window.devicePixelRatio || 1
+        dpr: window.devicePixelRatio || 1,
+        cleanedElementCount: window._editPageFullCaptureState.fixedElements.length
       };
-    }
+    },
+    args: [hideRepeatedElements]
   });
   return result.result;
 }
@@ -132,7 +247,9 @@ async function scrollPageForCapture(tabId, y, isFirst, isLast) {
     func: async (captureY, first, last) => {
       const state = window._editPageFullCaptureState;
       state?.fixedElements.forEach((item) => {
-        const shouldShow = item.isBottom ? last : first;
+        const shouldShow =
+          item.showOn === 'first' ? first :
+            item.showOn === 'last' ? last : false;
         if (shouldShow) {
           if (item.opacity) {
             item.element.style.setProperty('opacity', item.opacity, item.opacityPriority);
@@ -168,6 +285,27 @@ async function restorePageAfterCapture(tabId) {
           item.element.style.removeProperty('opacity');
         }
       });
+      state.scrollbarStyle?.remove();
+      state.scrollbarElements?.forEach((item) => {
+        if (item.overflowX) {
+          item.element.style.setProperty(
+            'overflow-x',
+            item.overflowX,
+            item.overflowXPriority
+          );
+        } else {
+          item.element.style.removeProperty('overflow-x');
+        }
+        if (item.overflowY) {
+          item.element.style.setProperty(
+            'overflow-y',
+            item.overflowY,
+            item.overflowYPriority
+          );
+        } else {
+          item.element.style.removeProperty('overflow-y');
+        }
+      });
 
       if (state.rootScrollBehavior) {
         document.documentElement.style.setProperty(
@@ -188,8 +326,9 @@ async function captureFullPage(tabId, windowId) {
   let prepared = false;
   try {
     await setCaptureProgress({ status: 'preparing' });
+    const hideRepeatedElements = await getHideRepeatedElements();
     const metrics = await withTimeout(
-      preparePageForCapture(tabId),
+      preparePageForCapture(tabId, hideRepeatedElements),
       8000,
       'Page preparation timed out'
     );

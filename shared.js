@@ -7,10 +7,12 @@ export const STORAGE_KEYS = {
   LICENSE: "license", // object|null: verified license state (see license.js)
 };
 
+export const WEBSITE_BASE_URL = "https://editpage.henriz.dev";
 export const LANGUAGE_PREFERENCE_KEY = "languagePreference";
 export const SUPPORTED_LANGUAGES = ["en", "zh"];
 export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
+export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
 
 export async function getScreenshotDestination() {
   const result = await chrome.storage.sync.get(SCREENSHOT_DESTINATION_KEY);
@@ -21,6 +23,17 @@ export async function getScreenshotDestination() {
 export async function setScreenshotDestination(value) {
   const normalized = SCREENSHOT_DESTINATIONS.includes(value) ? value : "clipboard";
   await chrome.storage.sync.set({ [SCREENSHOT_DESTINATION_KEY]: normalized });
+  return normalized;
+}
+
+export async function getHideRepeatedElements() {
+  const result = await chrome.storage.sync.get(HIDE_REPEATED_ELEMENTS_KEY);
+  return result[HIDE_REPEATED_ELEMENTS_KEY] !== false;
+}
+
+export async function setHideRepeatedElements(value) {
+  const normalized = value !== false;
+  await chrome.storage.sync.set({ [HIDE_REPEATED_ELEMENTS_KEY]: normalized });
   return normalized;
 }
 

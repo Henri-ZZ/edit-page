@@ -7,7 +7,8 @@
 body {
   width: 320px;
   min-height: 390px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f8fafc;
   color: #172033;
 }
@@ -35,9 +36,23 @@ h1 {
 }
 
 .header-logo {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   flex: none;
+}
+
+.premium-badge {
+  display: none;
+}
+
+.header .premium-badge {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+body.is-premium .premium-badge {
+  display: block;
 }
 
 .content {
@@ -134,6 +149,101 @@ button.tertiary.active:hover {
   gap: 8px;
 }
 
+.screenshot-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expandable-tool:has(> .tool-button[aria-expanded="true"]) {
+  gap: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #dce3ec;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.08);
+}
+
+.expandable-tool > .tool-button[aria-expanded="true"],
+.expandable-tool > .tool-button[aria-expanded="true"]:hover {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.expandable-tool:has(> .tool-button[aria-expanded="true"])
+  > :is(.image-source-options, .screenshot-options, .image-preview) {
+  width: auto;
+  margin: 0 8px 8px;
+  background: #f8fafc;
+  border: 0;
+}
+
+.image-source-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px;
+  background: #fff;
+  border: 1px solid #dce3ec;
+  border-radius: 11px;
+}
+
+.image-source-options.hidden {
+  display: none;
+}
+
+.image-source-upload,
+.image-url-row button {
+  width: auto;
+  margin: 0;
+  padding: 8px 11px;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 650;
+  background: #e0f2fe;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.image-source-upload:hover,
+.image-url-row button:hover {
+  background: #bae6fd;
+}
+
+.image-url-row {
+  display: flex;
+  gap: 7px;
+}
+
+.image-url-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 8px 10px;
+  color: #172033;
+  font: inherit;
+  font-size: 12px;
+  background: #f8fafc;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  outline: none;
+}
+
+.image-url-row input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.16);
+}
+
+.image-url-row input[aria-invalid="true"] {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+}
+
+.tool-button--image[aria-expanded="true"] .tool-indicator {
+  color: #0284c7;
+}
+
 .tool-list {
   display: flex;
   flex-direction: column;
@@ -155,7 +265,10 @@ button.tertiary.active:hover {
   border: 1px solid #e4e8f0;
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(30, 41, 59, 0.04);
-  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
 }
 
 .tool-button:hover {
@@ -164,6 +277,12 @@ button.tertiary.active:hover {
   border-color: #b9c2d3;
   box-shadow: 0 4px 12px rgba(30, 41, 59, 0.08);
   transform: translateY(-1px);
+}
+
+.tool-button:disabled {
+  opacity: 0.68;
+  cursor: wait;
+  transform: none;
 }
 
 .tool-button:active {
@@ -204,6 +323,13 @@ button.tertiary.active:hover {
   font-weight: 750;
 }
 
+.tool-icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .tool-button--text .tool-icon {
   color: #4f46e5;
   background: #eef2ff;
@@ -217,8 +343,6 @@ button.tertiary.active:hover {
 .tool-button--remove .tool-icon {
   color: #dc2626;
   background: #fee2e2;
-  font-size: 24px;
-  font-weight: 500;
 }
 
 .tool-button--screenshot .tool-icon {
@@ -326,22 +450,12 @@ button.tertiary.active:hover {
 .screenshot-option span:last-child {
   display: flex;
   min-width: 0;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
 }
 
 .screenshot-option strong {
   overflow: hidden;
   font-size: 11px;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.screenshot-option small {
-  overflow: hidden;
-  color: #7b8496;
-  font-size: 9px;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -432,6 +546,11 @@ button.tertiary.active:hover {
   background: #4f46e5;
 }
 
+.preview-action:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .clear-btn {
   position: static;
   width: 30px;
@@ -457,31 +576,39 @@ button.tertiary.active:hover {
 }
 
 .status {
-  margin-top: 12px;
+  display: none;
+  margin-top: 10px;
   padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  font-size: 12px;
+  line-height: 1.4;
   text-align: center;
   opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(-3px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .status.visible {
+  display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
 .status.success {
-  background: #d4edda;
-  color: #155724;
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
 }
 
 .status.error {
-  background: #f8d7da;
-  color: #721c24;
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
-
 
 .popup-footer {
   margin: 16px -16px -16px;

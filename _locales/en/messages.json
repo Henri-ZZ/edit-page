@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Edit Page",
+    "message": "Edit Page - Webpage Editor & Full Page Screenshot",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Edit webpage text and images, then capture clean screenshots",
+    "message": "Edit webpage text, replace images, remove elements, and capture the current view or a full-page screenshot.",
     "description": "Extension description"
   }
 }
