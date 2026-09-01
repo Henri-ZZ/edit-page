@@ -88,9 +88,9 @@ Edit Page - ウェブページ編集とページ全体撮影
 - `scripting`: Runs the user-selected editing, image replacement, element removal, and full-page screenshot behavior in the current webpage.
 - `storage`: Saves interface language, screenshot preferences, free-feature usage, selected replacement-image data, and locally verified Premium activation state. Preferences and free-feature usage use Chrome sync storage; activation and temporary image data use local storage; the full-page screenshot task lock uses session storage.
 - `alarms`: Periodically checks an existing Premium activation so revoked, refunded, expired, or moved activations are reflected without requiring the user to open the extension.
-- `offscreen`: Creates a hidden extension document that combines locally captured viewport segments into one full-page PNG. The image is not uploaded by this process.
-- `clipboardWrite`: Writes a screenshot to the clipboard when the user has selected Clipboard as the save method.
-- `downloads`: Saves a screenshot as a PNG file when the user has selected Download as the save method.
+- `offscreen`: Required only for the user-initiated full-page screenshot feature. Edit Page captures the webpage in viewport-sized segments and uses a hidden offscreen document with a canvas to combine those segments into one PNG image. The offscreen document is not used for browsing, tracking, advertising, or background data collection, and screenshot data is not uploaded.
+- `clipboardWrite`: Required to copy a screenshot to the system clipboard when the user selects Clipboard as the screenshot save method and then initiates a screenshot. The permission is used only for the resulting PNG image and is never used to read clipboard contents.
+- `downloads`: Required to save a screenshot as a PNG file when the user selects Download as the screenshot save method and then initiates a screenshot. Files are created only in response to that explicit user action; the extension does not inspect, modify, or manage existing downloads.
 
 ### Host permission
 
@@ -112,7 +112,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Periodic Premium validation sends the stored License Key and hashed device fingerprint to `https://licentra.henriz.dev`.
 - The device fingerprint is derived from operating-system type, CPU architecture, logical processor count, and reported device memory. Screen dimensions, browsing history, webpage content, and screenshot content are not included.
 - Clicking website, review, or feedback links opens the relevant external page. `utm_source=dashboard` may be included in the opened URL for source attribution.
-- On first installation, Edit Page opens `https://editpage.henriz.dev/getting-started` with the browser type in the query string. After uninstalling, Chrome opens `https://editpage.henriz.dev/goodbye`. These lifecycle links do not include webpage content, license information, or locally stored usage data.
+- On first installation, Edit Page opens `https://editpage.henriz.dev/getting-started?installed=1&browser=chrome` (or `browser=edge` in Microsoft Edge). After uninstalling, Chrome opens `https://editpage.henriz.dev/goodbye`. These lifecycle links do not include webpage content, license information, or locally stored usage data.
 
 ### Data not collected by the extension
 
@@ -131,6 +131,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Added language, screenshot, Premium activation, usage, and support settings.
 - Added Spanish, Brazilian Portuguese, and Japanese interface and store localization.
 - Added first-install Getting Started and post-uninstall Goodbye links.
+- Regenerated all extension icon sizes from the shared SVG artwork.
 
 ## Publishing Readiness
 

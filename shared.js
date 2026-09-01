@@ -17,9 +17,6 @@ export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
 
 export function getBrowserPlatform(userAgent = "") {
-  const firefoxApi = typeof globalThis.browser !== "undefined" &&
-    globalThis.browser?.runtime?.getBrowserInfo;
-  if (firefoxApi || /Firefox\//i.test(userAgent)) return "firefox";
   if (/Edg\//i.test(userAgent)) return "edge";
   return "chrome";
 }
