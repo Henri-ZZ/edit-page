@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Редактор веб-страниц и полный скриншот",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Редактируйте текст, заменяйте изображения, удаляйте элементы и снимайте текущий вид или всю страницу.",
+    "description": "Extension description"
+  }
+}

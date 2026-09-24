@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Editor webu a snímky celé stránky",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Upravujte text, nahrazujte obrázky, odstraňujte prvky a pořizujte snímky zobrazení nebo celé stránky.",
+    "description": "Extension description"
+  }
+}

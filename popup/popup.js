@@ -2,6 +2,10 @@
 // settings page; the popup only refreshes license state for feature gating.
 import { maybeCheckIn } from "../license.js";
 import {
+  ADDITIONAL_POPUP_MESSAGES,
+  getLanguageMetadata,
+} from "../i18n/locales.js";
+import {
   consumeFeatureUse,
   getQuotaState,
   getScreenshotDestination,
@@ -369,6 +373,13 @@ const i18n = {
   },
 };
 
+i18n["zh-CN"] = i18n.zh;
+i18n["pt-BR"] = i18n.pt;
+Object.assign(i18n, ADDITIONAL_POPUP_MESSAGES);
+for (const locale of Object.keys(i18n)) {
+  if (locale !== "en") i18n[locale] = { ...i18n.en, ...i18n[locale] };
+}
+
 let currentLang = "en";
 
 const t = (key) => i18n[currentLang]?.[key] || i18n.en[key] || key;
@@ -378,7 +389,8 @@ const formatResetIn = (resetsAt) => {
   const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (currentLang === "zh") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLang === "zh-CN") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLang === "zh-TW") return `${hours} 小時 ${minutes} 分鐘`;
   if (currentLang === "ja") return `${hours} 時間 ${minutes} 分`;
   return `${hours} h ${minutes} min`;
 };
@@ -474,14 +486,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const applyLanguage = () => {
-    const documentLanguages = {
-      en: "en",
-      zh: "zh-CN",
-      es: "es",
-      pt: "pt-BR",
-      ja: "ja",
-    };
-    document.documentElement.lang = documentLanguages[currentLang] || "en";
+    const metadata = getLanguageMetadata(currentLang);
+    document.documentElement.lang = metadata.lang;
+    document.documentElement.dir = metadata.dir;
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
       if (t(key) !== key) {

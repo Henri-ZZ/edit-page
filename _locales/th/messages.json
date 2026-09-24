@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - แก้ไขเว็บและจับภาพเต็มหน้า",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "แก้ไขข้อความ เปลี่ยนรูปภาพ ลบองค์ประกอบ และจับภาพมุมมองปัจจุบันหรือทั้งหน้าเว็บ",
+    "description": "Extension description"
+  }
+}

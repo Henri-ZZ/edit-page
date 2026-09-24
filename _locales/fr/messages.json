@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Éditeur web et capture de page entière",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Modifiez le texte, remplacez les images, supprimez des éléments et capturez la vue ou la page entière.",
+    "description": "Extension description"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Editor halaman web dan tangkapan penuh",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Edit teks, ganti gambar, hapus elemen, dan ambil tangkapan tampilan saat ini atau seluruh halaman.",
+    "description": "Extension description"
+  }
+}

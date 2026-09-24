@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Webseiten-Editor und Ganzseiten-Screenshot",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Text bearbeiten, Bilder ersetzen, Elemente entfernen und die Ansicht oder ganze Webseite aufnehmen.",
+    "description": "Extension description"
+  }
+}

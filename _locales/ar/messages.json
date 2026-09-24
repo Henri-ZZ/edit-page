@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - محرر صفحات الويب ولقطات كاملة",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "حرّر نصوص صفحات الويب، واستبدل الصور، وأزل العناصر، والتقط العرض الحالي أو الصفحة كاملة.",
+    "description": "Extension description"
+  }
+}

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "__MSG_extName__",
-  "version": "2.0",
+  "version": "2.0.1",
   "description": "__MSG_extDescription__",
   "homepage_url": "https://editpage.henriz.dev",
   "author": "Henri Z",
@@ -36,7 +36,5 @@
     "clipboardWrite",
     "downloads"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ]
+  "host_permissions": ["<all_urls>"]
 }

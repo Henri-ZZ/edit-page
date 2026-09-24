@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Verkkosivueditori ja koko sivun kaappaus",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Muokkaa tekstiä, vaihda kuvia, poista elementtejä ja kaappaa nykyinen näkymä tai koko sivu.",
+    "description": "Extension description"
+  }
+}

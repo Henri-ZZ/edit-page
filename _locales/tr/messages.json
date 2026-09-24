@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Web sayfası editörü ve tam sayfa görüntüsü",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Metni düzenleyin, görselleri değiştirin, öğeleri kaldırın ve görünümü veya tam sayfayı yakalayın.",
+    "description": "Extension description"
+  }
+}

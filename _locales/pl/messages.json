@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Edytor stron i zrzuty całej strony",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Edytuj tekst, zastępuj obrazy, usuwaj elementy i zapisuj bieżący widok lub całą stronę.",
+    "description": "Extension description"
+  }
+}

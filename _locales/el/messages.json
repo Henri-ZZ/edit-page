@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Επεξεργασία ιστοσελίδων και πλήρης λήψη",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Επεξεργαστείτε κείμενο, αλλάξτε εικόνες, αφαιρέστε στοιχεία και τραβήξτε την προβολή ή ολόκληρη τη σελίδα.",
+    "description": "Extension description"
+  }
+}

@@ -15,6 +15,11 @@ import {
   setScreenshotDestination,
 } from "../shared.js";
 import { activateLicense } from "../license.js";
+import {
+  ADDITIONAL_OPTIONS_MESSAGES,
+  LANGUAGE_OPTIONS,
+  getLanguageMetadata,
+} from "../i18n/locales.js";
 
 /** Official website, tagged with the source so analytics can attribute visits from the settings page. */
 const CONTACT_URL = `${WEBSITE_BASE_URL}/contact?utm_source=dashboard`;
@@ -246,20 +251,22 @@ const messages = {
   },
 };
 
+messages["zh-CN"] = messages.zh;
+messages["pt-BR"] = messages.pt;
+Object.assign(messages, ADDITIONAL_OPTIONS_MESSAGES);
+for (const locale of Object.keys(messages)) {
+  if (locale !== "en") messages[locale] = { ...messages.en, ...messages[locale] };
+}
+
 const languageSelect = document.getElementById("languageSelect");
 let currentLanguage = "en";
 
 const applyLanguage = async () => {
   currentLanguage = await resolveLanguage();
   const t = (key) => messages[currentLanguage][key] || messages.en[key] || key;
-  const documentLanguages = {
-    en: "en",
-    zh: "zh-CN",
-    es: "es",
-    pt: "pt-BR",
-    ja: "ja",
-  };
-  document.documentElement.lang = documentLanguages[currentLanguage] || "en";
+  const metadata = getLanguageMetadata(currentLanguage);
+  document.documentElement.lang = metadata.lang;
+  document.documentElement.dir = metadata.dir;
   document.title = t("documentTitle");
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.textContent = t(element.dataset.i18n);
@@ -324,7 +331,8 @@ const formatResetIn = (resetsAt) => {
   const totalMinutes = Math.max(0, Math.ceil((resetsAt - Date.now()) / 60000));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (currentLanguage === "zh") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLanguage === "zh-CN") return `${hours} 小时 ${minutes} 分钟`;
+  if (currentLanguage === "zh-TW") return `${hours} 小時 ${minutes} 分鐘`;
   if (currentLanguage === "ja") return `${hours} 時間 ${minutes} 分`;
   return `${hours} h ${minutes} min`;
 };
@@ -442,6 +450,12 @@ const setupPremiumCard = () => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  for (const { code, name } of LANGUAGE_OPTIONS) {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = name;
+    languageSelect.append(option);
+  }
   await applyLanguage();
   await ensureLicenseState();
   await refreshPremiumState();

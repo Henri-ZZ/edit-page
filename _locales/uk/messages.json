@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Редактор вебсторінок і повний знімок",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Редагуйте текст, замінюйте зображення, видаляйте елементи та знімайте поточний вигляд або всю сторінку.",
+    "description": "Extension description"
+  }
+}

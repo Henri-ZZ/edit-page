@@ -3,6 +3,8 @@
 // verification lives in license.js — here we only mirror the persisted
 // "verified-until" deadline so feature gating stays cheap and synchronous.
 
+import { LANGUAGE_OPTIONS, normalizeLanguageCode } from "./i18n/locales.js";
+
 export const STORAGE_KEYS = {
   LICENSE: "license", // object|null: verified license state (see license.js)
 };
@@ -11,7 +13,7 @@ export const WEBSITE_BASE_URL = "https://editpage.henriz.dev";
 export const UNINSTALL_URL = `${WEBSITE_BASE_URL}/goodbye`;
 export const GETTING_STARTED_URL = `${WEBSITE_BASE_URL}/getting-started`;
 export const LANGUAGE_PREFERENCE_KEY = "languagePreference";
-export const SUPPORTED_LANGUAGES = ["en", "zh", "es", "pt", "ja"];
+export const SUPPORTED_LANGUAGES = LANGUAGE_OPTIONS.map(({ code }) => code);
 export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
@@ -135,17 +137,16 @@ export async function consumeFeatureUse(feature) {
 /** Empty preference follows the browser UI language. */
 export async function getLanguagePreference() {
   const result = await chrome.storage.sync.get(LANGUAGE_PREFERENCE_KEY);
-  const value = result[LANGUAGE_PREFERENCE_KEY];
-  return SUPPORTED_LANGUAGES.includes(value) ? value : "";
+  return normalizeLanguageCode(result[LANGUAGE_PREFERENCE_KEY]);
 }
 
 export async function setLanguagePreference(value) {
-  const normalized = SUPPORTED_LANGUAGES.includes(value) ? value : "";
+  const normalized = normalizeLanguageCode(value);
   await chrome.storage.sync.set({ [LANGUAGE_PREFERENCE_KEY]: normalized });
   return normalized;
 }
 
-/** Preference > browser UI language (2-letter prefix) > English. */
+/** Preference > browser UI language (including region) > English. */
 export async function resolveLanguage() {
   const preference = await getLanguagePreference();
   if (preference) return preference;
@@ -158,12 +159,9 @@ export async function resolveLanguage() {
     candidates.push(...(navigator.languages || []), navigator.language);
   }
 
-  // Match by 2-letter prefix only ("zh-CN"/"zh_CN" -> "zh", "pt-BR" -> "pt")
-  // and respect candidate order: a low-priority "zh" in the accept-language
-  // list must not override an English UI language.
   for (const value of candidates) {
-    const prefix = String(value || "").toLowerCase().slice(0, 2);
-    if (SUPPORTED_LANGUAGES.includes(prefix)) return prefix;
+    const normalized = normalizeLanguageCode(value);
+    if (normalized) return normalized;
   }
   return "en";
 }

@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Weboldalszerkesztő és teljes oldalas kép",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Szerkesszen szöveget, cseréljen képeket, távolítson el elemeket, és rögzítse a nézetet vagy a teljes oldalt.",
+    "description": "Extension description"
+  }
+}

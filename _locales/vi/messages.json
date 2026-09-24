@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Trình sửa trang web và chụp toàn trang",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Sửa văn bản, thay hình ảnh, xóa phần tử và chụp khung nhìn hiện tại hoặc toàn bộ trang web.",
+    "description": "Extension description"
+  }
+}

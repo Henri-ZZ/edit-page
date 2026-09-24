@@ -1,10 +1,10 @@
 {
   "extName": {
     "message": "Edit Page - Editor de páginas web y captura completa",
-    "description": "Nombre de la extensión"
+    "description": "Extension name"
   },
   "extDescription": {
     "message": "Edita textos, cambia imágenes, elimina elementos y captura la vista actual o una página web completa.",
-    "description": "Descripción de la extensión"
+    "description": "Extension description"
   }
 }

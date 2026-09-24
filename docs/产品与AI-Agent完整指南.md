@@ -37,7 +37,7 @@
 6. AI Agent 修改文案前必须先检查本节，不得为了表达自然、语言多样性或 SEO 自行替换 Canonical terminology。
 7. 新增语言时可以进行自然翻译，但同一种语言内必须始终使用同一个固定术语。
 
-当前支持的界面与商店语言为 English、简体中文、Español、Português (Brasil) 和日本語。产品名在所有语言中均保持 `Edit Page`。Premium 凭证在新增语言中的固定术语为：
+当前支持 30 种界面与商店语言：English（默认）、Arabic、Chinese (Simplified)、Chinese (Traditional)、Czech、Danish、Dutch、Finnish、French、German、Greek、Hebrew、Hindi、Hungarian、Indonesian、Italian、Japanese、Korean、Malay、Norwegian、Polish、Portuguese (Brazil)、Romanian、Russian、Spanish、Swedish、Thai、Turkish、Ukrainian 和 Vietnamese。设置页中 English 固定第一，其余语言按英文语言名排序。产品名在所有语言中均保持 `Edit Page`。各语言的 Chrome Web Store Description 见 `docs/CHROMEWEBSTORE-DESCRIPTIONS.md`；名称和 Summary 随 `_locales` 打入扩展包。Premium 凭证在既有语言中的固定术语为：
 
 - Español: `clave de licencia`
 - Português (Brasil): `chave de licença`
@@ -89,7 +89,7 @@ ABCD-2345-EFGH-6789
 2. 英文是否始终使用“License Key”。
 3. HTML 初始文案与 JavaScript 本地化文案是否一致。
 4. Popup、Settings、README、商店文案和客服模板是否使用相同术语。
-5. 新增运行时资源是否已经加入 `scripts/package-release.sh`。
+5. 新增运行时资源是否已经加入 `scripts/package.sh`。
 6. 文档描述是否仍与当前代码行为一致。
 
 ## 5. AI Agent 修改规则

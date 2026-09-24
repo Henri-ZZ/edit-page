@@ -1,10 +1,10 @@
 {
   "extName": {
     "message": "Edit Page - ウェブページ編集とページ全体撮影",
-    "description": "拡張機能の名前"
+    "description": "Extension name"
   },
   "extDescription": {
     "message": "ページのテキスト編集、画像置換、要素削除、現在の表示領域またはページ全体の撮影ができます。",
-    "description": "拡張機能の説明"
+    "description": "Extension description"
   }
 }

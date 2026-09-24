@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Editor web și captură de pagină completă",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Editează textul, înlocuiește imagini, elimină elemente și capturează vizualizarea sau pagina completă.",
+    "description": "Extension description"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - 웹페이지 편집기 및 전체 페이지 캡처",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "웹페이지 텍스트를 편집하고 이미지를 교체하며 요소를 제거하고 현재 화면이나 전체 페이지를 캡처하세요.",
+    "description": "Extension description"
+  }
+}

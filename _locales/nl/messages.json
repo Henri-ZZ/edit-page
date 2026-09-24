@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Webpagina-editor en volledige screenshots",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Bewerk tekst, vervang afbeeldingen, verwijder elementen en maak screenshots van de weergave of volledige pagina.",
+    "description": "Extension description"
+  }
+}

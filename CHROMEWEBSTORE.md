@@ -1,8 +1,10 @@
 # Chrome Web Store Listing — Edit Page
 
-> Last Updated: 2026-08-31
+> Last Updated: 2026-09-24
 
 ## Localized Store Listing
+
+Copy-ready descriptions for all 30 supported languages are maintained in `docs/CHROMEWEBSTORE-DESCRIPTIONS.md`. Localized names and summaries are packaged with the extension in `_locales`.
 
 Product names always use the English name `Edit Page`. Functional wording is localized for each store language.
 
@@ -24,7 +26,7 @@ Edit Page - 网页编辑与整页截图
 
 **摘要**
 
-直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页，适合网页改稿、设计预览与内容校对。
+直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页。
 
 ### Español
 
@@ -61,18 +63,14 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Product name: always `Edit Page` in every language.
 - English feature terms: Edit text, Replace images, Remove elements, Screenshot, Current view, Full page.
 - Chinese feature terms: 编辑文字、更改图片、移除元素、截图、当前视窗、整张网页。
-- Supported interface and store languages: English, Simplified Chinese, Spanish, Brazilian Portuguese, and Japanese.
+- Supported interface and store languages: 30 total. English is the default; the remaining languages are Arabic, Simplified Chinese, Traditional Chinese, Czech, Danish, Dutch, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Korean, Malay, Norwegian, Polish, Brazilian Portuguese, Romanian, Russian, Spanish, Swedish, Thai, Turkish, Ukrainian, and Vietnamese.
 - Keep the extension name within 75 characters and the Summary within 132 characters.
 - Keep keywords natural. Do not add unsupported claims, superlatives, or repetitive keyword variants.
 
 ## Dashboard Sync
 
-- [ ] Copy the English name and Summary to the English Chrome Web Store listing.
-- [ ] Copy the Chinese name and Summary to the Simplified Chinese Chrome Web Store listing.
-- [ ] Copy the Spanish name and Summary to the Spanish Chrome Web Store listing.
-- [ ] Copy the Portuguese name and Summary to the Portuguese (Brazil) Chrome Web Store listing.
-- [ ] Copy the Japanese name and Summary to the Japanese Chrome Web Store listing.
-- [x] Keep manifest-localized names and descriptions synchronized with this document.
+- [ ] Copy all 30 localized descriptions from `docs/CHROMEWEBSTORE-DESCRIPTIONS.md` into the Chrome Web Store dashboard.
+- [x] Generate the packaged names and summaries in `_locales`, plus the separate description document, by running `node scripts/generate-store-locales.mjs`.
 
 ## Current Screenshot Behavior
 
@@ -132,6 +130,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 - Added Spanish, Brazilian Portuguese, and Japanese interface and store localization.
 - Added first-install Getting Started and post-uninstall Goodbye links.
 - Regenerated all extension icon sizes from the shared SVG artwork.
+- Expanded the interface and Chrome Web Store localization coverage to 30 languages, including RTL layout support for Arabic and Hebrew.
 
 ## Publishing Readiness
 

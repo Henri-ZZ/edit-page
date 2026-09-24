@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Websideeditor og helsideskærmbillede",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Rediger tekst, udskift billeder, fjern elementer, og tag skærmbilleder af visningen eller hele siden.",
+    "description": "Extension description"
+  }
+}

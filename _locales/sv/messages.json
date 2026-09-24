@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Webbsidesredigerare och helsidesbild",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Redigera text, byt bilder, ta bort element och fånga den aktuella vyn eller hela sidan.",
+    "description": "Extension description"
+  }
+}

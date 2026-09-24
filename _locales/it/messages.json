@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - Editor web e screenshot pagina intera",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Modifica il testo, sostituisci immagini, rimuovi elementi e cattura la vista o l’intera pagina.",
+    "description": "Extension description"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - עריכת דפי אינטרנט וצילום דף מלא",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "ערכו טקסט, החליפו תמונות, הסירו רכיבים וצלמו את התצוגה הנוכחית או את הדף המלא.",
+    "description": "Extension description"
+  }
+}

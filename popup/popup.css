@@ -14,6 +14,14 @@ body {
   color: #172033;
 }
 
+html[dir="rtl"] .tool-indicator {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] :is(.tool-copy, .status, .section-label) {
+  text-align: right;
+}
+
 .container {
   padding: 16px;
 }

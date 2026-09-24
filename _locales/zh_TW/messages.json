@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - 網頁編輯與整頁截圖",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "直接編輯網頁文字、替換圖片、移除元素，並擷取目前視窗或完整網頁。",
+    "description": "Extension description"
+  }
+}

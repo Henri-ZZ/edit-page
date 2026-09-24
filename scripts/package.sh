@@ -38,6 +38,7 @@ zip -qr "$ZIP_PATH" \
   background \
   content \
   icons \
+  i18n \
   offscreen \
   options \
   popup \

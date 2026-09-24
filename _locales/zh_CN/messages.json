@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页，适合网页改稿、设计预览与内容校对。",
+    "message": "直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页。",
     "description": "Extension description"
   }
 }

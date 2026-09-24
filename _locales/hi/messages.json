@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Edit Page - वेबपेज एडिटर और फुल-पेज स्क्रीनशॉट",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "वेबपेज का टेक्स्ट संपादित करें, इमेज बदलें, एलिमेंट हटाएँ और मौजूदा दृश्य या पूरा पेज कैप्चर करें।",
+    "description": "Extension description"
+  }
+}
