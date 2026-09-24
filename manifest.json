@@ -28,13 +28,14 @@
     "open_in_tab": true
   },
   "permissions": [
-    "tabs",
+    "activeTab",
     "scripting",
     "storage",
     "alarms",
-    "offscreen",
+    "offscreen"
+  ],
+  "optional_permissions": [
     "clipboardWrite",
     "downloads"
-  ],
-  "host_permissions": ["<all_urls>"]
+  ]
 }

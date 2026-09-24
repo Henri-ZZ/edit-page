@@ -82,17 +82,22 @@ Edit Page - ウェブページ編集とページ全体撮影
 
 ### Extension permissions
 
-- `tabs`: Reads the active tab URL to identify browser-internal pages where Chrome does not allow extensions to run, and verifies that the same tab remains active throughout a full-page screenshot.
+- `activeTab`: Grants temporary access to the current tab only after the user clicks the Edit Page action. This is what lets Edit Page read the current tab URL (to detect unsupported browser-internal pages), run the editing behavior, and capture the visible tab. The extension does not hold permanent access to any website, and the grant ends when the tab navigates or closes.
 - `scripting`: Runs the user-selected editing, image replacement, element removal, and full-page screenshot behavior in the current webpage.
 - `storage`: Saves interface language, screenshot preferences, free-feature usage, selected replacement-image data, and locally verified Premium activation state. Preferences and free-feature usage use Chrome sync storage; activation and temporary image data use local storage; the full-page screenshot task lock uses session storage.
 - `alarms`: Periodically checks an existing Premium activation so revoked, refunded, expired, or moved activations are reflected without requiring the user to open the extension.
 - `offscreen`: Required only for the user-initiated full-page screenshot feature. Edit Page captures the webpage in viewport-sized segments and uses a hidden offscreen document with a canvas to combine those segments into one PNG image. The offscreen document is not used for browsing, tracking, advertising, or background data collection, and screenshot data is not uploaded.
-- `clipboardWrite`: Required to copy a screenshot to the system clipboard when the user selects Clipboard as the screenshot save method and then initiates a screenshot. The permission is used only for the resulting PNG image and is never used to read clipboard contents.
-- `downloads`: Required to save a screenshot as a PNG file when the user selects Download as the screenshot save method and then initiates a screenshot. Files are created only in response to that explicit user action; the extension does not inspect, modify, or manage existing downloads.
 
-### Host permission
+### Optional permissions (requested only when the matching feature is used)
 
-- `<all_urls>`: Edit Page is designed to edit and capture user-selected webpages on arbitrary sites. It also allows the extension page to validate an image URL supplied by the user before that image is used. Chrome-controlled pages and other pages where injection is prohibited remain unsupported.
+- `clipboardWrite`: Not requested at install time. Requested the first time the user starts a screenshot while Clipboard is the selected save method. Used only to copy the resulting PNG image and never to read clipboard contents.
+- `downloads`: Not requested at install time. Requested the first time the user starts a screenshot while Download is the selected save method. Files are created only in response to that explicit user action; the extension does not inspect, modify, or manage existing downloads.
+
+Each permission is requested separately, matching the user's current action, and is remembered once granted.
+
+### Host permissions
+
+- None. Edit Page requests no permanent access to any website. Access to the page being edited or captured is granted per tab through `activeTab` when the user clicks the extension action, and the Premium activation / periodic check-in endpoints (`https://licentra.henriz.dev`) accept browser-extension origins through CORS.
 
 ## Privacy & Data Use
 

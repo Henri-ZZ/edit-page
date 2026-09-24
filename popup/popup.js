@@ -6,12 +6,19 @@ import {
   getLanguageMetadata,
 } from "../i18n/locales.js";
 import {
+  OPTIONAL_PERMISSIONS,
+  clearPendingScreenshot,
   consumeFeatureUse,
+  getPendingScreenshot,
   getQuotaState,
   getScreenshotDestination,
+  hasOptionalPermission,
   isPremium,
   refreshPremiumState,
+  requestOptionalPermission,
   resolveLanguage,
+  setPendingScreenshot,
+  setScreenshotBadge,
 } from "../shared.js";
 
 const i18n = {
@@ -40,6 +47,10 @@ const i18n = {
     statusScreenshotDownloaded: "Screenshot downloaded!",
     savingScreenshot: "Saving screenshot...",
     statusScreenshotFailed: "Screenshot failed: ",
+    clipboardPermissionDenied:
+      "The screenshot could not be completed because clipboard access was denied. Click the screenshot button again and choose Allow.",
+    downloadPermissionDenied:
+      "The screenshot could not be completed because download access was denied. Click the screenshot button again and choose Allow.",
     selectImage: "Select Image",
     changeImage: "Change image",
     changeImageDesc: "Upload or paste an Image URL",
@@ -129,6 +140,10 @@ const i18n = {
     statusScreenshotDownloaded: "¡Captura descargada!",
     savingScreenshot: "Guardando la captura...",
     statusScreenshotFailed: "Error al capturar: ",
+    clipboardPermissionDenied:
+      "La captura no se pudo completar porque se denegó el permiso de portapapeles. Vuelve a pulsar el botón de captura y elige Permitir.",
+    downloadPermissionDenied:
+      "La captura no se pudo completar porque se denegó el permiso de descargas. Vuelve a pulsar el botón de captura y elige Permitir.",
     changeImage: "Cambiar imagen",
     changeImageDesc: "Sube una imagen o pega su URL",
     uploadLocalImage: "Subir desde el dispositivo",
@@ -188,6 +203,10 @@ const i18n = {
     statusScreenshotDownloaded: "Captura baixada!",
     savingScreenshot: "Salvando a captura...",
     statusScreenshotFailed: "Falha na captura: ",
+    clipboardPermissionDenied:
+      "A captura não pôde ser concluída porque a permissão da área de transferência foi negada. Clique novamente no botão de captura e escolha Permitir.",
+    downloadPermissionDenied:
+      "A captura não pôde ser concluída porque a permissão de download foi negada. Clique novamente no botão de captura e escolha Permitir.",
     changeImage: "Alterar imagem",
     changeImageDesc: "Envie uma imagem ou cole a URL",
     uploadLocalImage: "Enviar do dispositivo",
@@ -247,6 +266,10 @@ const i18n = {
     statusScreenshotDownloaded: "スクリーンショットをダウンロードしました！",
     savingScreenshot: "スクリーンショットを保存中...",
     statusScreenshotFailed: "撮影に失敗しました: ",
+    clipboardPermissionDenied:
+      "クリップボードの権限が拒否されたため、スクリーンショットを完了できませんでした。もう一度スクリーンショットボタンを押し、「許可」を選択してください。",
+    downloadPermissionDenied:
+      "ダウンロードの権限が拒否されたため、スクリーンショットを完了できませんでした。もう一度スクリーンショットボタンを押し、「許可」を選択してください。",
     changeImage: "画像を変更",
     changeImageDesc: "画像をアップロードまたは URL を貼り付けます",
     uploadLocalImage: "デバイスからアップロード",
@@ -308,6 +331,10 @@ const i18n = {
     statusScreenshotDownloaded: "截图已下载！",
     savingScreenshot: "正在保存截图…",
     statusScreenshotFailed: "截图失败: ",
+    clipboardPermissionDenied:
+      '由于剪贴板权限被拒绝，无法完成截图。请再次点击截图按钮并选择"允许"。',
+    downloadPermissionDenied:
+      '由于下载权限被拒绝，无法完成截图。请再次点击截图按钮并选择"允许"。',
     selectImage: "选择图片",
     changeImage: "更改图片",
     changeImageDesc: "本地上传或粘贴图片 URL",
@@ -1026,8 +1053,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     return `edit-page-${kind}-${timestamp}.png`;
   };
 
+  // clipboardWrite / downloads are optional permissions: only the one that
+  // matches the user's current screenshot destination is requested, and only
+  // from the click that starts the screenshot (never on popup open).
+  const requiredScreenshotPermission = () =>
+    screenshotDestination === "download"
+      ? OPTIONAL_PERMISSIONS.DOWNLOADS
+      : OPTIONAL_PERMISSIONS.CLIPBOARD_WRITE;
+
+  const permissionDeniedMessage = (permission) =>
+    t(
+      permission === OPTIONAL_PERMISSIONS.DOWNLOADS
+        ? "downloadPermissionDenied"
+        : "clipboardPermissionDenied",
+    );
+
+  // Chrome tears the action popup down while an optional-permission dialog is
+  // open, so the code waiting on chrome.permissions.request() never resumes.
+  // The in-flight screenshot is parked in session storage (see shared.js) and
+  // picked back up by resumePendingScreenshot — either because the service
+  // worker reopens the popup after a grant, or when the user opens it again.
+  const settlePendingScreenshot = async () => {
+    await clearPendingScreenshot();
+    setScreenshotBadge(false);
+  };
+
+  const ensureScreenshotPermission = async (kind) => {
+    const permission = requiredScreenshotPermission();
+    if (await hasOptionalPermission(permission)) return true;
+
+    await setPendingScreenshot({ kind, permission, at: Date.now() });
+    // Badge now: if the dialog closes the popup, this is the only cue the user
+    // gets until they open the popup again and read the full reason.
+    setScreenshotBadge(true);
+
+    if (await requestOptionalPermission(permission)) {
+      await settlePendingScreenshot();
+      return true;
+    }
+
+    // Denied (or the prompt was dismissed). Drop the parked request so it can
+    // never fire later, and tell the user the screenshot was skipped.
+    await settlePendingScreenshot();
+    showStatus(permissionDeniedMessage(permission), false);
+    return false;
+  };
+
+  /** Saves the screenshot. Returns a status message, or null when the optional
+   *  permission needed for the current destination was not granted. */
   const saveScreenshot = async (dataUrl, kind) => {
     if (screenshotDestination === "download") {
+      if (!(await ensureScreenshotPermission(kind))) return null;
       await chrome.downloads.download({
         url: dataUrl,
         filename: screenshotFilename(kind),
@@ -1035,6 +1111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       return t("statusScreenshotDownloaded");
     }
+    if (!(await ensureScreenshotPermission(kind))) return null;
     await copyScreenshotToClipboard(dataUrl);
     return t("statusScreenshotSuccess");
   };
@@ -1055,7 +1132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       const successMessage = await saveScreenshot(dataUrl, "viewport");
-      showStatus(successMessage, true);
+      if (successMessage) showStatus(successMessage, true);
     } catch (e) {
       console.error("Screenshot failed:", e);
       showStatus(t("statusScreenshotFailed") + e.message, false);
@@ -1133,6 +1210,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const successMessage = await saveScreenshot(result.dataUrl, "full-page");
+      // Permission denied: one attempt was already started; keep the error
+      // message shown by saveScreenshot and report the capture as not saved.
+      if (!successMessage) return false;
       captureProgressBar.style.width = "100%";
       captureProgressText.textContent = successMessage;
       showStatus(successMessage, true);
@@ -1663,18 +1743,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     await finishEditingSession();
   };
 
-  screenshotBtn.addEventListener("click", () => {
-    const expanded = screenshotBtn.getAttribute("aria-expanded") === "true";
-    screenshotBtn.setAttribute("aria-expanded", String(!expanded));
-    screenshotOptions.classList.toggle("hidden", expanded);
-  });
-
-  visibleScreenshotBtn.addEventListener("click", async () => {
+  const runVisibleScreenshot = async () => {
+    // Ask for clipboardWrite / downloads first: the permission prompt needs
+    // the click's user gesture, which later awaits would consume.
+    if (!(await ensureScreenshotPermission("viewport"))) return;
     await prepareForScreenshot();
     await takeVisibleScreenshot();
-  });
+  };
 
-  fullPageScreenshotBtn.addEventListener("click", async () => {
+  const runFullPageScreenshot = async () => {
     let billUse = false;
     if (!isPremium()) {
       const state = await getQuotaState();
@@ -1684,11 +1761,54 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       billUse = true;
     }
+    if (!(await ensureScreenshotPermission("full-page"))) return;
     await prepareForScreenshot();
     const captured = await takeFullPageScreenshot();
     // Only bill the free allowance for completed captures.
     if (captured && billUse) await consumeFeatureUse("fullPageScreenshot");
     await updatePlanUI();
+  };
+
+  /**
+   * Finishes a screenshot whose permission prompt closed the popup: granted →
+   * run the action the user had started, denied → explain that it was skipped.
+   * Called once, right after the popup has finished initializing.
+   */
+  const resumePendingScreenshot = async () => {
+    // getPendingScreenshot() drops entries past their TTL, so a stale request
+    // from an earlier session is ignored instead of firing out of nowhere.
+    const pending = await getPendingScreenshot();
+
+    // The popup is open and readable now, so the badge has done its job —
+    // whether the pending request is resolved here or was denied.
+    await settlePendingScreenshot();
+    if (!pending) return;
+
+    const permission = pending.permission || requiredScreenshotPermission();
+    if (!(await hasOptionalPermission(permission))) {
+      showStatus(permissionDeniedMessage(permission), false);
+      return;
+    }
+
+    if (pending.kind === "viewport") {
+      await runVisibleScreenshot();
+    } else if (pending.kind === "full-page") {
+      await runFullPageScreenshot();
+    }
+  };
+
+  screenshotBtn.addEventListener("click", () => {
+    const expanded = screenshotBtn.getAttribute("aria-expanded") === "true";
+    screenshotBtn.setAttribute("aria-expanded", String(!expanded));
+    screenshotOptions.classList.toggle("hidden", expanded);
+  });
+
+  visibleScreenshotBtn.addEventListener("click", () => {
+    void runVisibleScreenshot();
+  });
+
+  fullPageScreenshotBtn.addEventListener("click", () => {
+    void runFullPageScreenshot();
   });
 
   const setSelectedImage = async (imageSource) => {
@@ -1966,4 +2086,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       removeBtn.removeAttribute("aria-busy");
     }
   });
+
+  // Runs last so every control above is already wired up: if the permission
+  // dialog closed the popup during a previous attempt, finish that screenshot
+  // now (or report that it was denied).
+  resumePendingScreenshot().catch(() => {});
 });

@@ -1,5 +1,6 @@
 import {
   FEATURE_USAGE_KEY,
+  OPTIONAL_PERMISSIONS,
   STORAGE_KEYS,
   WEBSITE_BASE_URL,
   getQuotaState,
@@ -7,8 +8,10 @@ import {
   getHideRepeatedElements,
   getLanguagePreference,
   getScreenshotDestination,
+  hasOptionalPermission,
   isPremium,
   refreshPremiumState,
+  requestOptionalPermission,
   resolveLanguage,
   setLanguagePreference,
   setHideRepeatedElements,
@@ -464,6 +467,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   languageSelect.value = await getLanguagePreference();
 
   const screenshotDestination = await getScreenshotDestination();
+
+  // Ask for the optional permission as soon as the matching save method is
+  // picked. This page is a regular tab, so the permission dialog does not close
+  // anything and the user sees both the prompt and the outcome. A refusal is
+  // deliberately silent: the setting is kept, and the popup asks again — with
+  // a clear message — the next time a screenshot is actually taken.
+  const requestDestinationPermission = async (destination) => {
+    const permission =
+      destination === "download"
+        ? OPTIONAL_PERMISSIONS.DOWNLOADS
+        : OPTIONAL_PERMISSIONS.CLIPBOARD_WRITE;
+    if (await hasOptionalPermission(permission)) return;
+    await requestOptionalPermission(permission);
+  };
+
   const destinationInputs = document.querySelectorAll(
     'input[name="screenshotDestination"]',
   );
@@ -472,6 +490,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     input.addEventListener("change", async () => {
       if (!input.checked) return;
       await setScreenshotDestination(input.value);
+      await requestDestinationPermission(input.value);
     });
   });
 

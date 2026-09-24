@@ -10,7 +10,9 @@ import {
   UNINSTALL_URL,
   getGettingStartedUrl,
   getHideRepeatedElements,
-  refreshPremiumState
+  getPendingScreenshot,
+  refreshPremiumState,
+  setScreenshotBadge
 } from '../shared.js';
 import { maybeCheckIn } from '../license.js';
 
@@ -543,8 +545,36 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+// ───────────────────────── screenshot permission resume ─────────────────────────
+
+// chrome.permissions.request() closes the action popup, so a screenshot
+// waiting on clipboardWrite / downloads parks itself in session storage (see
+// shared.js). Put the popup back on screen once the permission is granted, so
+// the user watches the screenshot finish instead of having to remember to
+// click the icon again — the popup resumes the parked screenshot on open.
+chrome.permissions.onAdded.addListener(async (granted) => {
+  if (!granted.permissions?.length) return;
+  // Give a popup that survived the dialog time to clear its own record.
+  await wait(400);
+  if (!(await getPendingScreenshot())) return;
+  try {
+    await chrome.action.openPopup();
+  } catch {
+    // Chrome 126 and older cannot open the popup programmatically, and the
+    // browser window may not be focused. The badge stays visible instead,
+    // and the popup resumes the screenshot whenever it is next opened.
+  }
+});
+
+// Pending screenshots live in session storage, which is wiped on browser
+// restart — never leave a badge behind for a request that no longer exists.
+async function syncScreenshotBadge() {
+  if (!(await getPendingScreenshot())) setScreenshotBadge(false);
+}
+
 chrome.runtime.onStartup.addListener(() => {
   initializeLicenseState().catch(() => {});
+  syncScreenshotBadge().catch(() => {});
 });
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -561,3 +591,4 @@ chrome.runtime.onInstalled.addListener((details) => {
 // does not guarantee a runtime.onStartup event.
 initializeLicenseState().catch(() => {});
 scheduleLicenseCheckIn();
+syncScreenshotBadge().catch(() => {});

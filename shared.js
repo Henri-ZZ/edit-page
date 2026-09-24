@@ -9,6 +9,90 @@ export const STORAGE_KEYS = {
   LICENSE: "license", // object|null: verified license state (see license.js)
 };
 
+// ───────────────────────── optional permissions ─────────────────────────
+// clipboardWrite and downloads are declared under optional_permissions, so
+// they are never requested at install time. They are requested one at a time
+// from the popup, inside the user gesture that starts the matching screenshot
+// action (Copy → clipboardWrite, Download → downloads).
+
+export const OPTIONAL_PERMISSIONS = {
+  CLIPBOARD_WRITE: "clipboardWrite",
+  DOWNLOADS: "downloads",
+};
+
+/** Whether an optional permission was already granted (no prompt is shown). */
+export async function hasOptionalPermission(permission) {
+  try {
+    return await chrome.permissions.contains({ permissions: [permission] });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Request a single optional permission. Must be called inside a user gesture
+ * (Chrome rejects the promise otherwise). Resolves to true when granted.
+ */
+export async function requestOptionalPermission(permission) {
+  try {
+    return await chrome.permissions.request({ permissions: [permission] });
+  } catch {
+    return false;
+  }
+}
+
+// ───────────────────────── pending screenshot ─────────────────────────
+// Chrome tears the action popup down while an optional-permission dialog is
+// open, so a screenshot waiting on clipboardWrite / downloads is parked in
+// session storage. The popup resumes it when it opens again, and the service
+// worker reopens the popup as soon as the permission has been granted.
+
+export const PENDING_SCREENSHOT_KEY = "pendingScreenshotRequest";
+export const PENDING_SCREENSHOT_TTL_MS = 3 * 60 * 1000;
+
+/** The still-relevant pending screenshot request, or null. */
+export async function getPendingScreenshot() {
+  try {
+    const result = await chrome.storage.session.get(PENDING_SCREENSHOT_KEY);
+    const pending = result[PENDING_SCREENSHOT_KEY];
+    if (!pending?.kind || !Number.isFinite(pending.at)) return null;
+    if (Date.now() - pending.at > PENDING_SCREENSHOT_TTL_MS) return null;
+    return pending;
+  } catch {
+    return null;
+  }
+}
+
+export async function setPendingScreenshot(pending) {
+  try {
+    await chrome.storage.session.set({ [PENDING_SCREENSHOT_KEY]: pending });
+  } catch {}
+}
+
+export async function clearPendingScreenshot() {
+  try {
+    await chrome.storage.session.remove(PENDING_SCREENSHOT_KEY);
+  } catch {}
+}
+
+/**
+ * Icon feedback for a screenshot that is still waiting on a permission
+ * decision. By then the popup is closed, so the badge is the only thing the
+ * user can still see until they open the popup and read the reason there.
+ */
+export function setScreenshotBadge(active) {
+  const action = chrome.action;
+  if (!action?.setBadgeText) return;
+  void Promise.resolve(action.setBadgeText({ text: active ? "!" : "" })).catch(
+    () => {}
+  );
+  if (active) {
+    void Promise.resolve(
+      action.setBadgeBackgroundColor({ color: "#e5484d" })
+    ).catch(() => {});
+  }
+}
+
 export const WEBSITE_BASE_URL = "https://editpage.henriz.dev";
 export const UNINSTALL_URL = `${WEBSITE_BASE_URL}/goodbye`;
 export const GETTING_STARTED_URL = `${WEBSITE_BASE_URL}/getting-started`;
