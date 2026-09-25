@@ -91,6 +91,7 @@ h1 {
   border-radius: 14px;
 }
 
+.edit-text-card,
 .screenshot-card {
   grid-column: 1 / -1;
 }

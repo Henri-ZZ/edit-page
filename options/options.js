@@ -8,6 +8,7 @@ import {
   getHideRepeatedElements,
   getLanguagePreference,
   getScreenshotDestination,
+  getSelectionToolbarEnabled,
   hasOptionalPermission,
   isPremium,
   refreshPremiumState,
@@ -16,6 +17,7 @@ import {
   setLanguagePreference,
   setHideRepeatedElements,
   setScreenshotDestination,
+  setSelectionToolbarEnabled,
 } from "../shared.js";
 import { activateLicense } from "../license.js";
 import {
@@ -23,6 +25,7 @@ import {
   LANGUAGE_OPTIONS,
   getLanguageMetadata,
 } from "../i18n/locales.js";
+import { EDIT_TEXT_SETTINGS_MESSAGES } from "../i18n/edit-text-settings.js";
 
 /** Official website, tagged with the source so analytics can attribute visits from the settings page. */
 const CONTACT_URL = `${WEBSITE_BASE_URL}/contact?utm_source=dashboard`;
@@ -72,6 +75,7 @@ const messages = {
     quotaReplaceImage: "Image imports",
     quotaFullPage: "Full-page screenshot",
     quotaRemoveElement: "Remove element",
+    quotaTextFormatting: "Text formatting",
     quotaOfLeft: "{remaining} of {limit} left",
     quotaLimitReached: "Limit reached",
     quotaWindow:
@@ -82,6 +86,8 @@ const messages = {
     supportFeedbackPrompt: "Found a bug or have a suggestion?",
     leaveReview: "Leave Review",
     sendFeedback: "Send Feedback",
+    editTextSettings: "Edit text",
+    showSelectionToolbar: "Show toolbar when text is selected",
   },
   es: {
     documentTitle: "Panel · Edit Page",
@@ -257,6 +263,9 @@ const messages = {
 messages["zh-CN"] = messages.zh;
 messages["pt-BR"] = messages.pt;
 Object.assign(messages, ADDITIONAL_OPTIONS_MESSAGES);
+for (const [locale, localizedMessages] of Object.entries(EDIT_TEXT_SETTINGS_MESSAGES)) {
+  messages[locale] = { ...(messages[locale] || {}), ...localizedMessages };
+}
 for (const locale of Object.keys(messages)) {
   if (locale !== "en") messages[locale] = { ...messages.en, ...messages[locale] };
 }
@@ -364,19 +373,24 @@ const renderQuota = async () => {
   const replaceCell = cell("replaceImage");
   const fullPageCell = cell("fullPageScreenshot");
   const removeCell = cell("removeElement");
+  const formattingCell = cell("textFormatting");
 
   container.innerHTML = `
+    <div class="premium-quota-row">
+      <span>${t("quotaTextFormatting")}</span>
+      <small${formattingCell.exhausted ? ' class="is-exhausted"' : ""}>${formattingCell.text}</small>
+    </div>
     <div class="premium-quota-row">
       <span>${t("quotaReplaceImage")}</span>
       <small${replaceCell.exhausted ? ' class="is-exhausted"' : ""}>${replaceCell.text}</small>
     </div>
     <div class="premium-quota-row">
-      <span>${t("quotaFullPage")}</span>
-      <small${fullPageCell.exhausted ? ' class="is-exhausted"' : ""}>${fullPageCell.text}</small>
-    </div>
-    <div class="premium-quota-row">
       <span>${t("quotaRemoveElement")}</span>
       <small${removeCell.exhausted ? ' class="is-exhausted"' : ""}>${removeCell.text}</small>
+    </div>
+    <div class="premium-quota-row">
+      <span>${t("quotaFullPage")}</span>
+      <small${fullPageCell.exhausted ? ' class="is-exhausted"' : ""}>${fullPageCell.text}</small>
     </div>
     ${state.limited ? `<p class="premium-quota-resume">${t("quotaResumesIn").replace("{reset}", formatResetIn(state.lockedUntil))}</p>` : ""}
     <p class="premium-quota-reset">${t("quotaWindow")}</p>
@@ -498,6 +512,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   hideRepeatedElements.checked = await getHideRepeatedElements();
   hideRepeatedElements.addEventListener("change", async () => {
     await setHideRepeatedElements(hideRepeatedElements.checked);
+  });
+
+  const selectionToolbarEnabled = document.getElementById("selectionToolbarEnabled");
+  selectionToolbarEnabled.checked = await getSelectionToolbarEnabled();
+  selectionToolbarEnabled.addEventListener("change", async () => {
+    await setSelectionToolbarEnabled(selectionToolbarEnabled.checked);
   });
 
   languageSelect.addEventListener("change", async () => {

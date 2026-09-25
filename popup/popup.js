@@ -12,6 +12,7 @@ import {
   getPendingScreenshot,
   getQuotaState,
   getScreenshotDestination,
+  getSelectionToolbarEnabled,
   hasOptionalPermission,
   isPremium,
   refreshPremiumState,
@@ -618,7 +619,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           outline: 1px dashed #3498db !important;
         }
         .edit-page-editing #edit-page-history-toolbar:hover,
-        .edit-page-editing #edit-page-history-toolbar *:hover {
+        .edit-page-editing #edit-page-history-toolbar *:hover,
+        .edit-page-editing #edit-page-selection-toolbar:hover {
           outline: none !important;
         }
       `,
@@ -856,6 +858,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 } else if (operation.element?.isConnected) {
                   operation.element.remove();
                 }
+              } else if (operation.type === "format") {
+                for (const record of operation.records) {
+                  if (record.element?.isConnected)
+                    record.element.innerHTML =
+                      record[direction === "undo" ? "before" : "after"];
+                }
               }
             },
             undo() {
@@ -936,6 +944,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         window._editPageFinishEditingSession = () => {
+          window._editPageSelectionToolbar?.destroy();
           document.body.contentEditable = "false";
           document.body.classList.remove(
             "edit-page-editing",
@@ -1020,6 +1029,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
       ],
     });
+    if (await getSelectionToolbarEnabled()) {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["content/selection-toolbar.js"],
+      });
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => window._editPageSelectionToolbarInit?.(),
+      });
+    } else {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => window._editPageSelectionToolbar?.destroy(),
+      });
+    }
   };
 
   const stopEditMode = async () => {

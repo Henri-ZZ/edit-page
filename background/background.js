@@ -11,6 +11,8 @@ import {
   getGettingStartedUrl,
   getHideRepeatedElements,
   getPendingScreenshot,
+  consumeFeatureUse,
+  getQuotaState,
   refreshPremiumState,
   setScreenshotBadge
 } from '../shared.js';
@@ -504,6 +506,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     (async () => {
       sendResponse({ ok: true, premium: await initializeLicenseState() });
     })();
+    return true;
+  } else if (request.type === 'consume-text-formatting-use') {
+    (async () => {
+      if (await refreshPremiumState()) {
+        sendResponse({ ok: true, allowed: true, premium: true });
+        return;
+      }
+      const before = await getQuotaState();
+      if (before.limited) {
+        sendResponse({ ok: true, allowed: false, state: before });
+        return;
+      }
+      const state = await consumeFeatureUse('textFormatting');
+      sendResponse({ ok: true, allowed: true, state });
+    })().catch((error) => sendResponse({ ok: false, allowed: false, error: error.message }));
     return true;
   }
   return false;

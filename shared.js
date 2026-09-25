@@ -101,6 +101,7 @@ export const SUPPORTED_LANGUAGES = LANGUAGE_OPTIONS.map(({ code }) => code);
 export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
+export const SELECTION_TOOLBAR_ENABLED_KEY = "selectionToolbarEnabled";
 
 export function getBrowserPlatform(userAgent = "") {
   if (/Edg\//i.test(userAgent)) return "edge";
@@ -135,6 +136,17 @@ export async function setHideRepeatedElements(value) {
   return normalized;
 }
 
+export async function getSelectionToolbarEnabled() {
+  const result = await chrome.storage.sync.get(SELECTION_TOOLBAR_ENABLED_KEY);
+  return result[SELECTION_TOOLBAR_ENABLED_KEY] !== false;
+}
+
+export async function setSelectionToolbarEnabled(value) {
+  const normalized = value !== false;
+  await chrome.storage.sync.set({ [SELECTION_TOOLBAR_ENABLED_KEY]: normalized });
+  return normalized;
+}
+
 // ───────────────────────── free usage quotas ─────────────────────────
 // Free tier: each advanced feature has its own allowance, but limits are
 // OR-combined — as soon as ANY feature reaches its limit, ALL advanced
@@ -147,6 +159,7 @@ export const FREE_FEATURE_LIMITS = {
   replaceImage: 5, // image imports: upload and pasted URL both count
   fullPageScreenshot: 3,
   removeElement: 5, // counted per entering remove mode, not per removed element
+  textFormatting: 30, // counted per formatting-toolbar action
 };
 
 const normalizeFeatureUsage = (raw) => {

@@ -136,6 +136,8 @@ Each permission is requested separately, matching the user's current action, and
 - Added first-install Getting Started and post-uninstall Goodbye links.
 - Regenerated all extension icon sizes from the shared SVG artwork.
 - Expanded the interface and Chrome Web Store localization coverage to 30 languages, including RTL layout support for Arabic and Hebrew.
+- Added an optional selection formatting toolbar for font size, emphasis, decoration, text color, background color, and restoring original formatting.
+- Added a free allowance of 30 text-formatting actions per 12-hour usage window; Premium use remains unlimited.
 
 ## Publishing Readiness
 
