@@ -4,8 +4,8 @@
 // locally with the embedded public key (see below). Interface per the
 // Licentra docs — see licentra/src/app/api/EXTERNAL.md:
 //
-//   POST /api/license/activate   { key, fingerprint, label }   -> { valid, payload, signature }
-//   POST /api/license/check-in   { key, fingerprint }          -> { valid, payload, signature }
+//   POST /api/license/activate   { key, fingerprint, label, appVersion } -> { valid, payload, signature }
+//   POST /api/license/check-in   { key, fingerprint, appVersion }        -> { valid, payload, signature }
 //
 // Signature = ECDSA P-256 over JSON.stringify(payload), SHA-256, DER-encoded,
 // base64. Payload key order is frozen server-side (product → plan → license_id →
@@ -17,6 +17,14 @@ import { STORAGE_KEYS, getState, setState } from "./shared.js";
 
 export const LICENTRA_BASE_URL = "https://licentra.henriz.dev";
 export const PRODUCT_SLUG = "edit-page";
+
+export function getAppVersion() {
+  try {
+    return chrome.runtime.getManifest().version || "";
+  } catch {
+    return "";
+  }
+}
 
 // ───────────────────────── offline grace window ─────────────────────────
 //
@@ -256,10 +264,17 @@ export async function activateLicense(rawKey, label) {
   if (!KEY_REGEX.test(key)) return { ok: false, reason: "invalid_format" };
 
   const fingerprint = await getDeviceFingerprint();
+  const appVersion = getAppVersion();
   let resp;
   try {
-    resp = (await post("/api/license/activate", { key, fingerprint, label }))
-      .body;
+    resp = (
+      await post("/api/license/activate", {
+        key,
+        fingerprint,
+        label,
+        appVersion,
+      })
+    ).body;
   } catch {
     return { ok: false, reason: "network" };
   }
@@ -294,6 +309,7 @@ export async function checkInLicense() {
     http = await post("/api/license/check-in", {
       key: license.key,
       fingerprint: license.fingerprint,
+      appVersion: getAppVersion(),
     });
   } catch {
     // Network failure — the server never answered. Fall back to the grace

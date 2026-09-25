@@ -111,8 +111,8 @@ Each permission is requested separately, matching the user's current action, and
 ### Network requests
 
 - When a user pastes an image URL, Edit Page contacts that URL directly to confirm that the resource can be read as an image. The extension does not send the URL to Edit Page or Licentra.
-- When a user activates Premium, Edit Page sends the License Key, a device label, and a hashed device fingerprint to `https://licentra.henriz.dev`.
-- Periodic Premium validation sends the stored License Key and hashed device fingerprint to `https://licentra.henriz.dev`.
+- When a user activates Premium, Edit Page sends the License Key, a device label, a hashed device fingerprint, and the installed extension version to `https://licentra.henriz.dev`.
+- Periodic Premium validation sends the stored License Key, hashed device fingerprint, and installed extension version to `https://licentra.henriz.dev`.
 - The device fingerprint is derived from operating-system type, CPU architecture, logical processor count, and reported device memory. Screen dimensions, browsing history, webpage content, and screenshot content are not included.
 - Clicking website, review, or feedback links opens the relevant external page. `utm_source=dashboard` may be included in the opened URL for source attribution.
 - On first installation, Edit Page opens `https://editpage.henriz.dev/getting-started?installed=1&browser=chrome` (or `browser=edge` in Microsoft Edge). After uninstalling, Chrome opens `https://editpage.henriz.dev/goodbye`. These lifecycle links do not include webpage content, license information, or locally stored usage data.
