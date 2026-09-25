@@ -296,27 +296,6 @@ const ensureLicenseState = async () => {
   }
 };
 
-const deviceLabel = () => {
-  const ua = navigator.userAgent || "";
-  const os = /Macintosh|Mac OS X/.test(ua)
-    ? "macOS"
-    : /Windows/.test(ua)
-      ? "Windows"
-      : /Android/.test(ua)
-        ? "Android"
-        : /Linux/.test(ua)
-          ? "Linux"
-          : "Unknown";
-  const browser = /Edg\//.test(ua)
-    ? "Edge"
-    : /Firefox/.test(ua)
-      ? "Firefox"
-      : /Chrome|Chromium/.test(ua)
-        ? "Chrome"
-        : "Browser";
-  return `${browser} on ${os}`;
-};
-
 const activationMessageKey = (reason) => {
   switch (reason) {
     case "invalid_format":
@@ -442,7 +421,7 @@ const setupPremiumCard = () => {
     status.className = "premium-activate-status";
     status.hidden = false;
 
-    const result = await activateLicense(code, deviceLabel());
+    const result = await activateLicense(code);
     if (result.ok) {
       input.value = "";
       status.textContent = messages[currentLanguage].premiumActivateSuccess;

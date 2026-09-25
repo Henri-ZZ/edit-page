@@ -4,7 +4,7 @@
 // locally with the embedded public key (see below). Interface per the
 // Licentra docs — see licentra/src/app/api/EXTERNAL.md:
 //
-//   POST /api/license/activate   { key, fingerprint, label, appVersion } -> { valid, payload, signature }
+//   POST /api/license/activate   { key, fingerprint, appVersion } -> { valid, payload, signature }
 //   POST /api/license/check-in   { key, fingerprint, appVersion }        -> { valid, payload, signature }
 //
 // Signature = ECDSA P-256 over JSON.stringify(payload), SHA-256, DER-encoded,
@@ -259,7 +259,7 @@ function persistLicense(key, fingerprint, payload, certificate) {
  * Activate a license key on this device. Verifies the signed response before
  * persisting anything. Returns { ok, payload } or { ok:false, reason }.
  */
-export async function activateLicense(rawKey, label) {
+export async function activateLicense(rawKey) {
   const key = normalizeLicenseKey(rawKey);
   if (!KEY_REGEX.test(key)) return { ok: false, reason: "invalid_format" };
 
@@ -271,7 +271,6 @@ export async function activateLicense(rawKey, label) {
       await post("/api/license/activate", {
         key,
         fingerprint,
-        label,
         appVersion,
       })
     ).body;
