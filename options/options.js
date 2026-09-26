@@ -26,6 +26,7 @@ import {
   getLanguageMetadata,
 } from "../i18n/locales.js";
 import { EDIT_TEXT_SETTINGS_MESSAGES } from "../i18n/edit-text-settings.js";
+import { DASHBOARD_TIPS_MESSAGES } from "../i18n/dashboard-tips.js";
 
 /** Official website, tagged with the source so analytics can attribute visits from the settings page. */
 const CONTACT_URL = `${WEBSITE_BASE_URL}/contact?utm_source=dashboard`;
@@ -88,6 +89,11 @@ const messages = {
     sendFeedback: "Send Feedback",
     editTextSettings: "Edit text",
     showSelectionToolbar: "Show toolbar when text is selected",
+    tipsTitle: "Tips",
+    tipNavigateText:
+      "If clicking text opens a link, first place the caret in nearby text that does not navigate, then use the arrow keys to move the caret to the target text and edit it. To select text, hold Shift and use the arrow keys.",
+    tipImageUrl:
+      "When replacing an image using an image URL, a read failure may mean the address is not a direct image link or the image server blocks cross-origin access. Try opening the image in your browser, downloading it, and then replacing it with a local upload.",
   },
   es: {
     documentTitle: "Panel · Edit Page",
@@ -264,6 +270,9 @@ messages["zh-CN"] = messages.zh;
 messages["pt-BR"] = messages.pt;
 Object.assign(messages, ADDITIONAL_OPTIONS_MESSAGES);
 for (const [locale, localizedMessages] of Object.entries(EDIT_TEXT_SETTINGS_MESSAGES)) {
+  messages[locale] = { ...(messages[locale] || {}), ...localizedMessages };
+}
+for (const [locale, localizedMessages] of Object.entries(DASHBOARD_TIPS_MESSAGES)) {
   messages[locale] = { ...(messages[locale] || {}), ...localizedMessages };
 }
 for (const locale of Object.keys(messages)) {

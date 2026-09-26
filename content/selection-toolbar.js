@@ -2,6 +2,8 @@
   if (window._editPageSelectionToolbarInit) return;
 
   const HOST_ID = "edit-page-selection-toolbar";
+  const FORMAT_TAG = "edit-page-format";
+  const FORMAT_STYLE_ID = "edit-page-format-isolation";
   const BLOCKS = "p,h1,h2,h3,h4,h5,h6,li,td,th,blockquote,figcaption,button,a,label,div";
   const COLORS = ["#111827", "#ef4444", "#f97316", "#eab308", "#22c55e", "#0ea5e9", "#4f46e5", "#a855f7"];
   const BACKGROUNDS = ["transparent", "#fef08a", "#fed7aa", "#fecaca", "#bbf7d0", "#bae6fd", "#c7d2fe", "#e9d5ff"];
@@ -18,6 +20,12 @@
     host.contentEditable = "false";
     const shadow = host.attachShadow({ mode: "open" });
     const clearIconUrl = chrome.runtime.getURL("assets/clear.png");
+    if (!document.getElementById(FORMAT_STYLE_ID)) {
+      const formatStyle = document.createElement("style");
+      formatStyle.id = FORMAT_STYLE_ID;
+      formatStyle.textContent = `${FORMAT_TAG}::before,${FORMAT_TAG}::after{content:none!important;display:none!important}`;
+      (document.head || document.documentElement).appendChild(formatStyle);
+    }
     shadow.innerHTML = `<style>
       :host{all:initial;position:fixed;z-index:2147483647;display:none;left:0;top:0;font:13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}
       *,*::before,*::after{box-sizing:border-box}button,input{font:inherit}button{border:0;cursor:pointer}
@@ -59,7 +67,19 @@
     const track = () => { if (applyingFormat || shadow.activeElement instanceof HTMLInputElement) return; const selection = getSelection(); if (!document.body.isContentEditable || !selection?.rangeCount || selection.isCollapsed || !document.body.contains(selection.anchorNode)) return hide(); const range = selection.getRangeAt(0); if (host.contains(range.commonAncestorContainer)) return; savedRange = range.cloneRange(); updateState(); position(); };
 
     const snapshots = (nodes) => [...new Set(nodes.map((n) => n.parentElement.closest(BLOCKS) || n.parentElement))].filter((e) => e && !e.closest(`#${HOST_ID}`)).map((element) => ({ element, before: element.innerHTML }));
-    const wrap = (node, property, value) => { const span = document.createElement("span"); span.dataset.editPageFormat = property; span.style[property] = value; node.parentNode.insertBefore(span, node); span.appendChild(node); };
+    const cssPropertyName = (property) => property.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+    const wrap = (node, property, value) => {
+      const wrapper = document.createElement(FORMAT_TAG);
+      wrapper.dataset.editPageFormat = property;
+      // A dedicated tag avoids host selectors such as `span`, `h1 > span`,
+      // and framework utility rules. Inline isolation also defeats broad `*`
+      // rules, including !important typography/layout declarations.
+      wrapper.style.setProperty("all", "unset", "important");
+      wrapper.style.setProperty("display", "inline", "important");
+      wrapper.style.setProperty(cssPropertyName(property), value, "important");
+      node.parentNode.insertBefore(wrapper, node);
+      wrapper.appendChild(node);
+    };
     const isolateBoundaries = () => {
       const selection = getSelection();
       if (!selection?.rangeCount) return;
@@ -96,14 +116,16 @@
         isolateBoundaries(); const nodes = selectionNodes(); if (!nodes.length) return; const records = snapshots(nodes);
         for (const node of nodes) {
           for (const property of properties) {
-            let span = node.parentElement?.closest(`span[data-edit-page-format="${property}"]`);
+            let span = node.parentElement?.closest(`[data-edit-page-format="${property}"]`);
             while (span) {
-              const next = span.parentElement?.closest(`span[data-edit-page-format="${property}"]`);
+              const next = span.parentElement?.closest(`[data-edit-page-format="${property}"]`);
               if (property === "textDecorationLine" && decorationToken) {
                 const parts = new Set(span.style.textDecorationLine.split(/\s+/).filter((value) => value && value !== "none"));
-                parts.delete(decorationToken); span.style.textDecorationLine = [...parts].join(" ");
-              } else span.style[property] = "";
-              if (!span.getAttribute("style")) span.replaceWith(...span.childNodes);
+                parts.delete(decorationToken);
+                if (parts.size) span.style.setProperty("text-decoration-line", [...parts].join(" "), "important");
+                else span.style.removeProperty("text-decoration-line");
+              } else span.style.removeProperty(cssPropertyName(property));
+              if (!span.style.getPropertyValue(cssPropertyName(property))) span.replaceWith(...span.childNodes);
               span = next;
             }
           }
