@@ -9,6 +9,29 @@
   const BACKGROUNDS = ["transparent", "#fef08a", "#fed7aa", "#fecaca", "#bbf7d0", "#bae6fd", "#c7d2fe", "#e9d5ff"];
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+  // Telemetry from the page context: only an approved event constant leaves
+  // here — never the selected text, colours or sizes.
+  const reportTelemetry = (event) => {
+    try {
+      chrome.runtime
+        .sendMessage({ type: "telemetry-event", event })
+        ?.catch?.(() => {});
+    } catch {}
+  };
+
+  // Applying a format maps 1:1 onto the schema-v1 catalog. Removing one
+  // (toggling a format off, "restore original formatting", resetting colours)
+  // has no approved event and is intentionally not reported.
+  const FORMAT_EVENT_BY_PROPERTY = {
+    fontWeight: "format.bold",
+    fontStyle: "format.italic",
+    underline: "format.underline",
+    "line-through": "format.strikethrough",
+    fontSize: "format.font_size",
+    color: "format.text_color",
+    backgroundColor: "format.background_color",
+  };
+
   window._editPageSelectionToolbarInit = (labels = {}) => {
     window._editPageSelectionToolbar?.destroy();
     let savedRange = null;
@@ -98,16 +121,18 @@
       }
       savedRange = range.cloneRange();
     };
+    /** Returns true when a format was actually applied to a live selection. */
     const apply = (property, getValue) => {
-      if (!restore()) return; applyingFormat = true;
+      if (!restore()) return false; applyingFormat = true;
       try {
-        isolateBoundaries(); const nodes = selectionNodes(); if (!nodes.length) return; const records = snapshots(nodes);
+        isolateBoundaries(); const nodes = selectionNodes(); if (!nodes.length) return false; const records = snapshots(nodes);
         for (const node of nodes) wrap(node, property, getValue(getComputedStyle(node.parentElement)));
         const range = document.createRange(); range.setStart(nodes[0], 0); range.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].length);
         const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range); savedRange = range.cloneRange();
         for (const record of records) record.after = record.element.innerHTML;
         window._editPageHistory?.push({ type: "format", records, time: Date.now() });
         updateState(); position();
+        return true;
       } finally { applyingFormat = false; }
     };
     const clearToolFormatting = (properties, decorationToken = null) => {
@@ -137,8 +162,8 @@
         updateState(); position();
       } finally { applyingFormat = false; }
     };
-    const toggle = (name) => { const current = state((s) => name === "fontWeight" ? s.fontWeight : name === "fontStyle" ? s.fontStyle : s.textDecorationLine, (v) => name === "fontWeight" ? Number.parseInt(v,10)>=600 || v==="bold" : name === "fontStyle" ? /italic|oblique/.test(v) : v.includes(name)); if ((name === "underline" || name === "line-through") && current.active) { clearToolFormatting(["textDecorationLine"], name); return; } apply(name === "underline" || name === "line-through" ? "textDecorationLine" : name, (s) => { if (name === "fontWeight") return current.active ? "400" : "700"; if (name === "fontStyle") return current.active ? "normal" : "italic"; const parts = new Set(s.textDecorationLine.split(/\s+/).filter((v) => v !== "none")); parts.add(name); return [...parts].join(" ") || "none"; }); };
-    const setColor = (property, value) => apply(property, () => value);
+    const toggle = (name) => { const current = state((s) => name === "fontWeight" ? s.fontWeight : name === "fontStyle" ? s.fontStyle : s.textDecorationLine, (v) => name === "fontWeight" ? Number.parseInt(v,10)>=600 || v==="bold" : name === "fontStyle" ? /italic|oblique/.test(v) : v.includes(name)); if ((name === "underline" || name === "line-through") && current.active) { clearToolFormatting(["textDecorationLine"], name); return; } const applied = apply(name === "underline" || name === "line-through" ? "textDecorationLine" : name, (s) => { if (name === "fontWeight") return current.active ? "400" : "700"; if (name === "fontStyle") return current.active ? "normal" : "italic"; const parts = new Set(s.textDecorationLine.split(/\s+/).filter((v) => v !== "none")); parts.add(name); return [...parts].join(" ") || "none"; }); if (applied && !current.active) reportTelemetry(FORMAT_EVENT_BY_PROPERTY[name]); };
+    const setColor = (property, value) => { if (apply(property, () => value)) reportTelemetry(FORMAT_EVENT_BY_PROPERTY[property]); };
     const consumeFormattingUse = async () => {
       try {
         const response = await chrome.runtime.sendMessage({ type: "consume-text-formatting-use" });
@@ -167,7 +192,7 @@
       else if (action === "strike") toggle("line-through");
       else if (action === "smaller" || action === "larger") {
         const size = state((style) => Math.round(parseFloat(style.fontSize)), () => false);
-        apply("fontSize", () => `${clamp((size.value || 16) + (action === "larger" ? 1 : -1), 8, 96)}px`);
+        if (apply("fontSize", () => `${clamp((size.value || 16) + (action === "larger" ? 1 : -1), 8, 96)}px`)) reportTelemetry("format.font_size");
       } else if (action === "restore-format") {
         clearToolFormatting(["fontSize", "fontWeight", "fontStyle", "textDecorationLine", "color", "backgroundColor"]);
       }

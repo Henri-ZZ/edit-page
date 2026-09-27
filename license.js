@@ -4,8 +4,10 @@
 // locally with the embedded public key (see below). Interface per the
 // Licentra docs — see licentra/src/app/api/EXTERNAL.md:
 //
-//   POST /api/license/activate   { key, fingerprint, appVersion } -> { valid, payload, signature }
-//   POST /api/license/check-in   { key, fingerprint, appVersion }        -> { valid, payload, signature }
+//   POST /api/license/activate   { key, fingerprint, appVersion, distribution }
+//                                -> { valid, payload, signature }
+//   POST /api/license/check-in   { key, fingerprint, appVersion, distribution }
+//                                -> { valid, payload, signature }
 //
 // Signature = ECDSA P-256 over JSON.stringify(payload), SHA-256, DER-encoded,
 // base64. Payload key order is frozen server-side (product → plan → license_id →
@@ -14,6 +16,9 @@
 // blob is converted first.
 
 import { STORAGE_KEYS, getState, setState } from "./shared.js";
+// Both endpoints report the build-injected channel so Licentra can attribute the
+// activation to a store. Same build-time constant telemetry reports.
+import { DISTRIBUTION } from "./telemetry-distribution.js";
 
 export const LICENTRA_BASE_URL = "https://licentra.henriz.dev";
 export const PRODUCT_SLUG = "edit-page";
@@ -272,10 +277,16 @@ export async function activateLicense(rawKey) {
         key,
         fingerprint,
         appVersion,
+        distribution: DISTRIBUTION,
       })
     ).body;
-  } catch {
-    return { ok: false, reason: "network" };
+  } catch (error) {
+    // Keep a timed-out request distinct from a general network failure so the
+    // activation funnel can use its dedicated `timeout` reason.
+    return {
+      ok: false,
+      reason: error?.name === "TimeoutError" ? "timeout" : "network",
+    };
   }
 
   const result = await verifyResponse(resp);
@@ -309,6 +320,7 @@ export async function checkInLicense() {
       key: license.key,
       fingerprint: license.fingerprint,
       appVersion: getAppVersion(),
+      distribution: DISTRIBUTION,
     });
   } catch {
     // Network failure — the server never answered. Fall back to the grace
@@ -419,4 +431,35 @@ export async function maybeCheckIn() {
 
 export async function clearLicense() {
   await setState(STORAGE_KEYS.LICENSE, null);
+}
+
+/**
+ * Collapse a local failure reason onto the bounded telemetry enum.
+ *
+ * The raw reason (and any server detail behind it) is discarded here: telemetry
+ * only ever receives one of the approved values, never free-form error text.
+ */
+export function toTelemetryFailureReason(reason) {
+  switch (reason) {
+    case "invalid_format":
+    case "license_not_found":
+      return "invalid_key";
+    case "expired":
+    case "license_expired":
+      return "expired_key";
+    case "license_revoked":
+    case "license_refunded":
+      return "revoked_key";
+    case "activation_evicted":
+      return "device_limit";
+    case "network":
+      return "network_error";
+    case "timeout":
+      return "timeout";
+    case "bad_signature":
+    case "grace_exhausted":
+      return "server_error";
+    default:
+      return "unknown";
+  }
 }

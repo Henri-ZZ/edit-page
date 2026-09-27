@@ -19,7 +19,11 @@ import {
   setScreenshotDestination,
   setSelectionToolbarEnabled,
 } from "../shared.js";
-import { activateLicense } from "../license.js";
+import { activateLicense, toTelemetryFailureReason } from "../license.js";
+import {
+  trackTelemetryActivationFailure,
+  trackTelemetryEvent,
+} from "../telemetry.js";
 import {
   ADDITIONAL_OPTIONS_MESSAGES,
   LANGUAGE_OPTIONS,
@@ -430,14 +434,20 @@ const setupPremiumCard = () => {
     status.className = "premium-activate-status";
     status.hidden = false;
 
+    // The user explicitly submitted an activation attempt.
+    trackTelemetryEvent("monetization.activation_started");
+
     const result = await activateLicense(code);
     if (result.ok) {
       input.value = "";
       status.textContent = messages[currentLanguage].premiumActivateSuccess;
       status.className = "premium-activate-status is-success";
       await refreshPremiumState();
+      trackTelemetryEvent("monetization.activation_succeeded");
       setTimeout(applyPremiumState, 1000);
     } else {
+      // Only the bounded enum leaves this page — never the raw reason.
+      trackTelemetryActivationFailure(toTelemetryFailureReason(result.reason));
       status.textContent =
         messages[currentLanguage][activationMessageKey(result.reason)];
       status.className = "premium-activate-status is-error";

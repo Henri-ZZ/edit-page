@@ -17,6 +17,14 @@ import {
   setScreenshotBadge
 } from '../shared.js';
 import { maybeCheckIn } from '../license.js';
+import {
+  TELEMETRY_FLUSH_ALARM,
+  ensureInstallationId,
+  ensureTelemetryFlushScheduled,
+  flushTelemetry,
+  flushTelemetryIfStale,
+  handleTelemetryMessage
+} from '../telemetry.js';
 
 // Chrome opens this page only after the extension has been uninstalled.
 chrome.runtime.setUninstallURL(UNINSTALL_URL, () => {
@@ -522,6 +530,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ ok: true, allowed: true, state });
     })().catch((error) => sendResponse({ ok: false, allowed: false, error: error.message }));
     return true;
+  } else if (
+    request.type === 'telemetry-event' ||
+    request.type === 'telemetry-activation-failure'
+  ) {
+    (async () => {
+      sendResponse(await handleTelemetryMessage(request));
+    })().catch(() => sendResponse({ ok: false }));
+    return true;
   }
   return false;
 });
@@ -552,6 +568,8 @@ function scheduleLicenseCheckIn() {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === LICENSE_CHECK_IN_ALARM) {
     initializeLicenseState().catch(() => {});
+  } else if (alarm.name === TELEMETRY_FLUSH_ALARM) {
+    flushTelemetry({ reason: 'alarm' }).catch(() => {});
   }
 });
 
@@ -592,6 +610,8 @@ async function syncScreenshotBadge() {
 chrome.runtime.onStartup.addListener(() => {
   initializeLicenseState().catch(() => {});
   syncScreenshotBadge().catch(() => {});
+  ensureTelemetryFlushScheduled().catch(() => {});
+  flushTelemetryIfStale().catch(() => {});
 });
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -609,3 +629,5 @@ chrome.runtime.onInstalled.addListener((details) => {
 initializeLicenseState().catch(() => {});
 scheduleLicenseCheckIn();
 syncScreenshotBadge().catch(() => {});
+ensureInstallationId().catch(() => {});
+ensureTelemetryFlushScheduled().catch(() => {});

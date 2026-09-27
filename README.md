@@ -52,17 +52,25 @@
 
 ## 发布打包
 
-如果需要重新提交 Chrome Web Store，可以直接运行：
+一次运行同时打出 Chrome Web Store 与 Edge Add-ons 两个渠道的包，每个包注入各自的
+`distribution` 值：
 
 ```bash
-./scripts/package-release.sh
+./scripts/package.sh
+```
+
+也可以只打指定渠道：
+
+```bash
+./scripts/package.sh cws    # 仅 Chrome Web Store
+./scripts/package.sh edge   # 仅 Edge Add-ons
 ```
 
 这个脚本会：
 
 - 读取 `manifest.json` 里手动设置的版本号，不会自动修改
-- 生成带版本号的 zip 包
-- 同时生成一个固定文件名的最新上传包
+- 在临时暂存目录里为每个渠道注入 `telemetry-distribution.js`（仓库里的默认值是 `development`，本地加载解包版本不受影响）
+- 从打好的 zip 里读回注入值做校验，渠道错配会直接让构建失败
 
 输出目录：
 
@@ -72,11 +80,12 @@
 
 生成的文件：
 
-- `editpage-版本号.zip`（例如 `editpage-2.0.zip`）
+- `editpage-版本号-cws.zip`
+- `editpage-版本号-edge.zip`
 
 每次准备重新上架或更新时，建议顺序：
 
 1. 修改代码
 2. 更新 `manifest.json` 里的 `version`
-3. 运行 `./scripts/package-release.sh`
-4. 上传新的 zip 到 Chrome Web Store
+3. 运行 `./scripts/package.sh`
+4. 分别上传 `-cws.zip` 到 Chrome Web Store、`-edge.zip` 到 Edge Add-ons

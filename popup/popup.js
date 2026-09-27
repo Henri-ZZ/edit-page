@@ -21,6 +21,7 @@ import {
   setPendingScreenshot,
   setScreenshotBadge,
 } from "../shared.js";
+import { trackTelemetryEvent } from "../telemetry.js";
 
 const i18n = {
   en: {
@@ -465,6 +466,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const replaceImageBtnLabel = document.getElementById("replaceImageBtnLabel");
 
   let selectedImageData = null;
+  // Guards the upgrade-presentation counter so it fires once per popup session.
+  let upgradeShownTracked = false;
   let isEditModeTransitioning = false;
   let isReplaceMode = false;
   let isReplaceModeTransitioning = false;
@@ -507,6 +510,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       ? t("quotaExhaustedBadge")
       : t("freePlan");
     planBadge.classList.toggle("is-exhausted", state.limited);
+    if (state.limited && !upgradeShownTracked) {
+      // Once per popup session: the upgrade path became visible.
+      upgradeShownTracked = true;
+      trackTelemetryEvent("monetization.upgrade_shown");
+    }
     planBadge.onclick = state.limited
       ? () => chrome.runtime.openOptionsPage()
       : null;
@@ -550,6 +558,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusDiv.className = "status";
       statusTimer = null;
     }, 4000);
+  };
+
+  // A product action that the free-tier limit blocked. Counted once per blocked
+  // action (not per render), alongside the existing explanation.
+  const reportQuotaExhausted = (state) => {
+    trackTelemetryEvent("monetization.free_limit_reached");
+    showStatus(quotaExhaustedMessage(state), false);
   };
 
   const updateButton = (isEditing) => {
@@ -637,6 +652,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       func: (labels) => {
         const toolbarId = "edit-page-history-toolbar";
         const styleId = "edit-page-history-styles";
+
+        // Telemetry from the page context: only an approved event constant ever
+        // leaves here — never page content, selectors or text.
+        const reportTelemetry = (event) => {
+          try {
+            chrome.runtime
+              .sendMessage({ type: "telemetry-event", event })
+              ?.catch?.(() => {});
+          } catch {}
+        };
 
         let style = document.getElementById(styleId);
         if (!style) {
@@ -811,6 +836,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 previous.time = operation.time;
               } else {
                 this.undoStack.push(operation);
+                // A brand-new undo entry is a committed product action. Text
+                // keystrokes that merge into the previous entry are not counted,
+                // so `text.edit` stays off the per-keystroke path.
+                if (operation.type === "text") reportTelemetry("text.edit");
+                else if (operation.type === "image")
+                  reportTelemetry("image.replace");
+                else if (operation.type === "remove")
+                  reportTelemetry("element.remove");
               }
               this.redoStack = [];
               this.update();
@@ -872,6 +905,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               this.apply(operation, "undo");
               this.redoStack.push(operation);
               this.update();
+              reportTelemetry("history.undo");
             },
             redo() {
               const operation = this.redoStack.pop();
@@ -879,6 +913,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               this.apply(operation, "redo");
               this.undoStack.push(operation);
               this.update();
+              reportTelemetry("history.redo");
             },
           };
           window._editPageHistory = history;
@@ -1133,10 +1168,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         filename: screenshotFilename(kind),
         saveAs: false,
       });
+      trackTelemetryEvent("screenshot.download");
       return t("statusScreenshotDownloaded");
     }
     if (!(await ensureScreenshotPermission(kind))) return null;
     await copyScreenshotToClipboard(dataUrl);
+    trackTelemetryEvent("screenshot.copy");
     return t("statusScreenshotSuccess");
   };
 
@@ -1154,6 +1191,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
         format: "png",
       });
+      // Counts the completed capture; where it is saved is a separate event.
+      trackTelemetryEvent("screenshot.viewport");
 
       const successMessage = await saveScreenshot(dataUrl, "viewport");
       if (successMessage) showStatus(successMessage, true);
@@ -1233,6 +1272,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
       }
 
+      // Counts the completed capture; where it is saved is a separate event.
+      trackTelemetryEvent("screenshot.fullpage");
       const successMessage = await saveScreenshot(result.dataUrl, "full-page");
       // Permission denied: one attempt was already started; keep the error
       // message shown by saveScreenshot and report the capture as not saved.
@@ -1739,6 +1780,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       await toggleEdit();
       const newIsEditing = await getIsEditing();
       updateButton(newIsEditing);
+      if (newIsEditing && willEnableEdit) {
+        // Only the inactive -> active transition counts; re-clicking while
+        // already editing does not.
+        trackTelemetryEvent("edit.start");
+      }
       if (!newIsEditing) {
         await finishEditingSession();
       }
@@ -1780,7 +1826,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!isPremium()) {
       const state = await getQuotaState();
       if (state.limited) {
-        showStatus(quotaExhaustedMessage(state), false);
+        reportQuotaExhausted(state);
         return;
       }
       billUse = true;
@@ -1842,7 +1888,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!isPremium()) {
       const state = await getQuotaState();
       if (state.limited) {
-        showStatus(quotaExhaustedMessage(state), false);
+        reportQuotaExhausted(state);
         return;
       }
       billUse = true;
@@ -2075,7 +2121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (nextRemoveMode && !isPremium()) {
       const state = await getQuotaState();
       if (state.limited) {
-        showStatus(quotaExhaustedMessage(state), false);
+        reportQuotaExhausted(state);
         return;
       }
       billUse = true;
