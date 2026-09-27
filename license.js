@@ -352,7 +352,13 @@ export async function checkInLicense() {
       result.payload,
       resp.certificate,
     );
-  } else if (TERMINAL_REASONS.has(result.reason)) {
+    // The server confirmed the license: this was a real check-in round-trip.
+    // Callers use `checkedIn` to count the heartbeat counter — a skipped
+    // check-in (signature still fresh) and an offline-grace fallback never
+    // reach here, so neither can be miscounted as a success.
+    return { ...result, checkedIn: true };
+  }
+  if (TERMINAL_REASONS.has(result.reason)) {
     // License is gone for good — clear local state so isPremium() turns off.
     await clearLicense();
   }
@@ -427,6 +433,15 @@ export async function maybeCheckIn() {
     return { ok: true, fresh: true };
   }
   return checkInLicense();
+}
+
+/**
+ * True when a check-in actually round-tripped to Licentra and was confirmed —
+ * not a skipped one (signature still fresh on this device) and not an offline
+ * grace fallback. Only these count towards the heartbeat telemetry counter.
+ */
+export function isConfirmedCheckIn(result) {
+  return result?.checkedIn === true;
 }
 
 export async function clearLicense() {

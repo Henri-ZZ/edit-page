@@ -11,7 +11,7 @@ const popupKeys = [
   "removeElement", "removeElementDesc", "screenshot", "screenshotDesc",
   "visibleScreenshot", "fullPageScreenshot", "freePlan", "undo", "redo", "done",
   "cannotEditThisPage", "pageNotSupported", "statusScreenshotSuccess",
-  "statusScreenshotDownloaded", "statusImageReplaced", "networkError",
+  "statusScreenshotDownloaded",
 ];
 const optionsKeys = [
   "documentTitle", "title", "subtitle", "language", "languageHelp", "followBrowser",

@@ -16,14 +16,15 @@ import {
   refreshPremiumState,
   setScreenshotBadge
 } from '../shared.js';
-import { maybeCheckIn } from '../license.js';
+import { isConfirmedCheckIn, maybeCheckIn } from '../license.js';
 import {
   TELEMETRY_FLUSH_ALARM,
   ensureInstallationId,
   ensureTelemetryFlushScheduled,
   flushTelemetry,
   flushTelemetryIfStale,
-  handleTelemetryMessage
+  handleTelemetryMessage,
+  recordTelemetryEvent
 } from '../telemetry.js';
 
 // Chrome opens this page only after the extension has been uninstalled.
@@ -551,7 +552,15 @@ function initializeLicenseState() {
   if (licenseInitializationPromise) return licenseInitializationPromise;
   licenseInitializationPromise = (async () => {
     await refreshPremiumState();
-    await maybeCheckIn();
+    const checkIn = await maybeCheckIn();
+    if (isConfirmedCheckIn(checkIn)) {
+      // Recorded directly here because the service worker owns the telemetry
+      // accumulators. Telemetry must never affect the product flow, so a
+      // failed write is swallowed.
+      try {
+        await recordTelemetryEvent('monetization.checkin_succeeded');
+      } catch {}
+    }
     return refreshPremiumState();
   })().finally(() => {
     licenseInitializationPromise = null;

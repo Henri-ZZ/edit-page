@@ -1,6 +1,6 @@
 // Premium state uses the shared Licentra client. Activation lives on the
 // settings page; the popup only refreshes license state for feature gating.
-import { maybeCheckIn } from "../license.js";
+import { isConfirmedCheckIn, maybeCheckIn } from "../license.js";
 import {
   ADDITIONAL_POPUP_MESSAGES,
   getLanguageMetadata,
@@ -27,11 +27,9 @@ const i18n = {
   en: {
     title: "Edit Page",
     settings: "Dashboard",
-    subtitle: "Make this page editable",
     chooseTool: "Choose a tool",
     editText: "Edit text",
     editTextDesc: "Change any text on this page",
-    editMode: "Edit Mode",
     exitEdit: "Exit Edit",
     screenshot: "Screenshot",
     screenshotDesc: "Capture the viewport or full page",
@@ -53,7 +51,6 @@ const i18n = {
       "The screenshot could not be completed because clipboard access was denied. Click the screenshot button again and choose Allow.",
     downloadPermissionDenied:
       "The screenshot could not be completed because download access was denied. Click the screenshot button again and choose Allow.",
-    selectImage: "Select Image",
     changeImage: "Change image",
     changeImageDesc: "Upload or paste an Image URL",
     uploadLocalImage: "Upload from device",
@@ -79,43 +76,19 @@ const i18n = {
     clearImage: "Clear selected image",
     replaceMode: "Replace Image Mode",
     exitReplaceMode: "Exit Replace Mode",
-    clickImageToReplace: "Click an image on the page to replace",
     imageSelected: 'Image selected, click "Replace Image Mode"',
-    statusImageReplaced: "Image replaced!",
     pleaseSelectImageFirst: "Please select an image first",
     removeElement: "Remove element",
     removeElementDesc: "Click anything to remove it",
     exitRemoveMode: "Exit remove mode",
-    clickElementToRemove: "Click an element on the page to remove it",
     undo: "↶ Undo",
     redo: "↷ Redo",
     done: "Done",
     changeCount: "{count} changes",
     editWarning: "Editing may affect page behavior. Refresh to fully restore.",
-    unlockNow: "Unlock Now",
-    unlockLicense: "Unlock with License",
-    licensePlaceholder: "Enter License Key",
-    licenseFormatHint: "Format: ABCD-2345-EFGH-6789",
-    licenseFormatError:
-      "License Key format should look like ABCD-2345-EFGH-6789.",
-    activating: "Activating...",
-    activatingHint: "Contacting activation server...",
-    activationSuccess: "Activated successfully!",
-    activationFailed: "Activation failed: ",
-    enterLicenseKey: "Please enter a License Key",
-    invalidLicenseKey: "Invalid License Key",
-    licenseRevoked: "This License Key has been revoked.",
-    licenseRefunded: "This license was refunded.",
-    licenseKeyMoved: "This License Key is now active on another device.",
-    networkError: "Network error",
-    offlineMode: "Offline Mode",
     connecting: "Connecting to server...",
     cannotEditThisPage: "Cannot edit this page",
     pageNotSupported: "This page type is not supported",
-    haveLicense: "Have a License Key?",
-    cancel: "Cancel",
-    purchasePageHint:
-      "Complete your purchase on the opened page, then enter your License Key here.",
     quotaExhaustedToast:
       "Advanced feature limit reached. Unlocks in {reset}. Upgrade to Premium for unlimited use.",
   },
@@ -312,11 +285,9 @@ const i18n = {
   zh: {
     title: "Edit Page",
     settings: "控制面板",
-    subtitle: "编辑当前页面",
     chooseTool: "选择工具",
     editText: "编辑文字",
     editTextDesc: "直接修改当前页面的文字",
-    editMode: "编辑模式",
     exitEdit: "退出编辑",
     screenshot: "截图",
     screenshotDesc: "截取当前视窗或完整网页",
@@ -337,7 +308,6 @@ const i18n = {
       '由于剪贴板权限被拒绝，无法完成截图。请再次点击截图按钮并选择"允许"。',
     downloadPermissionDenied:
       '由于下载权限被拒绝，无法完成截图。请再次点击截图按钮并选择"允许"。',
-    selectImage: "选择图片",
     changeImage: "更改图片",
     changeImageDesc: "本地上传或粘贴图片 URL",
     uploadLocalImage: "本地上传",
@@ -360,41 +330,19 @@ const i18n = {
     clearImage: "清除已选图片",
     replaceMode: "替换图片模式",
     exitReplaceMode: "退出替换模式",
-    clickImageToReplace: "点击页面上的图片进行替换",
     imageSelected: '已选择图片，点击"替换图片模式"',
-    statusImageReplaced: "图片已替换！",
     pleaseSelectImageFirst: "请先选择图片",
     removeElement: "移除元素",
     removeElementDesc: "点击页面上的任意元素进行移除",
     exitRemoveMode: "退出移除模式",
-    clickElementToRemove: "点击页面上的元素即可移除",
     undo: "↶ 撤回",
     redo: "↷ 重做",
     done: "完成",
     changeCount: "已修改 {count} 项",
     editWarning: "编辑可能影响页面功能，刷新网页可完全恢复。",
-    unlockNow: "立即解锁",
-    unlockLicense: "使用激活码解锁",
-    licensePlaceholder: "请输入激活码",
-    licenseFormatHint: "格式：ABCD-2345-EFGH-6789",
-    licenseFormatError: "激活码格式不正确，应类似 ABCD-2345-EFGH-6789。",
-    activating: "激活中...",
-    activatingHint: "正在连接激活服务器...",
-    activationSuccess: "激活成功！",
-    activationFailed: "激活失败: ",
-    enterLicenseKey: "请输入激活码",
-    invalidLicenseKey: "激活码无效",
-    licenseRevoked: "该激活码已被吊销。",
-    licenseRefunded: "该激活码对应的订单已退款。",
-    licenseKeyMoved: "该激活码当前已在其他设备上生效。",
-    networkError: "网络错误",
-    offlineMode: "离线模式",
     connecting: "正在连接服务器...",
     cannotEditThisPage: "无法编辑此页面",
     pageNotSupported: "此类页面不支持编辑",
-    haveLicense: "已有激活码？",
-    cancel: "取消",
-    purchasePageHint: "请在打开的页面完成购买，然后回到这里输入激活码。",
     quotaExhaustedToast:
       "高级功能额度已用尽，{reset}后恢复。升级 Premium 可无限使用。",
     cannotEditThisPage: "无法编辑此页面",
@@ -486,6 +434,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // A license row exists but its signature is stale (or the offline grace
     // window has lapsed) — hit Licentra to re-verify / check in.
     const result = await maybeCheckIn();
+    // Only a real round-trip counts: a skipped check-in (signature still
+    // fresh) and an offline-grace fallback never reached Licentra.
+    if (isConfirmedCheckIn(result)) {
+      trackTelemetryEvent("monetization.checkin_succeeded");
+    }
     await refreshPremiumState();
     return isPremium() || result.ok === true;
   };

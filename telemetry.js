@@ -43,6 +43,7 @@ export const TELEMETRY_EVENTS = Object.freeze([
   "monetization.activation_started",
   "monetization.activation_succeeded",
   "monetization.activation_failed",
+  "monetization.checkin_succeeded",
 ]);
 
 export const ACTIVATION_FAILURE_REASONS = Object.freeze([
