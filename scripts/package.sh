@@ -49,8 +49,8 @@ usage() {
 
 distribution_for() {
   case "$1" in
-    cws) printf 'chrome_web_store' ;;
-    edge) printf 'edge_addons' ;;
+    cws) printf 'cws' ;;
+    edge) printf 'edge' ;;
     direct) printf 'direct' ;;
     development) printf 'development' ;;
     *) return 1 ;;
