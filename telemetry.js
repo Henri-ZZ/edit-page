@@ -13,7 +13,13 @@
 // other context records through `trackTelemetryEvent()`, which is just a
 // message. That keeps the read-modify-write cycles single-threaded.
 
-import { isPremium } from "./shared.js";
+import {
+  getHideRepeatedElements,
+  getLanguagePreference,
+  getScreenshotDestination,
+  getSelectionToolbarEnabled,
+  isPremium,
+} from "./shared.js";
 import { DISTRIBUTION } from "./telemetry-distribution.js";
 
 export const TELEMETRY_ENDPOINT =
@@ -21,6 +27,7 @@ export const TELEMETRY_ENDPOINT =
 
 /** Complete schema-v1 event catalog. */
 export const TELEMETRY_EVENTS = Object.freeze([
+  "dashboard.open",
   "edit.start",
   "text.edit",
   "format.bold",
@@ -40,10 +47,13 @@ export const TELEMETRY_EVENTS = Object.freeze([
   "screenshot.download",
   "monetization.free_limit_reached",
   "monetization.upgrade_shown",
+  "monetization.learn_premium_clicked",
   "monetization.activation_started",
   "monetization.activation_succeeded",
   "monetization.activation_failed",
   "monetization.checkin_succeeded",
+  "support.review_clicked",
+  "support.feedback_clicked",
 ]);
 
 export const ACTIVATION_FAILURE_REASONS = Object.freeze([
@@ -234,6 +244,51 @@ async function detectEnvironment() {
   return environment;
 }
 
+// Permission telemetry is also an explicit allowlist. We collect only the two
+// optional permissions used by screenshot delivery, never the full permission
+// set or any granted origins.
+export async function collectTelemetryOptionalPermissions() {
+  const hasPermission = async (permission) => {
+    try {
+      return await chrome.permissions.contains({ permissions: [permission] });
+    } catch {
+      return false;
+    }
+  };
+
+  const [clipboardWrite, downloads] = await Promise.all([
+    hasPermission("clipboardWrite"),
+    hasPermission("downloads"),
+  ]);
+
+  return { clipboardWrite, downloads };
+}
+
+// Telemetry settings are deliberately assembled one field at a time. Never
+// replace this with a bulk chrome.storage read: new preferences must remain
+// private until they have been reviewed and explicitly added here and to the
+// server-side allowlist.
+export async function collectTelemetrySettings() {
+  const [
+    languagePreference,
+    screenshotDestination,
+    hideRepeatedElements,
+    selectionToolbarEnabled,
+  ] = await Promise.all([
+    getLanguagePreference().catch(() => ""),
+    getScreenshotDestination().catch(() => "clipboard"),
+    getHideRepeatedElements().catch(() => true),
+    getSelectionToolbarEnabled().catch(() => true),
+  ]);
+
+  return {
+    languagePreference: languagePreference || "browser",
+    screenshotDestination,
+    hideRepeatedElements,
+    selectionToolbarEnabled,
+  };
+}
+
 // ───────────────────────── local aggregation ─────────────────────────
 
 const utcDateKey = (timestamp) => new Date(timestamp).toISOString().slice(0, 10);
@@ -413,6 +468,8 @@ export async function flushTelemetry({ reason = "alarm" } = {}) {
           installationId,
           sentAt: new Date(now).toISOString(),
           environment: await detectEnvironment(),
+          settings: await collectTelemetrySettings(),
+          optionalPermissions: await collectTelemetryOptionalPermissions(),
           usage,
         },
       };

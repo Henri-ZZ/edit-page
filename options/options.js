@@ -43,6 +43,14 @@ const getBrowserPlatform = (userAgent = "") => {
   if (/Edg\//i.test(userAgent)) return "edge";
   return "chrome";
 };
+
+const openExternalTab = async (url) => {
+  try {
+    await chrome.tabs.create({ url });
+  } catch {
+    // Opening an external page must not break the Dashboard.
+  }
+};
 const getStoreReviewUrl = (userAgent = "") =>
   STORE_REVIEW_URLS[getBrowserPlatform(userAgent)];
 
@@ -416,8 +424,9 @@ const setupPremiumCard = () => {
   const activateButton = document.getElementById("premiumActivateBtn");
   const status = document.getElementById("premiumActivateStatus");
 
-  learnButton.addEventListener("click", () => {
-    chrome.tabs.create({ url: `${WEBSITE_BASE_URL}?utm_source=dashboard` });
+  learnButton.addEventListener("click", async () => {
+    trackTelemetryEvent("monetization.learn_premium_clicked");
+    await openExternalTab(`${WEBSITE_BASE_URL}?utm_source=dashboard`);
   });
 
   const activate = async () => {
@@ -465,6 +474,8 @@ const setupPremiumCard = () => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  trackTelemetryEvent("dashboard.open");
+
   for (const { code, name } of LANGUAGE_OPTIONS) {
     const option = document.createElement("option");
     option.value = code;
@@ -531,14 +542,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   // opens the website Contact page (both tagged with utm_source=dashboard).
   const leaveReviewBtn = document.getElementById("leaveReviewBtn");
   if (leaveReviewBtn) {
-    leaveReviewBtn.addEventListener("click", () => {
-      chrome.tabs.create({ url: getStoreReviewUrl(navigator.userAgent || "") });
+    leaveReviewBtn.addEventListener("click", async () => {
+      trackTelemetryEvent("support.review_clicked");
+      await openExternalTab(getStoreReviewUrl(navigator.userAgent || ""));
     });
   }
   const sendFeedbackBtn = document.getElementById("sendFeedbackBtn");
   if (sendFeedbackBtn) {
-    sendFeedbackBtn.addEventListener("click", () => {
-      chrome.tabs.create({ url: CONTACT_URL });
+    sendFeedbackBtn.addEventListener("click", async () => {
+      trackTelemetryEvent("support.feedback_clicked");
+      await openExternalTab(CONTACT_URL);
     });
   }
   await renderQuota();

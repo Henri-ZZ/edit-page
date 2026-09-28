@@ -114,13 +114,14 @@ Each permission is requested separately, matching the user's current action, and
 - When a user activates Premium, Edit Page sends the License Key, a hashed device fingerprint, and the installed extension version to `https://licentra.henriz.dev`.
 - Periodic Premium validation sends the stored License Key, hashed device fingerprint, and installed extension version to `https://licentra.henriz.dev`.
 - The device fingerprint is derived from operating-system type, CPU architecture, logical processor count, and reported device memory. Screen dimensions, browsing history, webpage content, and screenshot content are not included.
+- Approximately every 12–24 hours, Edit Page sends aggregate feature-use counters, a random installation identifier, the normalized extension/browser environment, an explicit allowlist of current preferences, and whether its two optional screenshot-output permissions (`clipboardWrite` and `downloads`) are currently granted to `https://editpage.henriz.dev`. The preference allowlist contains only interface language choice, screenshot destination, whether repeated elements are hidden in full-page screenshots, and whether the text-selection toolbar is enabled. It never includes the complete extension storage, granted website origins, webpage data, replacement images, screenshots, License Keys, device fingerprints, or free-feature counter values.
 - Clicking website, review, or feedback links opens the relevant external page. `utm_source=dashboard` may be included in the opened URL for source attribution.
 - On first installation, Edit Page opens `https://editpage.henriz.dev/getting-started?installed=1&browser=chrome` (or `browser=edge` in Microsoft Edge). After uninstalling, Chrome opens `https://editpage.henriz.dev/goodbye`. These lifecycle links do not include webpage content, license information, or locally stored usage data.
 
 ### Data not collected by the extension
 
 - No browsing history, webpage content, replacement images, or screenshots are uploaded to Edit Page or Licentra.
-- The extension contains no advertising SDK or behavioral analytics SDK.
+- The extension contains no advertising SDK or third-party behavioral analytics SDK. Its first-party telemetry is limited to the aggregate product-use and allowlisted preference data described above.
 - License information is used only to activate and validate Premium access; it is not sold or used for advertising.
 
 ## Version History
