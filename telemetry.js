@@ -25,6 +25,29 @@ import { DISTRIBUTION } from "./telemetry-distribution.js";
 export const TELEMETRY_ENDPOINT =
   "https://editpage.henriz.dev/api/telemetry/v1/batch";
 
+// Chrome opens this URL *after* the extension has been removed, so it is the
+// only uninstall signal that can exist: no extension code is left to send a
+// batch. The endpoint records the removal in the same database as the batches
+// and then redirects to the human-facing goodbye page, which keeps uninstall
+// data in the existing collection system instead of adding a second one.
+// See docs/EDIT_PAGE_TELEMETRY_SPEC.md §6 and §9.4.
+export const UNINSTALL_ENDPOINT =
+  "https://editpage.henriz.dev/api/telemetry/v1/uninstall";
+
+/**
+ * Post-uninstall URL for this installation. The installation id is the only
+ * parameter: version, channel, and environment already live on the stored
+ * Installation row, and a query string is visible to infrastructure, so the URL
+ * must never grow beyond this.
+ */
+export function buildUninstallUrl(installationId) {
+  const url = new URL(UNINSTALL_ENDPOINT);
+  // Never emit an empty `i`: the endpoint treats a missing id as "nothing to
+  // record" and still redirects, but an empty parameter would be noise in URLs.
+  if (installationId) url.searchParams.set("i", installationId);
+  return url.toString();
+}
+
 /** Complete schema-v1 event catalog. */
 export const TELEMETRY_EVENTS = Object.freeze([
   "dashboard.open",
@@ -54,6 +77,7 @@ export const TELEMETRY_EVENTS = Object.freeze([
   "monetization.checkin_succeeded",
   "support.review_clicked",
   "support.feedback_clicked",
+  "lifecycle.installed",
 ]);
 
 export const ACTIVATION_FAILURE_REASONS = Object.freeze([
@@ -83,9 +107,21 @@ const COUNTER_KEYS = new Set([
 ]);
 
 const FLUSH_ALARM = "telemetry-flush";
-const MIN_FLUSH_DELAY_MS = 12 * 60 * 60 * 1000;
-const MAX_FLUSH_DELAY_MS = 24 * 60 * 60 * 1000;
-const STARTUP_FLUSH_MIN_AGE_MS = 12 * 60 * 60 * 1000;
+// Fallback schedule for installations that generate no wake-ups of their own.
+// 6 hours is the minimum guarantee; the extra spread keeps installations that
+// arrived together (a release day) from synchronizing their traffic.
+const MIN_FLUSH_DELAY_MS = 6 * 60 * 60 * 1000;
+const MAX_FLUSH_DELAY_MS = 8 * 60 * 60 * 1000;
+// A flush triggered by a service-worker wake is rate-limited to one request per
+// hour per installation. Every counted action wakes the worker (the accumulators
+// live here), so without this floor the schedule would degenerate into one
+// request per click — the spec forbids that. 1h caps an active installation at
+// 24 batches/day, well inside the server's 48/day limit.
+const WAKE_FLUSH_MIN_INTERVAL_MS = 60 * 60 * 1000;
+// Cap applied to a server-provided `Retry-After`. Deliberately independent of
+// the alarm interval so a shorter fallback schedule cannot shorten a backoff the
+// server asked for.
+const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 15 * 1000;
 const RETRY_DELAYS_MS = [15 * 60e3, 60 * 60e3, 4 * 60 * 60e3, 12 * 60 * 60e3, 24 * 60 * 60e3];
 
@@ -427,7 +463,7 @@ const postBatch = async (body) => {
 const readRetryAfterMs = (value) => {
   const seconds = Number.parseInt(value ?? "", 10);
   return Number.isFinite(seconds) && seconds > 0
-    ? Math.min(seconds * 1000, MAX_FLUSH_DELAY_MS)
+    ? Math.min(seconds * 1000, MAX_RETRY_AFTER_MS)
     : null;
 };
 
@@ -540,15 +576,24 @@ export async function flushTelemetry({ reason = "alarm" } = {}) {
 }
 
 /**
- * Startup catch-up: only transfer when there is something to send and the last
- * accepted upload is at least half a flush interval old.
+ * Wake-triggered flush, called on every service-worker start.
+ *
+ * This is what keeps uploads timely without ever reporting per action: pending
+ * counters leave the machine within an hour instead of waiting for the 6–8h
+ * alarm, which also shrinks what an uninstall can lose. It is a no-op unless
+ * there is something to send, it never runs more than once per hour per
+ * installation, and it respects a pending retry backoff so a failing server is
+ * not hammered.
  */
-export async function flushTelemetryIfStale() {
+export async function flushTelemetryIfDue() {
   const { pending, inFlight, schedule } = await readTelemetryState();
   if (!inFlight && Object.keys(pending).length === 0) return { ok: true, sent: false };
-  const lastFlushAt = Number(schedule.lastFlushAt) || 0;
-  if (Date.now() - lastFlushAt < STARTUP_FLUSH_MIN_AGE_MS) return { ok: true, sent: false };
-  return flushTelemetry({ reason: "startup" });
+  const now = Date.now();
+  if (now < (Number(schedule.nextAttemptAt) || 0)) return { ok: true, sent: false };
+  if (now - (Number(schedule.lastFlushAt) || 0) < WAKE_FLUSH_MIN_INTERVAL_MS) {
+    return { ok: true, sent: false };
+  }
+  return flushTelemetry({ reason: "wake" });
 }
 
 /** Message handler entry point for the service worker. */

@@ -19,18 +19,43 @@ import {
 import { isConfirmedCheckIn, maybeCheckIn } from '../license.js';
 import {
   TELEMETRY_FLUSH_ALARM,
+  buildUninstallUrl,
   ensureInstallationId,
   ensureTelemetryFlushScheduled,
   flushTelemetry,
-  flushTelemetryIfStale,
+  flushTelemetryIfDue,
   handleTelemetryMessage,
   recordTelemetryEvent
 } from '../telemetry.js';
 
-// Chrome opens this page only after the extension has been uninstalled.
-chrome.runtime.setUninstallURL(UNINSTALL_URL, () => {
-  void chrome.runtime.lastError;
-});
+/**
+ * Point Chrome's post-uninstall URL at the telemetry endpoint, so the removal
+ * is attributed to this installation. No extension code runs at uninstall time
+ * — the browser opens this URL after the extension is gone — which is why it is
+ * a plain GET with the id in the query string.
+ *
+ * Re-run on every service-worker start: a fresh install creates the id moments
+ * after this file first loads (so the first attempt may not have it yet), and an
+ * earlier call may have failed. If the id is unavailable we keep the plain
+ * goodbye page, so the post-uninstall experience never depends on telemetry
+ * storage.
+ */
+async function syncUninstallUrl() {
+  let url = UNINSTALL_URL;
+  try {
+    const installationId = await ensureInstallationId();
+    if (installationId) url = buildUninstallUrl(installationId);
+  } catch {
+    // Fall back to the plain goodbye page.
+  }
+  try {
+    await chrome.runtime.setUninstallURL(url);
+  } catch {
+    // Unsupported or rejected: whatever was set before stays in place.
+  }
+}
+
+void syncUninstallUrl();
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
@@ -620,12 +645,30 @@ chrome.runtime.onStartup.addListener(() => {
   initializeLicenseState().catch(() => {});
   syncScreenshotBadge().catch(() => {});
   ensureTelemetryFlushScheduled().catch(() => {});
-  flushTelemetryIfStale().catch(() => {});
+  // Telemetry is delivered by the module-load flush below, which runs on every
+  // service-worker start, including this one.
 });
 
 chrome.runtime.onInstalled.addListener((details) => {
   // Updates and re-enables must not reopen the onboarding page.
   if (details.reason !== 'install') return;
+
+  // A brand-new installation reports once immediately. That first batch creates
+  // the stored Installation row, so a user who installs and then uninstalls
+  // without ever using the extension is still counted — and the uninstall
+  // signal has a row to land on. It also anchors firstSeenAt to the real install
+  // moment instead of the first later flush.
+  //
+  // The counter is recorded and awaited before flushing: if the worker is torn
+  // down in between, the pending counter simply survives to the next flush.
+  (async () => {
+    try {
+      await recordTelemetryEvent('lifecycle.installed');
+      await flushTelemetry({ reason: 'install' });
+    } catch {
+      // Telemetry must never affect the product; the schedule still delivers it.
+    }
+  })();
 
   const userAgent = globalThis.navigator?.userAgent || '';
   chrome.tabs.create({ url: getGettingStartedUrl(userAgent) }, () => {
@@ -640,3 +683,7 @@ scheduleLicenseCheckIn();
 syncScreenshotBadge().catch(() => {});
 ensureInstallationId().catch(() => {});
 ensureTelemetryFlushScheduled().catch(() => {});
+// Every wake-up is a chance to deliver pending counters early. The telemetry
+// module rate-limits this to one request per hour per installation, so it never
+// degenerates into a per-action upload.
+flushTelemetryIfDue().catch(() => {});
