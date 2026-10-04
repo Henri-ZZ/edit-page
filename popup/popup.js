@@ -11,6 +11,7 @@ import {
   consumeFeatureUse,
   getPendingScreenshot,
   getQuotaState,
+  getReplaceImageFit,
   getScreenshotDestination,
   getSelectionToolbarEnabled,
   hasOptionalPermission,
@@ -732,6 +733,41 @@ document.addEventListener("DOMContentLoaded", async () => {
           return toolbar;
         };
 
+        // Shared by the operations that rewrite inline styles: a `null` value
+        // means "the page had no inline value here", so the property is removed
+        // and the page's own CSS applies again.
+        const IMAGE_FIT_STYLE_PROPS = [
+          "width",
+          "height",
+          "objectFit",
+          "objectPosition",
+          "backgroundSize",
+        ];
+        const RESIZE_STYLE_PROPS = [
+          "width",
+          "height",
+          "maxWidth",
+          "maxHeight",
+          "backgroundSize",
+        ];
+        const restoreInlineStyles = (element, snapshot, props) => {
+          for (const name of props) {
+            const next = snapshot?.[name];
+            if (next == null) {
+              element.style.removeProperty(
+                name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`),
+              );
+            } else {
+              element.style[name] = next;
+            }
+          }
+          if (snapshot && "marker" in snapshot) {
+            if (snapshot.marker == null)
+              element.removeAttribute("data-edit-page-fit");
+            else element.setAttribute("data-edit-page-fit", snapshot.marker);
+          }
+        };
+
         if (!window._editPageHistory) {
           const history = {
             undoStack: [],
@@ -797,6 +833,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                   reportTelemetry("image.replace");
                 else if (operation.type === "remove")
                   reportTelemetry("element.remove");
+                else if (operation.type === "resize")
+                  reportTelemetry("image.resize");
               }
               this.redoStack = [];
               this.update();
@@ -830,6 +868,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                   operation.element.style.backgroundImage =
                     value.backgroundImage;
                 }
+                // A replacement may also have pinned the box (see the fit
+                // setting); restore that verbatim as well.
+                if (value.fit) {
+                  restoreInlineStyles(
+                    operation.element,
+                    value.fit,
+                    IMAGE_FIT_STYLE_PROPS,
+                  );
+                }
               } else if (operation.type === "remove") {
                 if (direction === "undo") {
                   if (!operation.parent?.isConnected) return;
@@ -850,6 +897,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                     record.element.innerHTML =
                       record[direction === "undo" ? "before" : "after"];
                 }
+              } else if (operation.type === "resize") {
+                if (!operation.element?.isConnected) return;
+                // Mirrors the snapshot the resize overlay takes: `null` means
+                // "no inline value", so undo hands the element back to the
+                // page's own CSS (including its `max-width`).
+                restoreInlineStyles(
+                  operation.element,
+                  value,
+                  RESIZE_STYLE_PROPS,
+                );
               }
             },
             undo() {
@@ -858,6 +915,8 @@ document.addEventListener("DOMContentLoaded", async () => {
               this.apply(operation, "undo");
               this.redoStack.push(operation);
               this.update();
+              // Undo can move the element out from under visible handles.
+              window._editPageResizeHandles?.refresh?.();
               reportTelemetry("history.undo");
             },
             redo() {
@@ -866,6 +925,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               this.apply(operation, "redo");
               this.undoStack.push(operation);
               this.update();
+              window._editPageResizeHandles?.refresh?.();
               reportTelemetry("history.redo");
             },
           };
@@ -933,6 +993,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         window._editPageFinishEditingSession = () => {
           window._editPageSelectionToolbar?.destroy();
+          // Also ends replace mode: its teardown knows what it owns.
+          window._editPageReplaceTeardown?.();
           document.body.contentEditable = "false";
           document.body.classList.remove(
             "edit-page-editing",
@@ -1477,40 +1539,482 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentWindow: true,
     });
 
+    // Read once per entry; it is applied when a replacement actually happens.
+    const fit = await getReplaceImageFit();
+
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (imageData) => {
+      func: (imageData, fitMode) => {
         if (window._editPageReplaceHandler) {
           window._editPageReplaceImage = imageData;
+          window._editPageReplaceFit = fitMode;
           document.body.classList.add("edit-page-replace-mode");
           return;
         }
 
         window._editPageReplaceImage = imageData;
+        window._editPageReplaceFit = fitMode;
 
-        const findImageElement = (element) => {
-          if (!element) return null;
-
-          if (element.tagName === "IMG") {
-            return element;
+        // Resolve the target strictly by geometry: only something actually under
+        // the pointer may be replaced. Resolving from `e.target` and
+        // `querySelector('img')` picked, for a click on empty space inside a
+        // layout container, whichever image happened to be that container's
+        // first descendant — an image the user never pointed at.
+        const resolveReplaceTarget = (x, y) => {
+          const stack = document
+            .elementsFromPoint(x, y)
+            .filter(
+              (element) =>
+                !element.closest(
+                  `#edit-page-history-toolbar, #${resizeOverlayId}`,
+                ),
+            );
+          for (const element of stack) {
+            if (element.tagName === "IMG") return element;
           }
-
-          const img = element.querySelector("img");
-          if (img) return img;
-
-          const bgImg = window.getComputedStyle(element).backgroundImage;
-          if (bgImg && bgImg !== "none") {
-            return element;
+          for (const element of stack) {
+            // Computed, not inline: a picture set from a stylesheet is just as
+            // much a picture to the user, and telling the two apart is not their
+            // job. A layer mix such as `url(a.png), linear-gradient(...)` still
+            // counts; a pure gradient does not, because it is not a picture.
+            const background = window.getComputedStyle(element).backgroundImage;
+            if (/url\(/i.test(background || "")) return element;
           }
-
           return null;
+        };
+
+        // ── how a replacement is fitted ──────────────────────────────────────
+        // `cover` pins the element to the box the previous picture occupied and
+        // crops the new one into it, so a layout the user liked keeps its shape.
+        // `natural` hands sizing back to the page, which is what the extension
+        // did before the setting existed. Whatever we pin is marked on the
+        // element, so a later `natural` replacement clears our own pin and never
+        // touches inline styles the page itself set.
+        const FIT_MARKER = "data-edit-page-fit";
+        const FIT_STYLE_PROPS = [
+          "width",
+          "height",
+          "objectFit",
+          "objectPosition",
+          "backgroundSize",
+        ];
+
+        const readFitStyles = (element) => ({
+          ...Object.fromEntries(
+            FIT_STYLE_PROPS.map((name) => [name, element.style[name] || null]),
+          ),
+          marker: element.getAttribute(FIT_MARKER),
+        });
+
+        const forEachFitProp = (element, apply) => {
+          for (const name of FIT_STYLE_PROPS) {
+            apply(name, name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`));
+          }
+        };
+
+        const writeFitStyles = (element, snapshot) => {
+          forEachFitProp(element, (name, property) => {
+            const value = snapshot?.[name];
+            if (value == null) element.style.removeProperty(property);
+            else element.style[name] = value;
+          });
+          if (snapshot?.marker == null) element.removeAttribute(FIT_MARKER);
+          else element.setAttribute(FIT_MARKER, snapshot.marker);
+        };
+
+        // `box` is measured before the source changes, so it is the box the old
+        // picture occupied rather than whatever the new one is about to claim.
+        const applyReplaceFit = (element, box) => {
+          const isImage = element.tagName === "IMG";
+          if (window._editPageReplaceFit === "cover") {
+            if (isImage) {
+              if (!box || box.width <= 0 || box.height <= 0) return;
+              element.style.width = `${Math.round(box.width * 100) / 100}px`;
+              element.style.height = `${Math.round(box.height * 100) / 100}px`;
+              element.style.objectFit = "cover";
+              element.style.objectPosition = "center";
+            } else {
+              // The element's box is already the one the old picture occupied;
+              // only the picture inside it has to be told to fill that box.
+              element.style.backgroundSize = "cover";
+            }
+            element.setAttribute(FIT_MARKER, "cover");
+            return;
+          }
+          if (element.getAttribute(FIT_MARKER) !== "cover") return;
+          forEachFitProp(element, (name, property) =>
+            element.style.removeProperty(property),
+          );
+          element.removeAttribute(FIT_MARKER);
+        };
+
+        // The injected stylesheet outlines everything it can match, so all
+        // replaceable images are marked up front. This handler adds the one case
+        // a stylesheet selector cannot reach — a background image set from a
+        // class — using the same resolver the click uses, so the outline always
+        // shows exactly what a click would replace.
+        let highlightedElement = null;
+        const clearReplaceHighlight = () => {
+          if (!highlightedElement) return;
+          highlightedElement.style.removeProperty("outline");
+          highlightedElement.style.removeProperty("outline-offset");
+          highlightedElement.style.removeProperty("cursor");
+          highlightedElement = null;
+        };
+
+        window._editPageReplaceHoverHandler = (event) => {
+          const target = resolveReplaceTarget(event.clientX, event.clientY);
+          if (target === highlightedElement) return;
+          clearReplaceHighlight();
+          if (!target) return;
+          highlightedElement = target;
+          target.style.setProperty("cursor", "crosshair", "important");
+          // `img` and inline-url elements are already outlined by the injected
+          // stylesheet, which also owns their hover colour; an inline outline
+          // would pin them to a single colour. Only a target that a stylesheet
+          // selector cannot reach is outlined here, in the hover colour.
+          const outlinedByCss =
+            target.tagName === "IMG" ||
+            /url\(/i.test(target.style.backgroundImage || "");
+          if (!outlinedByCss) {
+            target.style.setProperty("outline", "2px dashed #e74c3c", "important");
+            target.style.setProperty("outline-offset", "2px", "important");
+          }
+        };
+
+        // Leaving the window must not leave an outline behind.
+        window._editPageReplaceLeaveHandler = (event) => {
+          if (!event.relatedTarget) clearReplaceHighlight();
+        };
+
+        // ── resize handles ───────────────────────────────────────────────────
+        // Only an element the user just replaced gets handles; the page's own
+        // images are left alone. The overlay hangs off documentElement so page
+        // styles cannot clip it, and it carries no text, so no new locale
+        // strings are involved.
+
+        const resizeStylesId = "edit-page-resize-styles";
+        const resizeOverlayId = "edit-page-resize-overlay";
+        const MIN_RESIZE_PX = 16;
+        // A drag can end with the pointer off the handle — the picture grows
+        // away from it — and the browser then fires a click on whatever ancestor
+        // sits under the pointer. That click belongs to the drag, not to a new
+        // replacement request, so it is swallowed exactly once.
+        let replaceClickGuardUntil = 0;
+        // Snapshotted and restored verbatim: `null` means "no inline value",
+        // which is what makes undo hand the element back to the page's own CSS.
+        const RESIZE_STYLE_PROPS = [
+          "width",
+          "height",
+          "maxWidth",
+          "maxHeight",
+          "backgroundSize",
+        ];
+        const HANDLE_SPOTS = {
+          nw: [0, 0],
+          n: [50, 0],
+          ne: [100, 0],
+          e: [100, 50],
+          se: [100, 100],
+          s: [50, 100],
+          sw: [0, 100],
+          w: [0, 50],
+        };
+        const HANDLE_CURSORS = {
+          nw: "nwse-resize",
+          n: "ns-resize",
+          ne: "nesw-resize",
+          e: "ew-resize",
+          se: "nwse-resize",
+          s: "ns-resize",
+          sw: "nesw-resize",
+          w: "ew-resize",
+        };
+
+        const kebabCase = (name) =>
+          name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
+        const readResizeStyles = (element) =>
+          Object.fromEntries(
+            RESIZE_STYLE_PROPS.map((name) => [name, element.style[name] || null]),
+          );
+
+        const writeResizeStyles = (element, snapshot) => {
+          for (const name of RESIZE_STYLE_PROPS) {
+            const value = snapshot?.[name];
+            if (value == null) element.style.removeProperty(kebabCase(name));
+            else element.style[name] = value;
+          }
+        };
+
+        const ensureResizeStyles = () => {
+          let style = document.getElementById(resizeStylesId);
+          if (!style) {
+            style = document.createElement("style");
+            style.id = resizeStylesId;
+            document.head.appendChild(style);
+          }
+          style.textContent = `
+            #${resizeOverlayId} {
+              position: fixed !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: 1px solid #4f46e5 !important;
+              box-sizing: border-box !important;
+              box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.65) !important;
+              pointer-events: none !important;
+              z-index: 2147483647 !important;
+            }
+            #${resizeOverlayId} .edit-page-resize-handle {
+              position: absolute !important;
+              width: 11px !important;
+              height: 11px !important;
+              margin: -6px 0 0 -6px !important;
+              background: #fff !important;
+              border: 2px solid #4f46e5 !important;
+              border-radius: 3px !important;
+              box-sizing: border-box !important;
+              box-shadow: 0 1px 3px rgba(15, 23, 42, 0.35) !important;
+              pointer-events: auto !important;
+            }
+            ${Object.entries(HANDLE_CURSORS)
+              .map(
+                ([direction, cursor]) =>
+                  `#${resizeOverlayId} [data-direction="${direction}"] { cursor: ${cursor} !important; }`,
+              )
+              .join("\n            ")}
+          `;
+        };
+
+        const createResizeHandles = (element) => {
+          ensureResizeStyles();
+          document.getElementById(resizeOverlayId)?.remove();
+
+          let drag = null;
+          let observedSize = null;
+
+          const overlay = document.createElement("div");
+          overlay.id = resizeOverlayId;
+          overlay.contentEditable = "false";
+          for (const [direction, spot] of Object.entries(HANDLE_SPOTS)) {
+            const handle = document.createElement("div");
+            handle.className = "edit-page-resize-handle";
+            handle.dataset.direction = direction;
+            handle.style.left = `${spot[0]}%`;
+            handle.style.top = `${spot[1]}%`;
+            overlay.appendChild(handle);
+          }
+          document.documentElement.appendChild(overlay);
+
+          const refresh = () => {
+            if (!element.isConnected) {
+              destroy();
+              return;
+            }
+            const rect = element.getBoundingClientRect();
+            overlay.style.left = `${rect.left}px`;
+            overlay.style.top = `${rect.top}px`;
+            overlay.style.width = `${rect.width}px`;
+            overlay.style.height = `${rect.height}px`;
+          };
+
+          const applySize = (width, height) => {
+            // Never collapse an axis, but never grow one either: an element
+            // smaller than the minimum must still be able to shrink on its own.
+            const floorFor = (baseline) => Math.min(MIN_RESIZE_PX, baseline);
+            // Sub-pixel precision: rounding to whole pixels would let repeated
+            // corner drags chip away at the aspect ratio.
+            const round = (value) => Math.round(value * 100) / 100;
+            element.style.width = `${round(Math.max(width, floorFor(drag.width)))}px`;
+            element.style.height = `${round(Math.max(height, floorFor(drag.height)))}px`;
+            // Sites commonly cap images with `max-width: 100%`, which would
+            // silently swallow every drag that grows the element.
+            element.style.maxWidth = "none";
+            element.style.maxHeight = "none";
+            refresh();
+          };
+
+          const onDragMove = (event) => {
+            if (!drag) return;
+            const dx = event.clientX - drag.startX;
+            const dy = event.clientY - drag.startY;
+            const horizontal = drag.direction.includes("e")
+              ? 1
+              : drag.direction.includes("w")
+                ? -1
+                : 0;
+            const vertical = drag.direction.includes("s")
+              ? 1
+              : drag.direction.includes("n")
+                ? -1
+                : 0;
+
+            // A corner keeps the aspect ratio, an edge stretches one axis only;
+            // Alt inverts whichever default applies to the handle being dragged.
+            const isCorner = drag.direction.length === 2;
+            const keepRatio = isCorner ? !event.altKey : event.altKey;
+
+            if (!keepRatio) {
+              applySize(
+                horizontal ? drag.width + horizontal * dx : drag.width,
+                vertical ? drag.height + vertical * dy : drag.height,
+              );
+              return;
+            }
+
+            // Proportional: a corner follows the dominant axis, an edge scales
+            // both dimensions off the single axis the user is dragging.
+            const byWidth = horizontal
+              ? (drag.width + horizontal * dx) / drag.width
+              : 0;
+            const byHeight = vertical
+              ? (drag.height + vertical * dy) / drag.height
+              : 0;
+            const smallest = Math.min(drag.width, drag.height);
+            const floor = Math.min(MIN_RESIZE_PX, smallest) / smallest;
+            const scale = Math.max(byWidth, byHeight, floor);
+            applySize(drag.width * scale, drag.height * scale);
+          };
+
+          const finishDrag = (commit) => {
+            if (!drag) return;
+            const started = drag;
+            drag = null;
+            document.removeEventListener("mousemove", onDragMove, true);
+            document.removeEventListener("mouseup", onDragEnd, true);
+            document.removeEventListener("keydown", onDragKey, true);
+
+            const after = readResizeStyles(element);
+            const changed = RESIZE_STYLE_PROPS.some(
+              (name) => started.before[name] !== after[name],
+            );
+            // A resize pulled the picture out from under the pointer, so the
+            // browser fires a click on whatever ancestor ends up beneath it.
+            // That click belongs to the drag and is swallowed exactly once —
+            // only when the pointer actually left the handle, so an ordinary
+            // click on a handle never eats the next genuine one.
+            if (changed) replaceClickGuardUntil = Date.now() + 400;
+            if (!commit || !changed) {
+              writeResizeStyles(element, started.before);
+              refresh();
+              return;
+            }
+            // One drag is one undo step; intermediate frames are never pushed.
+            window._editPageHistory?.push({
+              type: "resize",
+              element,
+              before: started.before,
+              after,
+              time: Date.now(),
+            });
+            refresh();
+          };
+
+          const onDragEnd = () => finishDrag(true);
+
+          const onDragKey = (event) => {
+            if (event.key !== "Escape") return;
+            event.preventDefault();
+            event.stopPropagation();
+            finishDrag(false);
+          };
+
+          const onHandleMouseDown = (event) => {
+            const handle =
+              event.target instanceof Element
+                ? event.target.closest(".edit-page-resize-handle")
+                : null;
+            if (!handle) return;
+            const rect = element.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            drag = {
+              direction: handle.dataset.direction,
+              startX: event.clientX,
+              startY: event.clientY,
+              width: rect.width,
+              height: rect.height,
+              before: readResizeStyles(element),
+            };
+            // A background picture only follows its box when told to; without
+            // this, dragging the box just reveals more of the original tiling.
+            if (element.tagName !== "IMG")
+              element.style.backgroundSize = "100% 100%";
+
+            document.addEventListener("mousemove", onDragMove, true);
+            document.addEventListener("mouseup", onDragEnd, true);
+            document.addEventListener("keydown", onDragKey, true);
+          };
+
+          // Clicking elsewhere drops the handles; clicking the element itself
+          // keeps them, so the picture can be resized again straight away.
+          const onOutsideMouseDown = (event) => {
+            if (!(event.target instanceof Node)) return;
+            if (overlay.contains(event.target)) return;
+            if (element === event.target || element.contains(event.target))
+              return;
+            destroy();
+          };
+
+          function destroy() {
+            finishDrag(false);
+            observedSize?.disconnect();
+            observedSize = null;
+            overlay.removeEventListener("mousedown", onHandleMouseDown, true);
+            document.removeEventListener("mousedown", onOutsideMouseDown, true);
+            window.removeEventListener("scroll", refresh, true);
+            window.removeEventListener("resize", refresh);
+            overlay.remove();
+            if (window._editPageResizeHandles?.destroy === destroy)
+              window._editPageResizeHandles = null;
+          }
+
+          overlay.addEventListener("mousedown", onHandleMouseDown, true);
+          document.addEventListener("mousedown", onOutsideMouseDown, true);
+          window.addEventListener("scroll", refresh, true);
+          window.addEventListener("resize", refresh);
+          // The picture's box changes the moment its new source finishes
+          // loading, which happens after the handles are first placed. Watching
+          // the element keeps the frame on the picture instead of leaving it on
+          // the box the pre-replacement image occupied.
+          if (typeof ResizeObserver === "function") {
+            observedSize = new ResizeObserver(() => refresh());
+            observedSize.observe(element);
+          }
+          refresh();
+
+          return { element, refresh, destroy };
+        };
+
+        const showResizeHandles = (element) => {
+          if (window._editPageResizeHandles?.element === element) {
+            window._editPageResizeHandles.refresh();
+            return;
+          }
+          window._editPageResizeHandles?.destroy?.();
+          window._editPageResizeHandles = createResizeHandles(element);
         };
 
         window._editPageReplaceHandler = (e) => {
           if (!window._editPageReplaceImage) return;
+          // The click a resize drag leaves behind must not replace anything.
+          if (Date.now() < replaceClickGuardUntil) {
+            replaceClickGuardUntil = 0;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
+          }
           if (
             e.target instanceof Element &&
-            e.target.closest("#edit-page-history-toolbar")
+            // A drag on a handle sits right on top of the picture, so it must
+            // not be read as "replace this element" a second time.
+            e.target.closest(
+              `#edit-page-history-toolbar, #${resizeOverlayId}`,
+            )
           )
             return;
 
@@ -1518,17 +2022,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           e.stopPropagation();
           e.stopImmediatePropagation();
 
-          let target = e.target;
-
-          let img = findImageElement(target);
-
-          if (!img) {
-            const elements = document.elementsFromPoint(e.clientX, e.clientY);
-            for (const el of elements) {
-              img = findImageElement(el);
-              if (img) break;
-            }
-          }
+          const img = resolveReplaceTarget(e.clientX, e.clientY);
 
           if (img) {
             if (img.tagName === "IMG") {
@@ -1546,6 +2040,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 })),
               });
               const before = snapshot();
+              // Measured before the source changes: this is the box the old
+              // picture occupied, and `cover` pins the element to it.
+              const box = img.getBoundingClientRect();
+              const beforeFit = readFitStyles(img);
               img.src = window._editPageReplaceImage;
               if (img.srcset) {
                 img.srcset = "";
@@ -1558,28 +2056,37 @@ document.addEventListener("DOMContentLoaded", async () => {
                   source.removeAttribute("type");
                 });
               }
+              applyReplaceFit(img, box);
               window._editPageHistory?.push({
                 type: "image",
                 imageKind: "img",
                 element: img,
                 sources,
-                before,
-                after: snapshot(),
+                before: { ...before, fit: beforeFit },
+                after: { ...snapshot(), fit: readFitStyles(img) },
                 time: Date.now(),
               });
             } else {
               const before = { backgroundImage: img.style.backgroundImage };
+              const beforeFit = readFitStyles(img);
               img.style.backgroundImage = `url(${window._editPageReplaceImage})`;
+              applyReplaceFit(img);
               window._editPageHistory?.push({
                 type: "image",
                 imageKind: "background",
                 element: img,
                 sources: [],
-                before,
-                after: { backgroundImage: img.style.backgroundImage },
+                before: { ...before, fit: beforeFit },
+                after: {
+                  backgroundImage: img.style.backgroundImage,
+                  fit: readFitStyles(img),
+                },
                 time: Date.now(),
               });
             }
+            // The picture is now resizable: the handles appear on the element
+            // that was just replaced, immediately, with no extra click.
+            showResizeHandles(img);
           }
         };
 
@@ -1602,11 +2109,46 @@ document.addEventListener("DOMContentLoaded", async () => {
           window._editPageReplaceMouseDownHandler,
           true,
         );
+        document.addEventListener(
+          "mouseover",
+          window._editPageReplaceHoverHandler,
+          true,
+        );
+        document.addEventListener(
+          "mouseout",
+          window._editPageReplaceLeaveHandler,
+          true,
+        );
         document.body.classList.add("edit-page-replace-mode");
+
+        // One teardown for everything this mode owns — listeners, highlight and
+        // resize handles — so no caller has to know which parts belong to it.
+        window._editPageReplaceTeardown = () => {
+          clearReplaceHighlight();
+          for (const [type, handler] of [
+            ["click", window._editPageReplaceHandler],
+            ["mousedown", window._editPageReplaceMouseDownHandler],
+            ["mouseover", window._editPageReplaceHoverHandler],
+            ["mouseout", window._editPageReplaceLeaveHandler],
+          ]) {
+            if (handler) document.removeEventListener(type, handler, true);
+          }
+          window._editPageReplaceHandler = null;
+          window._editPageReplaceMouseDownHandler = null;
+          window._editPageReplaceHoverHandler = null;
+          window._editPageReplaceLeaveHandler = null;
+          window._editPageReplaceImage = null;
+          window._editPageReplaceTeardown = null;
+          window._editPageResizeHandles?.destroy?.();
+          document.body.classList.remove("edit-page-replace-mode");
+        };
       },
-      args: [selectedImageData],
+      args: [selectedImageData, fit],
     });
 
+    // CSS outlines everything it can match, so every replaceable image is
+    // visible at a glance; the JS highlighter adds the one case a stylesheet
+    // selector cannot reach (a background image set from a class).
     await chrome.scripting.insertCSS({
       target: { tabId: tab.id },
       css: `
@@ -1614,13 +2156,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           pointer-events: auto !important;
         }
         .edit-page-replace-mode img,
-        .edit-page-replace-mode [style*='background-image'] {
+        .edit-page-replace-mode [style*='url('] {
           cursor: crosshair !important;
           outline: 2px dashed #e67e22 !important;
           outline-offset: 2px !important;
         }
         .edit-page-replace-mode img:hover,
-        .edit-page-replace-mode [style*='background-image']:hover {
+        .edit-page-replace-mode [style*='url(']:hover {
           outline-color: #e74c3c !important;
         }
       `,
@@ -1636,24 +2178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: () => {
-        if (window._editPageReplaceHandler) {
-          document.removeEventListener(
-            "click",
-            window._editPageReplaceHandler,
-            true,
-          );
-        }
-        if (window._editPageReplaceMouseDownHandler) {
-          document.removeEventListener(
-            "mousedown",
-            window._editPageReplaceMouseDownHandler,
-            true,
-          );
-        }
-        window._editPageReplaceHandler = null;
-        window._editPageReplaceMouseDownHandler = null;
-        window._editPageReplaceImage = null;
-        document.body.classList.remove("edit-page-replace-mode");
+        window._editPageReplaceTeardown?.();
       },
     });
   };
@@ -1834,7 +2359,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     void runFullPageScreenshot();
   });
 
-  const setSelectedImage = async (imageSource) => {
+  const setSelectedImage = async (imageSource, source) => {
     // Advanced-feature quota: each successful image import (upload or URL)
     // counts once; replacing multiple page elements with that import does not.
     let billUse = false;
@@ -1855,6 +2380,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     await saveImageData(imageSource);
     if (billUse) await consumeFeatureUse("replaceImage");
     showStatus(t("imageSelected"), true);
+    // Counted after the quota gate: an import blocked by the free-tier limit is
+    // not an accepted import (`monetization.free_limit_reached` covers that),
+    // and one accepted import counts once however many elements it later
+    // replaces.
+    trackTelemetryEvent(
+      source === "local" ? "image.import_local" : "image.import_url",
+    );
   };
 
   const getValidImageUrl = (value) => {
@@ -1971,13 +2503,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!loadResult.ok) {
           showStatus(t("imageReadFailed"), false);
           imageInput.value = "";
+          trackTelemetryEvent("image.import_local_failed");
           return;
         }
-        await setSelectedImage(imageSource);
+        await setSelectedImage(imageSource, "local");
       };
       reader.onerror = () => {
         showStatus(t("imageReadFailed"), false);
         imageInput.value = "";
+        trackTelemetryEvent("image.import_local_failed");
       };
       reader.readAsDataURL(file);
     }
@@ -1989,6 +2523,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       imageUrlInput.setAttribute("aria-invalid", "true");
       showStatus(t("invalidImageUrl"), false);
       imageUrlInput.focus();
+      // An empty input is a dead end, not a failed import; a non-empty value
+      // that is not a usable http(s) URL is one.
+      if (imageUrlInput.value.trim()) {
+        trackTelemetryEvent("image.import_url_failed");
+      }
       return;
     }
     useImageUrlBtn.disabled = true;
@@ -1999,13 +2538,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (validationError) {
         imageUrlInput.setAttribute("aria-invalid", "true");
         showStatus(validationError, false);
+        trackTelemetryEvent("image.import_url_failed");
         return;
       }
       imageUrlInput.removeAttribute("aria-invalid");
-      await setSelectedImage(imageUrl);
+      await setSelectedImage(imageUrl, "url");
     } catch (error) {
       console.error("Failed to validate image URL", error);
       showStatus(t("imageReadFailed"), false);
+      trackTelemetryEvent("image.import_url_failed");
     } finally {
       useImageUrlBtn.disabled = false;
       useImageUrlBtn.removeAttribute("aria-busy");

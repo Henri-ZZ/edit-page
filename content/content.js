@@ -19,6 +19,7 @@
     }
 
     if (window._editPageReplaceHandler) {
+      window._editPageReplaceTeardown?.();
       document.removeEventListener('click', window._editPageReplaceHandler, true);
       document.removeEventListener('mousedown', window._editPageReplaceMouseDownHandler, true);
       window._editPageReplaceHandler = null;

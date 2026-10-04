@@ -7,6 +7,7 @@ import {
   getState,
   getHideRepeatedElements,
   getLanguagePreference,
+  getReplaceImageFit,
   getScreenshotDestination,
   getSelectionToolbarEnabled,
   hasOptionalPermission,
@@ -16,9 +17,13 @@ import {
   resolveLanguage,
   setLanguagePreference,
   setHideRepeatedElements,
+  setReplaceImageFit,
   setScreenshotDestination,
   setSelectionToolbarEnabled,
 } from "../shared.js";
+// Which store listing this artifact was published in is build-injected (see
+// telemetry-distribution.js); nothing observable at runtime can tell us reliably.
+import { DISTRIBUTION } from "../telemetry-distribution.js";
 import { activateLicense, toTelemetryFailureReason } from "../license.js";
 import {
   trackTelemetryActivationFailure,
@@ -39,6 +44,15 @@ const STORE_REVIEW_URLS = {
     "https://chromewebstore.google.com/detail/edit-page/edjbgblhciojhakodeflnpampekciifl/reviews?utm_source=dashboard",
   edge: "https://microsoftedge.microsoft.com/addons/detail/edit-page/kgkkdobebceimgmhbiclahicofidniik?utm_source=dashboard",
 };
+// A review link must point at the listing this artifact actually came from, and
+// that is a build-time property: an Edge user may have installed from the Chrome
+// Web Store, so keying off navigator.userAgent sent them to the wrong listing.
+// Only the two store channels name a listing — `direct` and `development` builds
+// are published nowhere, so they keep the browser guess as a best effort.
+const STORE_BY_DISTRIBUTION = {
+  cws: "chrome",
+  edge: "edge",
+};
 const getBrowserPlatform = (userAgent = "") => {
   if (/Edg\//i.test(userAgent)) return "edge";
   return "chrome";
@@ -52,7 +66,9 @@ const openExternalTab = async (url) => {
   }
 };
 const getStoreReviewUrl = (userAgent = "") =>
-  STORE_REVIEW_URLS[getBrowserPlatform(userAgent)];
+  STORE_REVIEW_URLS[
+    STORE_BY_DISTRIBUTION[DISTRIBUTION] ?? getBrowserPlatform(userAgent)
+  ];
 
 const messages = {
   en: {
@@ -62,6 +78,12 @@ const messages = {
     language: "Language",
     languageHelp: "Choose the interface language, or follow your browser.",
     followBrowser: "Follow browser",
+    changeImageSettings: "Change image",
+    replaceImageFitHeading: "After replacing an image",
+    replaceImageFitHelp:
+      "Choose how a new picture is fitted into the element it replaces. Keeping the original size holds the page layout; using the new image's size can reflow the page.",
+    replaceImageFitNatural: "Use the new image's size",
+    replaceImageFitCover: "Keep the original size and crop",
     screenshotSettings: "Screenshot",
     saveMethod: "Save method",
     screenshotDestinationHelp: "Choose where screenshots are saved.",
@@ -114,6 +136,12 @@ const messages = {
     language: "Idioma",
     languageHelp: "Elige el idioma de la interfaz o usa el del navegador.",
     followBrowser: "Usar el idioma del navegador",
+    changeImageSettings: "Cambiar imagen",
+    replaceImageFitHeading: "Después de reemplazar una imagen",
+    replaceImageFitHelp:
+      "Elige cómo se ajusta la nueva imagen al elemento que reemplaza. Mantener el tamaño original conserva el diseño de la página; el tamaño de la nueva imagen puede desplazarla.",
+    replaceImageFitCover: "Mantener el tamaño original y recortar",
+    replaceImageFitNatural: "Usar el tamaño de la nueva imagen",
     screenshotSettings: "Capturas de pantalla",
     saveMethod: "Método de guardado",
     screenshotDestinationHelp: "Elige dónde se guardan las capturas.",
@@ -157,6 +185,12 @@ const messages = {
     language: "Idioma",
     languageHelp: "Escolha o idioma da interface ou siga o navegador.",
     followBrowser: "Seguir o navegador",
+    changeImageSettings: "Alterar imagem",
+    replaceImageFitHeading: "Depois de substituir uma imagem",
+    replaceImageFitHelp:
+      "Escolha como a nova imagem se encaixa no elemento que substitui. Manter o tamanho original preserva o layout da página; o tamanho da nova imagem pode deslocá-la.",
+    replaceImageFitCover: "Manter o tamanho original e recortar",
+    replaceImageFitNatural: "Usar o tamanho da nova imagem",
     screenshotSettings: "Captura de tela",
     saveMethod: "Forma de salvar",
     screenshotDestinationHelp: "Escolha onde as capturas serão salvas.",
@@ -200,6 +234,12 @@ const messages = {
     language: "言語",
     languageHelp: "表示言語を選択するか、ブラウザーの言語に合わせます。",
     followBrowser: "ブラウザーに合わせる",
+    changeImageSettings: "画像を変更",
+    replaceImageFitHeading: "画像を置き換えた後",
+    replaceImageFitHelp:
+      "新しい画像を置き換え先の要素にどう収めるかを選びます。元のサイズを保つとページのレイアウトは変わりません。新しい画像のサイズを使うとページがずれることがあります。",
+    replaceImageFitCover: "元のサイズを保って切り抜く",
+    replaceImageFitNatural: "新しい画像のサイズを使う",
     screenshotSettings: "スクリーンショット",
     saveMethod: "保存方法",
     screenshotDestinationHelp: "スクリーンショットの保存先を選択します。",
@@ -241,6 +281,12 @@ const messages = {
     language: "语言",
     languageHelp: "选择界面语言，或者跟随浏览器。",
     followBrowser: "跟随浏览器",
+    changeImageSettings: "更换图片",
+    replaceImageFitHeading: "替换图片后",
+    replaceImageFitHelp:
+      "选择新图片如何放进它取代的元素。保持原尺寸不会影响页面排版；使用新图尺寸可能让页面重新排版。",
+    replaceImageFitNatural: "使用新图自己的尺寸",
+    replaceImageFitCover: "保持原尺寸并裁剪填满",
     screenshotSettings: "截图",
     saveMethod: "保存方式",
     screenshotDestinationHelp: "选择截图保存到哪里。",
@@ -529,6 +575,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     await setSelectionToolbarEnabled(selectionToolbarEnabled.checked);
   });
 
+  // No permission dance here: unlike the screenshot destination, this setting
+  // only changes how the next replacement is laid out.
+  const replaceImageFit = await getReplaceImageFit();
+  document.querySelectorAll('input[name="replaceImageFit"]').forEach((input) => {
+    input.checked = input.value === replaceImageFit;
+    input.addEventListener("change", async () => {
+      if (!input.checked) return;
+      await setReplaceImageFit(input.value);
+    });
+  });
+
   languageSelect.addEventListener("change", async () => {
     await setLanguagePreference(languageSelect.value);
     await applyLanguage();
@@ -538,8 +595,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupPremiumCard();
   await showGraceExhaustedNotice();
 
-  // Support: Leave Review goes to the current browser's store; Send Feedback
-  // opens the website Contact page (both tagged with utm_source=dashboard).
+  // Support: Leave Review goes to the store this build was published in — read
+  // from DISTRIBUTION, never from the running browser, because an Edge user may
+  // have installed from the Chrome Web Store. Send Feedback opens the website
+  // Contact page (both tagged with utm_source=dashboard).
   const leaveReviewBtn = document.getElementById("leaveReviewBtn");
   if (leaveReviewBtn) {
     leaveReviewBtn.addEventListener("click", async () => {

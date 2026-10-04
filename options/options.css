@@ -92,6 +92,7 @@ h1 {
 }
 
 .edit-text-card,
+.change-image-card,
 .screenshot-card {
   grid-column: 1 / -1;
 }

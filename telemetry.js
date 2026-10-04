@@ -16,6 +16,7 @@
 import {
   getHideRepeatedElements,
   getLanguagePreference,
+  getReplaceImageFit,
   getScreenshotDestination,
   getSelectionToolbarEnabled,
   isPremium,
@@ -61,6 +62,11 @@ export const TELEMETRY_EVENTS = Object.freeze([
   "format.text_color",
   "format.background_color",
   "image.replace",
+  "image.resize",
+  "image.import_local",
+  "image.import_url",
+  "image.import_local_failed",
+  "image.import_url_failed",
   "element.remove",
   "history.undo",
   "history.redo",
@@ -310,11 +316,13 @@ export async function collectTelemetrySettings() {
     screenshotDestination,
     hideRepeatedElements,
     selectionToolbarEnabled,
+    replaceImageFit,
   ] = await Promise.all([
     getLanguagePreference().catch(() => ""),
     getScreenshotDestination().catch(() => "clipboard"),
     getHideRepeatedElements().catch(() => true),
     getSelectionToolbarEnabled().catch(() => true),
+    getReplaceImageFit().catch(() => "cover"),
   ]);
 
   return {
@@ -322,6 +330,7 @@ export async function collectTelemetrySettings() {
     screenshotDestination,
     hideRepeatedElements,
     selectionToolbarEnabled,
+    replaceImageFit,
   };
 }
 

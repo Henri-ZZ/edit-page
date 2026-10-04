@@ -12,9 +12,23 @@ const popupKeys = [
   "visibleScreenshot", "fullPageScreenshot", "freePlan", "undo", "redo", "done",
   "cannotEditThisPage", "pageNotSupported", "statusScreenshotSuccess",
   "statusScreenshotDownloaded",
+  // Image-replacement flow. These were built-in-only for a long time, so every
+  // other language fell back to English without this check noticing.
+  "title", "replaceMode", "exitReplaceMode", "clearImage", "imageSelected",
+  "pleaseSelectImageFirst", "checkingImageUrl", "invalidImageUrl",
+  "imageReadFailed", "replaceModeFailed",
+  "exitEdit", "exitRemoveMode", "changeCount", "editWarning", "connecting",
+  "editModeFailed", "removeModeFailed", "quotaExhaustedBadge",
+  "quotaExhaustedToast", "imageUrlNotImage", "imageUrlDenied", "imageUrlNotFound",
+  "imageUrlHttpError", "imageUrlAccessRestricted", "imageLoadTimeout",
+  "screenshotting", "preparingFullPage", "capturingFullPage", "stitchingFullPage",
+  "savingScreenshot", "statusScreenshotting", "statusScreenshotFailed",
+  "fullPageCaptureInProgress", "fullPageTabChanged",
 ];
 const optionsKeys = [
   "documentTitle", "title", "subtitle", "language", "languageHelp", "followBrowser",
+  "changeImageSettings", "replaceImageFitHeading", "replaceImageFitHelp",
+  "replaceImageFitCover", "replaceImageFitNatural",
   "screenshotSettings", "saveMethod", "screenshotDestinationHelp", "saveToClipboard",
   "saveAsDownload", "whenCapturingFullPage", "hideRepeatedElements",
   "hideRepeatedElementsHelp", "premiumIntro", "premiumLearn", "premiumActivateLabel",

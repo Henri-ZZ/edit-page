@@ -102,6 +102,8 @@ export const SCREENSHOT_DESTINATION_KEY = "screenshotDestination";
 export const SCREENSHOT_DESTINATIONS = ["clipboard", "download"];
 export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
 export const SELECTION_TOOLBAR_ENABLED_KEY = "selectionToolbarEnabled";
+export const REPLACE_IMAGE_FIT_KEY = "replaceImageFit";
+export const REPLACE_IMAGE_FITS = ["natural", "cover"];
 
 export function getBrowserPlatform(userAgent = "") {
   if (/Edg\//i.test(userAgent)) return "edge";
@@ -144,6 +146,25 @@ export async function getSelectionToolbarEnabled() {
 export async function setSelectionToolbarEnabled(value) {
   const normalized = value !== false;
   await chrome.storage.sync.set({ [SELECTION_TOOLBAR_ENABLED_KEY]: normalized });
+  return normalized;
+}
+
+/**
+ * How a replaced picture is fitted into the element it replaces. `cover` pins
+ * the element to the box the previous picture occupied and crops the new one
+ * into it, so the page's layout does not move; `natural` hands sizing back to
+ * the page and lets the new picture's own size push things around. Defaults to
+ * `cover`, and an unrecognized stored value falls back to it too.
+ */
+export async function getReplaceImageFit() {
+  const result = await chrome.storage.sync.get(REPLACE_IMAGE_FIT_KEY);
+  const value = result[REPLACE_IMAGE_FIT_KEY];
+  return REPLACE_IMAGE_FITS.includes(value) ? value : "cover";
+}
+
+export async function setReplaceImageFit(value) {
+  const normalized = REPLACE_IMAGE_FITS.includes(value) ? value : "cover";
+  await chrome.storage.sync.set({ [REPLACE_IMAGE_FIT_KEY]: normalized });
   return normalized;
 }
 
