@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "直接編輯網頁文字、替換圖片、移除元素，並擷取目前視窗或完整網頁。",
+    "message": "直接編輯網頁文字、設定文字格式、替換圖片並調整大小、移除元素，並擷取目前視窗或完整網頁。",
     "description": "Extension description"
   }
 }

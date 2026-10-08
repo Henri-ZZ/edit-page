@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "ページのテキスト編集、画像置換、要素削除、現在の表示領域またはページ全体の撮影ができます。",
+    "message": "テキストの編集と書式設定、画像の置換とサイズ変更、要素の削除、現在の表示領域またはページ全体の撮影ができます。",
     "description": "Extension description"
   }
 }

@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Muokkaa tekstiä, vaihda kuvia, poista elementtejä ja kaappaa nykyinen näkymä tai koko sivu.",
+    "message": "Muokkaa ja muotoile tekstiä, vaihda ja muuta kuvien kokoa, poista elementtejä ja kaappaa nykyinen näkymä tai koko sivu.",
     "description": "Extension description"
   }
 }

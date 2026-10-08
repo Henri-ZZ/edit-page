@@ -5,7 +5,7 @@
 ## English (en)
 
 ```text
-Edit Page lets you edit webpages directly in your browser. Quickly edit text, change images, remove elements, and capture screenshots without leaving the page.
+Edit Page lets you edit webpages directly in your browser. Quickly edit text, replace and resize images, format text, remove elements, and capture screenshots without leaving the page.
 
 Whether you're creating a quick mockup, testing a design idea, preparing a presentation, or simply want to see how a webpage could look with different content, Edit Page makes temporary webpage editing simple.
 
@@ -16,6 +16,12 @@ Click text on a webpage and replace it with your own content. Edit Page is desig
 
 Change image
 Replace images on a webpage with a local image or an Image URL. Preview the replacement before applying it.
+
+Text formatting
+Select text while editing and format it from a floating toolbar: font size, bold, italic, underline, strikethrough, text color, and background color.
+
+Resize
+After replacing an image, drag the handles to resize it: corners keep the aspect ratio, and holding Alt stretches it freely.
 
 Remove element
 Click an element on the page to remove it and create a cleaner version of the webpage.
@@ -43,7 +49,7 @@ Start editing a webpage in seconds — no coding required.
 ## Arabic — العربية (ar)
 
 ```text
-يتيح لك Edit Page تحرير صفحات الويب مباشرة في متصفحك. حرّر النص، واستبدل الصور، وأزل العناصر، والتقط لقطات شاشة من دون مغادرة الصفحة.
+يتيح لك Edit Page تحرير صفحات الويب مباشرة في متصفحك. حرّر النص ونسّقه، واستبدل الصور وغيّر حجمها، وأزل العناصر، والتقط لقطات شاشة من دون مغادرة الصفحة.
 
 سواء كنت تنشئ نموذجًا أوليًا سريعًا، أو تختبر فكرة تصميم، أو تحضّر عرضًا تقديميًا، أو تريد فقط رؤية كيف ستبدو الصفحة بمحتوى مختلف، فإن Edit Page يجعل التحرير المؤقت لصفحات الويب أمرًا بسيطًا.
 
@@ -54,6 +60,12 @@ Start editing a webpage in seconds — no coding required.
 
 تغيير الصورة
 استبدل الصور في الصفحة بصورة من جهازك أو عبر رابط صورة. عاين الصورة البديلة قبل تطبيقها.
+
+تنسيق النص
+حدِّد النص أثناء التحرير ونسّقه من شريط أدوات عائم: حجم الخط، والغامق، والمائل، والتسطير، واليتوسطه خط، ولون النص، ولون الخلفية.
+
+تغيير الحجم
+بعد استبدال صورة، اسحب المقابض لتغيير حجمها: تحافظ الزوايا على نسبة الأبعاد، ويؤدي الضغط على Alt إلى تمديدها بحرية.
 
 إزالة عنصر
 انقر على أي عنصر في الصفحة لإزالته والحصول على نسخة أنظف من صفحة الويب.
@@ -81,7 +93,7 @@ Edit Page متاح لمتصفح Chrome وMicrosoft Edge.
 ## Chinese (Simplified) — 简体中文 (zh-CN)
 
 ```text
-Edit Page 让你直接在浏览器中编辑网页。无需离开当前页面，即可快速修改文字、替换图片、移除元素并截图。
+Edit Page 让你直接在浏览器中编辑网页。无需离开当前页面，即可快速修改文字、设置文本格式、替换图片并调整大小、移除元素并截图。
 
 无论你是在快速制作原型、验证设计想法、准备演示文稿，还是只想看看网页换成不同内容后的效果，Edit Page 都能让临时编辑网页变得简单。
 
@@ -92,6 +104,12 @@ Edit Page 让你直接在浏览器中编辑网页。无需离开当前页面，�
 
 更改图片
 用本地图片或图片 URL 替换网页上的图片。应用前可以先预览替换效果。
+
+文本格式
+编辑时选中文字，用浮动工具栏设置字号、粗体、斜体、下划线、删除线、文字颜色和背景色。
+
+调整大小
+替换图片后，拖动手柄即可调整大小：拖四角保持宽高比，按住 Alt 可自由拉伸。
 
 移除元素
 点击页面上的元素即可将其移除，让网页更简洁。
@@ -119,7 +137,7 @@ Edit Page 支持 Chrome 和 Microsoft Edge。
 ## Chinese (Traditional) — 繁體中文 (zh-TW)
 
 ```text
-Edit Page 讓你直接在瀏覽器中編輯網頁。不必離開目前頁面，就能快速修改文字、替換圖片、移除元素並擷取畫面。
+Edit Page 讓你直接在瀏覽器中編輯網頁。不必離開目前頁面，就能快速修改文字、設定文字格式、替換圖片並調整大小、移除元素並擷取畫面。
 
 無論你是在快速製作原型、驗證設計想法、準備簡報，還是只想看看網頁換成不同內容後的效果，Edit Page 都能讓臨時編輯網頁變得簡單。
 
@@ -130,6 +148,12 @@ Edit Page 讓你直接在瀏覽器中編輯網頁。不必離開目前頁面，�
 
 替換圖片
 用本機圖片或圖片 URL 替換網頁上的圖片。套用前可以先預覽替換效果。
+
+文字格式
+編輯時選取文字，用浮動工具列設定字級、粗體、斜體、底線、刪除線、文字顏色與背景色。
+
+調整大小
+替換圖片後，拖曳控點即可調整大小：拖曳四角保持長寬比，按住 Alt 可自由拉伸。
 
 移除元素
 點擊頁面上的元素即可將其移除，讓網頁更簡潔。
@@ -157,7 +181,7 @@ Edit Page 支援 Chrome 與 Microsoft Edge。
 ## Czech — Čeština (cs)
 
 ```text
-Edit Page vám umožní upravovat webové stránky přímo v prohlížeči. Rychle upravte text, vyměňte obrázky, odstraňte prvky a pořiďte snímky, aniž byste opustili stránku.
+Edit Page vám umožní upravovat webové stránky přímo v prohlížeči. Rychle upravte a formátujte text, vyměňte a změňte velikost obrázků, odstraňte prvky a pořiďte snímky, aniž byste opustili stránku.
 
 Ať už vytváříte rychlý návrh, testujete nápad na design, připravujete prezentaci, nebo si jen chcete prohlédnout, jak by stránka vypadala s jiným obsahem, Edit Page dělá dočasné úpravy webových stránek jednoduchými.
 
@@ -168,6 +192,12 @@ Klikněte na text na stránce a nahraďte ho vlastním obsahem. Edit Page je ur�
 
 Výměna obrázku
 Nahraďte obrázky na stránce obrázkem z počítače nebo přes URL obrázku. Před použitím si náhradu prohlédněte.
+
+Formátování textu
+Během úprav vyberte text a naformátujte jej na plovoucí liště: velikost písma, tučné, kurzíva, podtržení, přeškrtnutí, barva textu a barva pozadí.
+
+Změna velikosti
+Po nahrazení obrázku přetáhněte úchyty a změňte jeho velikost: rohy zachovávají poměr stran, s podrženým Altem jej roztáhnete volně.
 
 Odstranění prvku
 Klikněte na prvek na stránce a odstraňte ho, čímž získáte čistší podobu stránky.
@@ -195,7 +225,7 @@ Začněte upravovat webovou stránku během několika sekund — bez programová
 ## Danish — Dansk (da)
 
 ```text
-Edit Page lader dig redigere websider direkte i browseren. Ret tekst, udskift billeder, fjern elementer, og tag skærmbilleder uden at forlade siden.
+Edit Page lader dig redigere websider direkte i browseren. Ret og formatér tekst, udskift og skalér billeder, fjern elementer, og tag skærmbilleder uden at forlade siden.
 
 Uanset om du laver en hurtig mockup, tester en designidé, forbereder en præsentation, eller blot vil se, hvordan en webside ser ud med andet indhold, gør Edit Page midlertidig redigering af websider enkel.
 
@@ -206,6 +236,12 @@ Klik på tekst på en webside, og erstat den med dit eget indhold. Edit Page er 
 
 Udskift billede
 Erstat billeder på en webside med et lokalt billede eller en billed-URL. Se en forhåndsvisning, før du anvender det.
+
+Tekstformatering
+Markér tekst under redigering og formatér den fra en flydende værktøjslinje: skriftstørrelse, fed, kursiv, understregning, gennemstregning, tekstfarve og baggrundsfarve.
+
+Tilpas størrelse
+Når du har erstattet et billede, kan du trække i håndtagene for at tilpasse størrelsen: hjørner bevarer højde-bredde-forholdet, og med Alt holdt nede kan du strække det frit.
 
 Fjern element
 Klik på et element på siden for at fjerne det og få en renere version af websiden.
@@ -233,7 +269,7 @@ Begynd at redigere en webside i løbet af sekunder — ingen kodning påkrævet.
 ## Dutch — Nederlands (nl)
 
 ```text
-Met Edit Page bewerk je webpagina's rechtstreeks in je browser. Bewerk snel tekst, vervang afbeeldingen, verwijder elementen en maak screenshots zonder de pagina te verlaten.
+Met Edit Page bewerk je webpagina's rechtstreeks in je browser. Bewerk en formatteer snel tekst, vervang en schaal afbeeldingen, verwijder elementen en maak screenshots zonder de pagina te verlaten.
 
 Of je nu snel een mock-up maakt, een designidee test, een presentatie voorbereidt of gewoon wilt zien hoe een webpagina er met andere inhoud uitziet, Edit Page maakt tijdelijk webpagina's bewerken eenvoudig.
 
@@ -244,6 +280,12 @@ Klik op tekst op een webpagina en vervang die door je eigen inhoud. Edit Page is
 
 Afbeelding vervangen
 Vervang afbeeldingen op een webpagina door een lokale afbeelding of een afbeeldings-URL. Bekijk een voorbeeld voordat je het toepast.
+
+Tekstopmaak
+Selecteer tekst tijdens het bewerken en formatteer die via een zwevende werkbalk: lettergrootte, vet, cursief, onderstrepen, doorhalen, tekstkleur en achtergrondkleur.
+
+Formaat wijzigen
+Sleep na het vervangen van een afbeelding aan de grepen om het formaat te wijzigen: hoeken behouden de verhouding, met Alt erbij rekt u vrij uit.
 
 Element verwijderen
 Klik op een element op de pagina om het te verwijderen en zo een schonere versie van de webpagina te krijgen.
@@ -271,7 +313,7 @@ Begin binnen enkele seconden met het bewerken van een webpagina — zonder coder
 ## Finnish — Suomi (fi)
 
 ```text
-Edit Page antaa sinun muokata verkkosivuja suoraan selaimessa. Muokkaa tekstiä, vaihda kuvia, poista elementtejä ja ota kuvakaappauksia poistumatta sivulta.
+Edit Page antaa sinun muokata verkkosivuja suoraan selaimessa. Muokkaa ja muotoile tekstiä, vaihda ja muuta kuvien kokoa, poista elementtejä ja ota kuvakaappauksia poistumatta sivulta.
 
 Kun teet nopeaa mallia, testaat suunnitteluideaa, valmistelet esitystä tai haluat vain nähdä, miltä verkkosivu näyttäisi eri sisällöllä, Edit Page tekee verkkosivujen väliaikaisesta muokkaamisesta helppoa.
 
@@ -282,6 +324,12 @@ Napsauta verkkosivun tekstiä ja korvaa se omalla sisällölläsi. Edit Page on 
 
 Vaihda kuva
 Korvaa verkkosivun kuvat laitteesi kuvalla tai kuvan URL-osoitteella. Esikatsele korvausta ennen sen käyttämistä.
+
+Tekstin muotoilu
+Valitse tekstiä muokkauksen aikana ja muotoile se kelluvasta työkalupalkista: fontin koko, lihavointi, kursiivi, alleviivaus, yliviivaus, tekstin väri ja taustaväri.
+
+Koon muuttaminen
+Muuta korvatun kuvan kokoa vetämällä kahvoista: kulmat säilyttävät kuvasuhteen, ja Alt pohjassa venytät vapaasti.
 
 Poista elementti
 Napsauta sivun elementtiä poistaaksesi sen ja saadaksesi siistimmän version verkkosivusta.
@@ -309,7 +357,7 @@ Aloita verkkosivun muokkaaminen sekunneissa — ilman ohjelmointia.
 ## French — Français (fr)
 
 ```text
-Edit Page vous permet de modifier des pages web directement dans votre navigateur. Modifiez rapidement le texte, remplacez des images, supprimez des éléments et capturez des écrans sans quitter la page.
+Edit Page vous permet de modifier des pages web directement dans votre navigateur. Modifiez rapidement le texte et sa mise en forme, remplacez et redimensionnez des images, supprimez des éléments et capturez des écrans sans quitter la page.
 
 Que vous créiez une maquette rapide, testiez une idée de design, prépariez une présentation ou souhaitiez simplement voir à quoi ressemblerait une page web avec un autre contenu, Edit Page simplifie la modification temporaire de pages web.
 
@@ -320,6 +368,12 @@ Cliquez sur un texte de la page web et remplacez-le par votre propre contenu. Ed
 
 Changer une image
 Remplacez les images d'une page web par une image locale ou une URL d'image. Prévisualisez le remplacement avant de l'appliquer.
+
+Formatage du texte
+Sélectionnez du texte pendant l’édition et mettez-le en forme depuis une barre d’outils flottante : taille de police, gras, italique, souligné, barré, couleur du texte et couleur d’arrière-plan.
+
+Redimensionner
+Après avoir remplacé une image, faites glisser les poignées pour la redimensionner : les coins conservent les proportions, et Alt permet d’étirer librement.
 
 Supprimer un élément
 Cliquez sur un élément de la page pour le supprimer et obtenir une version plus épurée de la page web.
@@ -347,7 +401,7 @@ Commencez à modifier une page web en quelques secondes — sans programmation.
 ## German — Deutsch (de)
 
 ```text
-Mit Edit Page bearbeitest du Webseiten direkt im Browser. Bearbeite schnell Texte, tausche Bilder aus, entferne Elemente und erstelle Screenshots, ohne die Seite zu verlassen.
+Mit Edit Page bearbeitest du Webseiten direkt im Browser. Bearbeite und formatiere schnell Texte, tausche Bilder aus und skaliere sie, entferne Elemente und erstelle Screenshots, ohne die Seite zu verlassen.
 
 Ob du einen schnellen Entwurf erstellst, eine Designidee testest, eine Präsentation vorbereitest oder einfach sehen möchtest, wie eine Webseite mit anderen Inhalten aussehen könnte – Edit Page macht das vorübergehende Bearbeiten von Webseiten einfach.
 
@@ -358,6 +412,12 @@ Klicke auf einen Text auf einer Webseite und ersetze ihn durch deinen eigenen In
 
 Bild austauschen
 Ersetze Bilder auf einer Webseite durch ein lokales Bild oder eine Bild-URL. Sieh dir die Vorschau an, bevor du sie übernimmst.
+
+Textformatierung
+Markieren Sie beim Bearbeiten Text und formatieren Sie ihn über eine schwebende Symbolleiste: Schriftgröße, fett, kursiv, unterstrichen, durchgestrichen, Textfarbe und Hintergrundfarbe.
+
+Größe ändern
+Ziehen Sie nach dem Ersetzen eines Bildes an den Griffen, um die Größe zu ändern: Ecken behalten das Seitenverhältnis, mit Alt wird frei gestreckt.
 
 Element entfernen
 Klicke auf ein Element der Seite, um es zu entfernen und eine aufgeräumtere Version der Webseite zu erhalten.
@@ -385,7 +445,7 @@ Beginne in Sekunden mit der Bearbeitung einer Webseite – ganz ohne Programmier
 ## Greek — Ελληνικά (el)
 
 ```text
-Το Edit Page σου επιτρέπει να επεξεργάζεσαι ιστοσελίδες απευθείας στον browser σου. Επεξεργάσου γρήγορα κείμενο, άλλαξε εικόνες, αφαίρεσε στοιχεία και τράβηξε στιγμιότυπα χωρίς να φύγεις από τη σελίδα.
+Το Edit Page σου επιτρέπει να επεξεργάζεσαι ιστοσελίδες απευθείας στον browser σου. Επεξεργάσου και μορφοποίησε γρήγορα κείμενο, άλλαξε εικόνες και μέγεθος, αφαίρεσε στοιχεία και τράβηξε στιγμιότυπα χωρίς να φύγεις από τη σελίδα.
 
 Είτε φτιάχνεις ένα γρήγορο πρόχειρο, είτε δοκιμάζεις μια ιδέα σχεδίασης, είτε ετοιμάζεις μια παρουσίαση, είτε απλώς θέλεις να δεις πώς θα έμοιαζε μια ιστοσελίδα με διαφορετικό περιεχόμενο, το Edit Page κάνει την προσωρινή επεξεργασία ιστοσελίδων απλή.
 
@@ -396,6 +456,12 @@ Beginne in Sekunden mit der Bearbeitung einer Webseite – ganz ohne Programmier
 
 Αλλαγή εικόνας
 Αντικατέστησε εικόνες μιας ιστοσελίδας με τοπική εικόνα ή με URL εικόνας. Δες προεπισκόπηση πριν την εφαρμόσεις.
+
+Μορφοποίηση κειμένου
+Επιλέξτε κείμενο κατά την επεξεργασία και μορφοποιήστε το από μια αιωρούμενη γραμμή εργαλείων: μέγεθος γραμματοσειράς, έντονα, πλάγια, υπογράμμιση, διακριτή διαγραφή, χρώμα κειμένου και χρώμα φόντου.
+
+Αλλαγή μεγέθους
+Αφού αντικαταστήσετε μια εικόνα, σύρετε τις λαβές για αλλαγή μεγέθους: οι γωνίες διατηρούν την αναλογία διαστάσεων, ενώ με Alt τεντώνεται ελεύθερα.
 
 Αφαίρεση στοιχείου
 Κάνε κλικ σε ένα στοιχείο της σελίδας για να το αφαιρέσεις και να δημιουργήσεις μια πιο καθαρή εκδοχή της ιστοσελίδας.
@@ -423,7 +489,7 @@ Beginne in Sekunden mit der Bearbeitung einer Webseite – ganz ohne Programmier
 ## Hebrew — עברית (he)
 
 ```text
-Edit Page מאפשר לך לערוך דפי אינטרנט ישירות בדפדפן. ערוך טקסט, החלף תמונות, הסר רכיבים וצלם מסך מבלי לעזוב את הדף.
+Edit Page מאפשר לך לערוך דפי אינטרנט ישירות בדפדפן. ערוך ועצב טקסט, החלף תמונות ושנה את גודלן, הסר רכיבים וצלם מסך מבלי לעזוב את הדף.
 
 בין אם אתה יוצר הדמיה מהירה, בודק רעיון עיצובי, מכין מצגת, או פשוט רוצה לראות איך הדף ייראה עם תוכן אחר — Edit Page הופך עריכה זמנית של דפי אינטרנט לפשוטה.
 
@@ -434,6 +500,12 @@ Edit Page מאפשר לך לערוך דפי אינטרנט ישירות בדפד
 
 החלפת תמונה
 החלף תמונות בדף בתמונה מהמכשיר או בכתובת URL של תמונה. הצג תצוגה מקדימה לפני ההחלה.
+
+עיצוב טקסט
+בחרו טקסט בזמן העריכה ועצבו אותו מסרגל כלים צף: גודל גופן, מודגש, נטוי, קו תחתון, קו חוצה, צבע טקסט וצבע רקע.
+
+שינוי גודל
+לאחר החלפת תמונה, גררו את הידיות כדי לשנות את גודלה: הפינות שומרות על יחס הגובה-רוחב, ובהחזקת Alt ניתן למתוח אותה בחופשיות.
 
 הסרת רכיב
 לחץ על רכיב בדף כדי להסיר אותו ולקבל גרסה נקייה יותר של הדף.
@@ -461,7 +533,7 @@ Edit Page זמין ל-Chrome ול-Microsoft Edge.
 ## Hindi — हिन्दी (hi)
 
 ```text
-Edit Page आपको सीधे अपने ब्राउज़र में वेबपेज संपादित करने देता है। पेज छोड़े बिना तेज़ी से टेक्स्ट बदलें, इमेज बदलें, एलिमेंट हटाएँ और स्क्रीनशॉट लें।
+Edit Page आपको सीधे अपने ब्राउज़र में वेबपेज संपादित करने देता है। पेज छोड़े बिना तेज़ी से टेक्स्ट बदलें और फ़ॉर्मेट करें, इमेज बदलें और आकार बदलें, एलिमेंट हटाएँ और स्क्रीनशॉट लें।
 
 चाहे आप जल्दी से कोई मॉकअप बना रहे हों, कोई डिज़ाइन आइडिया आज़मा रहे हों, प्रेज़ेंटेशन तैयार कर रहे हों, या बस यह देखना चाहते हों कि अलग कॉन्टेंट के साथ वेबपेज कैसा दिखेगा — Edit Page अस्थायी वेबपेज एडिटिंग को आसान बनाता है।
 
@@ -472,6 +544,12 @@ Edit Page आपको सीधे अपने ब्राउज़र मे
 
 इमेज बदलें
 वेबपेज की इमेज को अपने डिवाइस की इमेज या इमेज URL से बदलें। लागू करने से पहले बदलाव का प्रीव्यू देखें।
+
+पाठ स्वरूपण
+संपादन के दौरान टेक्स्ट चुनें और तैरते टूलबार से उसे फ़ॉर्मेट करें: फ़ॉन्ट आकार, बोल्ड, इटैलिक, अंडरलाइन, स्ट्राइकथ्रू, टेक्स्ट रंग और पृष्ठभूमि रंग।
+
+आकार बदलें
+इमेज बदलने के बाद, उसका आकार बदलने के लिए हैंडल खींचें: कोने पहलू अनुपात बनाए रखते हैं, और Alt दबाकर उसे मुक्त रूप से खींचा जा सकता है।
 
 एलिमेंट हटाएँ
 पेज पर किसी एलिमेंट पर क्लिक करके उसे हटा दें और वेबपेज का ज़्यादा साफ़ वर्शन बनाएँ।
@@ -499,7 +577,7 @@ Edit Page Chrome और Microsoft Edge के लिए उपलब्ध ह�
 ## Hungarian — Magyar (hu)
 
 ```text
-Az Edit Page segítségével közvetlenül a böngésződben szerkesztheted a weboldalakat. Gyorsan módosíts szöveget, cserélj képet, távolíts el elemeket és készíts képernyőképeket anélkül, hogy elhagynád az oldalt.
+Az Edit Page segítségével közvetlenül a böngésződben szerkesztheted a weboldalakat. Gyorsan módosíts és formázz szöveget, cserélj és méretezz képeket, távolíts el elemeket és készíts képernyőképeket anélkül, hogy elhagynád az oldalt.
 
 Akár gyors vázlatot készítesz, egy dizájnötletet tesztelsz, prezentációt készítesz elő, vagy csak szeretnéd látni, hogyan nézne ki egy weboldal más tartalommal, az Edit Page egyszerűvé teszi a weboldalak ideiglenes szerkesztését.
 
@@ -510,6 +588,12 @@ Kattints egy weboldal szövegére, és cseréld le a saját tartalmadra. Az Edit
 
 Kép cseréje
 Cseréld le a weboldal képeit egy helyi képre vagy egy kép URL-címére. Alkalmazás előtt nézd meg az előnézetet.
+
+Szöveg formázása
+Szerkesztés közben jelöljön ki szöveget, és formázza egy lebegő eszköztárról: betűméret, félkövér, dőlt, aláhúzás, áthúzás, szövegszín és háttérszín.
+
+Átméretezés
+Kép cseréje után húzza a fogantyúkat az átméretezéshez: a sarkok megtartják a képarányt, Alt nyomva tartásával szabadon nyújtható.
 
 Elem eltávolítása
 Kattints egy elemre az oldalon, hogy eltávolítsd, és letisztultabb verziót kapj a weboldalból.
@@ -537,7 +621,7 @@ Néhány másodperc alatt elkezdhetsz szerkeszteni egy weboldalt — programozá
 ## Indonesian — Bahasa Indonesia (id)
 
 ```text
-Edit Page memungkinkan Anda mengedit halaman web langsung di browser. Edit teks, ganti gambar, hapus elemen, dan ambil tangkapan layar tanpa meninggalkan halaman.
+Edit Page memungkinkan Anda mengedit halaman web langsung di browser. Edit dan format teks, ganti dan ubah ukuran gambar, hapus elemen, dan ambil tangkapan layar tanpa meninggalkan halaman.
 
 Baik Anda membuat mockup cepat, menguji ide desain, menyiapkan presentasi, atau sekadar ingin melihat bagaimana sebuah halaman web tampil dengan konten berbeda, Edit Page membuat pengeditan halaman web sementara menjadi mudah.
 
@@ -548,6 +632,12 @@ Klik teks di halaman web dan ganti dengan konten Anda sendiri. Edit Page diranca
 
 Ganti gambar
 Ganti gambar di halaman web dengan gambar lokal atau URL gambar. Pratinjau penggantian sebelum menerapkannya.
+
+Pemformatan teks
+Pilih teks saat mengedit lalu format dari toolbar mengambang: ukuran font, tebal, miring, garis bawah, coret, warna teks, dan warna latar.
+
+Ubah ukuran
+Setelah mengganti gambar, seret tuas untuk mengubah ukurannya: sudut mempertahankan rasio aspek, dan tahan Alt untuk meregangkan bebas.
 
 Hapus elemen
 Klik elemen di halaman untuk menghapusnya dan membuat versi halaman web yang lebih bersih.
@@ -575,7 +665,7 @@ Mulai mengedit halaman web dalam hitungan detik — tanpa coding.
 ## Italian — Italiano (it)
 
 ```text
-Edit Page ti permette di modificare le pagine web direttamente nel browser. Modifica rapidamente il testo, sostituisci immagini, rimuovi elementi e cattura screenshot senza lasciare la pagina.
+Edit Page ti permette di modificare le pagine web direttamente nel browser. Modifica e formatta rapidamente il testo, sostituisci e ridimensiona immagini, rimuovi elementi e cattura screenshot senza lasciare la pagina.
 
 Che tu stia creando un mockup rapido, testando un'idea di design, preparando una presentazione o voglia semplicemente vedere come apparirebbe una pagina web con contenuti diversi, Edit Page rende semplice la modifica temporanea delle pagine web.
 
@@ -586,6 +676,12 @@ Fai clic su un testo di una pagina web e sostituiscilo con i tuoi contenuti. Edi
 
 Sostituisci immagine
 Sostituisci le immagini di una pagina web con un'immagine locale o un URL immagine. Visualizza l'anteprima prima di applicarla.
+
+Formattazione del testo
+Seleziona il testo durante la modifica e formattalo da una barra degli strumenti flottante: dimensione carattere, grassetto, corsivo, sottolineato, barrato, colore del testo e colore di sfondo.
+
+Ridimensiona
+Dopo aver sostituito un’immagine, trascina le maniglie per ridimensionarla: gli angoli mantengono le proporzioni, con Alt si allunga liberamente.
 
 Rimuovi elemento
 Fai clic su un elemento della pagina per rimuoverlo e ottenere una versione più pulita della pagina web.
@@ -613,7 +709,7 @@ Inizia a modificare una pagina web in pochi secondi — senza programmazione.
 ## Japanese — 日本語 (ja)
 
 ```text
-Edit Page はブラウザ上で直接ウェブページを編集できます。ページを離れることなく、テキストの変更、画像の差し替え、要素の削除、スクリーンショットの撮影ができます。
+Edit Page はブラウザ上で直接ウェブページを編集できます。ページを離れることなく、テキストの変更と書式設定、画像の差し替えとサイズ変更、要素の削除、スクリーンショットの撮影ができます。
 
 素早いモックアップの作成、デザイン案の検証、プレゼン資料の準備、あるいは違う内容にするとページがどう見えるかを確認したいときにも、Edit Page なら一時的なウェブページ編集が簡単です。
 
@@ -624,6 +720,12 @@ Edit Page はブラウザ上で直接ウェブページを編集できます。�
 
 画像を変更
 ウェブページの画像を、端末内の画像または画像 URL に差し替えます。適用前に仕上がりをプレビューできます。
+
+テキストの書式設定
+編集中にテキストを選択し、フローティングツールバーから書式を設定できます。文字サイズ、太字、斜体、下線、取り消し線、文字色、背景色に対応します。
+
+サイズ変更
+画像を置き換えたあと、ハンドルをドラッグしてサイズを変更できます。角は縦横比を保ち、Alt を押しながらだと自由に引き伸ばせます。
 
 要素を削除
 ページ上の要素をクリックして削除し、すっきりしたページに仕上げます。
@@ -651,7 +753,7 @@ Edit Page は Chrome と Microsoft Edge で利用できます。
 ## Korean — 한국어 (ko)
 
 ```text
-Edit Page를 사용하면 브라우저에서 바로 웹페이지를 편집할 수 있습니다. 페이지를 벗어나지 않고 텍스트 수정, 이미지 교체, 요소 제거, 스크린샷 촬영을 빠르게 할 수 있습니다.
+Edit Page를 사용하면 브라우저에서 바로 웹페이지를 편집할 수 있습니다. 페이지를 벗어나지 않고 텍스트 수정과 서식 지정, 이미지 교체와 크기 조정, 요소 제거, 스크린샷 촬영을 빠르게 할 수 있습니다.
 
 빠른 목업을 만들거나, 디자인 아이디어를 검증하거나, 발표 자료를 준비하거나, 다른 콘텐츠로 웹페이지가 어떻게 보이는지 확인하고 싶을 때도 Edit Page는 임시 웹페이지 편집을 간단하게 만들어 줍니다.
 
@@ -662,6 +764,12 @@ Edit Page를 사용하면 브라우저에서 바로 웹페이지를 편집할 �
 
 이미지 변경
 웹페이지의 이미지를 로컬 이미지나 이미지 URL로 교체합니다. 적용하기 전에 미리 볼 수 있습니다.
+
+텍스트 서식
+편집 중 텍스트를 선택하고 떠 있는 도구 모음에서 서식을 지정하세요. 글자 크기, 굵게, 기울임꼴, 밑줄, 취소선, 텍스트 색상, 배경색을 지원합니다.
+
+크기 조정
+이미지를 바꾼 뒤 핸들을 끌어 크기를 조정하세요. 모서리는 가로세로 비율을 유지하고, Alt를 누르면 자유롭게 늘릴 수 있습니다.
 
 요소 제거
 페이지의 요소를 클릭해 제거하여 더 깔끔한 웹페이지를 만듭니다.
@@ -689,7 +797,7 @@ Edit Page는 Chrome과 Microsoft Edge에서 사용할 수 있습니다.
 ## Malay — Bahasa Melayu (ms)
 
 ```text
-Edit Page membolehkan anda mengedit halaman web terus dalam pelayar anda. Edit teks, tukar imej, alih keluar elemen dan tangkap tangkapan skrin tanpa meninggalkan halaman.
+Edit Page membolehkan anda mengedit halaman web terus dalam pelayar anda. Edit dan format teks, tukar dan ubah saiz imej, alih keluar elemen dan tangkap tangkapan skrin tanpa meninggalkan halaman.
 
 Sama ada anda membuat mockup pantas, menguji idea reka bentuk, menyediakan pembentangan, atau hanya ingin melihat bagaimana halaman web kelihatan dengan kandungan berbeza, Edit Page menjadikan pengeditan halaman web sementara mudah.
 
@@ -700,6 +808,12 @@ Klik teks pada halaman web dan gantikannya dengan kandungan anda sendiri. Edit P
 
 Tukar imej
 Gantikan imej pada halaman web dengan imej setempat atau URL imej. Pratonton penggantian sebelum menggunakannya.
+
+Pemformatan teks
+Pilih teks semasa mengedit dan format daripada bar alat terapung: saiz fon, tebal, condong, garis bawah, coret, warna teks dan warna latar belakang.
+
+Ubah saiz
+Selepas menggantikan imej, seret pemegang untuk mengubah saiznya: sudut mengekalkan nisbah aspek, dan tahan Alt untuk meregangkan dengan bebas.
 
 Alih keluar elemen
 Klik elemen pada halaman untuk mengalih keluarnya dan hasilkan versi halaman web yang lebih bersih.
@@ -727,7 +841,7 @@ Mula mengedit halaman web dalam beberapa saat — tanpa pengekodan.
 ## Norwegian — Norsk (no)
 
 ```text
-Edit Page lar deg redigere nettsider direkte i nettleseren. Rediger tekst, bytt bilder, fjern elementer og ta skjermbilder uten å forlate siden.
+Edit Page lar deg redigere nettsider direkte i nettleseren. Rediger og formater tekst, bytt og skaler bilder, fjern elementer og ta skjermbilder uten å forlate siden.
 
 Enten du lager en rask mockup, tester en designidé, forbereder en presentasjon, eller bare vil se hvordan en nettside ville sett ut med annet innhold, gjør Edit Page midlertidig redigering av nettsider enkelt.
 
@@ -738,6 +852,12 @@ Klikk på tekst på en nettside og erstatt den med ditt eget innhold. Edit Page 
 
 Bytt bilde
 Erstatt bilder på en nettside med et lokalt bilde eller en bilde-URL. Forhåndsvis byttet før du bruker det.
+
+Tekstformatering
+Merk tekst mens du redigerer og formater den fra en flytende verktøylinje: skriftstørrelse, fet, kursiv, understreking, gjennomstreking, tekstfarge og bakgrunnsfarge.
+
+Endre størrelse
+Når du har erstattet et bilde, kan du dra i håndtakene for å endre størrelsen: hjørner beholder sideforholdet, og med Alt holdt inne strekkes det fritt.
 
 Fjern element
 Klikk på et element på siden for å fjerne det og lage en renere versjon av nettsiden.
@@ -765,7 +885,7 @@ Begynn å redigere en nettside i løpet av sekunder — ingen koding kreves.
 ## Polish — Polski (pl)
 
 ```text
-Edit Page pozwala edytować strony internetowe bezpośrednio w przeglądarce. Szybko edytuj tekst, wymieniaj obrazy, usuwaj elementy i rób zrzuty ekranu bez opuszczania strony.
+Edit Page pozwala edytować strony internetowe bezpośrednio w przeglądarce. Szybko edytuj i formatuj tekst, wymieniaj i skaluj obrazy, usuwaj elementy i rób zrzuty ekranu bez opuszczania strony.
 
 Niezależnie od tego, czy tworzysz szybki mockup, testujesz pomysł na projekt, przygotowujesz prezentację, czy po prostu chcesz zobaczyć, jak strona wyglądałaby z inną treścią — Edit Page sprawia, że tymczasowa edycja stron jest prosta.
 
@@ -776,6 +896,12 @@ Kliknij tekst na stronie i zastąp go własną treścią. Edit Page jest przezna
 
 Zmień obraz
 Zastąp obrazy na stronie obrazem z urządzenia lub adresem URL obrazu. Przed zastosowaniem zobacz podgląd.
+
+Formatowanie tekstu
+Zaznacz tekst podczas edycji i sformatuj go z pływającego paska narzędzi: rozmiar czcionki, pogrubienie, kursywa, podkreślenie, przekreślenie, kolor tekstu i kolor tła.
+
+Zmiana rozmiaru
+Po zastąpieniu obrazu przeciągnij uchwyty, aby zmienić jego rozmiar: narożniki zachowują proporcje, a przytrzymanie Alt pozwala rozciągnąć go swobodnie.
 
 Usuń element
 Kliknij element na stronie, aby go usunąć i uzyskać czystszą wersję strony.
@@ -803,7 +929,7 @@ Zacznij edytować stronę w kilka sekund — bez programowania.
 ## Portuguese (Brazil) — Português (Brasil) (pt-BR)
 
 ```text
-O Edit Page permite editar páginas da web diretamente no navegador. Edite textos, altere imagens, remova elementos e capture telas sem sair da página.
+O Edit Page permite editar páginas da web diretamente no navegador. Edite e formate textos, altere e redimensione imagens, remova elementos e capture telas sem sair da página.
 
 Seja para criar um mockup rápido, testar uma ideia de design, preparar uma apresentação ou apenas ver como uma página ficaria com outro conteúdo, o Edit Page torna a edição temporária de páginas da web simples.
 
@@ -814,6 +940,12 @@ Clique em um texto na página e substitua pelo seu próprio conteúdo. O Edit Pa
 
 Alterar imagem
 Substitua imagens da página por uma imagem do dispositivo ou por uma URL de imagem. Visualize a prévia antes de aplicar.
+
+Formatação de texto
+Selecione o texto durante a edição e formate-o em uma barra de ferramentas flutuante: tamanho da fonte, negrito, itálico, sublinhado, tachado, cor do texto e cor de fundo.
+
+Redimensionar
+Depois de substituir uma imagem, arraste as alças para redimensioná-la: os cantos mantêm a proporção, e segurar Alt permite esticar livremente.
 
 Remover elemento
 Clique em um elemento da página para removê-lo e criar uma versão mais limpa da página.
@@ -841,7 +973,7 @@ Comece a editar uma página em segundos — sem programação.
 ## Romanian — Română (ro)
 
 ```text
-Edit Page îți permite să editezi pagini web direct în browser. Editează rapid textul, schimbă imagini, elimină elemente și fă capturi de ecran fără să părăsești pagina.
+Edit Page îți permite să editezi pagini web direct în browser. Editează și formatează rapid textul, schimbă și redimensionează imagini, elimină elemente și fă capturi de ecran fără să părăsești pagina.
 
 Fie că creezi un mockup rapid, testezi o idee de design, pregătești o prezentare sau vrei doar să vezi cum ar arăta o pagină web cu alt conținut, Edit Page face editarea temporară a paginilor web simplă.
 
@@ -852,6 +984,12 @@ Dă clic pe un text de pe pagina web și înlocuiește-l cu conținutul tău. Ed
 
 Schimbă imaginea
 Înlocuiește imaginile de pe pagina web cu o imagine locală sau cu un URL de imagine. Previzualizează înlocuirea înainte de a o aplica.
+
+Formatarea textului
+Selectați text în timpul editării și formatați-l dintr-o bară de instrumente flotantă: dimensiunea fontului, aldine, cursiv, subliniere, tăiere, culoarea textului și culoarea de fundal.
+
+Redimensionare
+După înlocuirea unei imagini, trageți mânerele pentru a o redimensiona: colțurile păstrează raportul de aspect, iar cu Alt o puteți întinde liber.
 
 Elimină elementul
 Dă clic pe un element de pe pagină pentru a-l elimina și a obține o versiune mai curată a paginii web.
@@ -879,7 +1017,7 @@ Edit Page este disponibil pentru Chrome și Microsoft Edge.
 ## Russian — Русский (ru)
 
 ```text
-Edit Page позволяет редактировать веб-страницы прямо в браузере. Быстро меняйте текст, заменяйте изображения, удаляйте элементы и делайте скриншоты, не покидая страницу.
+Edit Page позволяет редактировать веб-страницы прямо в браузере. Быстро редактируйте и форматируйте текст, заменяйте и масштабируйте изображения, удаляйте элементы и делайте скриншоты, не покидая страницу.
 
 Создаёте ли вы быстрый макет, проверяете идею дизайна, готовите презентацию или просто хотите увидеть, как страница будет выглядеть с другим содержимым, — Edit Page делает временное редактирование веб-страниц простым.
 
@@ -890,6 +1028,12 @@ Edit Page позволяет редактировать веб-страницы 
 
 Замена изображения
 Замените изображения на странице локальным файлом или ссылкой на изображение. Перед применением посмотрите предпросмотр.
+
+Форматирование текста
+Выделите текст во время редактирования и отформатируйте его на плавающей панели: размер шрифта, полужирный, курсив, подчёркивание, зачёркивание, цвет текста и цвет фона.
+
+Изменение размера
+После замены изображения потяните за маркеры, чтобы изменить его размер: углы сохраняют пропорции, а с зажатым Alt изображение растягивается свободно.
 
 Удаление элемента
 Нажмите на элемент на странице, чтобы удалить его и получить более чистую версию страницы.
@@ -917,7 +1061,7 @@ Edit Page доступен для Chrome и Microsoft Edge.
 ## Spanish — Español (es)
 
 ```text
-Edit Page te permite editar páginas web directamente en tu navegador. Edita texto, cambia imágenes, elimina elementos y captura pantallas sin salir de la página.
+Edit Page te permite editar páginas web directamente en tu navegador. Edita y formatea texto, cambia y redimensiona imágenes, elimina elementos y captura pantallas sin salir de la página.
 
 Tanto si creas un mockup rápido, pruebas una idea de diseño, preparas una presentación o simplemente quieres ver cómo quedaría una página web con otro contenido, Edit Page hace que la edición temporal de páginas web sea sencilla.
 
@@ -928,6 +1072,12 @@ Haz clic en un texto de la página web y sustitúyelo por tu propio contenido. E
 
 Cambiar imagen
 Sustituye las imágenes de una página web por una imagen local o una URL de imagen. Previsualiza el reemplazo antes de aplicarlo.
+
+Formato de texto
+Selecciona texto mientras editas y dale formato desde una barra de herramientas flotante: tamaño de fuente, negrita, cursiva, subrayado, tachado, color del texto y color de fondo.
+
+Cambiar tamaño
+Después de reemplazar una imagen, arrastra los tiradores para cambiar su tamaño: las esquinas mantienen la proporción y, con Alt, se estira libremente.
 
 Eliminar elemento
 Haz clic en un elemento de la página para eliminarlo y crear una versión más limpia de la página web.
@@ -955,7 +1105,7 @@ Empieza a editar una página web en segundos — sin programación.
 ## Swedish — Svenska (sv)
 
 ```text
-Med Edit Page kan du redigera webbsidor direkt i webbläsaren. Redigera text, byt bilder, ta bort element och ta skärmbilder utan att lämna sidan.
+Med Edit Page kan du redigera webbsidor direkt i webbläsaren. Redigera och formatera text, byt och ändra storlek på bilder, ta bort element och ta skärmbilder utan att lämna sidan.
 
 Oavsett om du skapar en snabb mockup, testar en designidé, förbereder en presentation eller bara vill se hur en webbsida skulle se ut med annat innehåll gör Edit Page tillfällig redigering av webbsidor enkel.
 
@@ -966,6 +1116,12 @@ Klicka på text på en webbsida och ersätt den med ditt eget innehåll. Edit Pa
 
 Byt bild
 Ersätt bilder på en webbsida med en lokal bild eller en bild-URL. Förhandsgranska bytet innan du tillämpar det.
+
+Textformatering
+Markera text medan du redigerar och formatera den från ett flytande verktygsfält: teckenstorlek, fet, kursiv, understruken, genomstruken, textfärg och bakgrundsfärg.
+
+Ändra storlek
+När du har ersatt en bild kan du dra i handtagen för att ändra storleken: hörn behåller proportionerna och med Alt kan du töja fritt.
 
 Ta bort element
 Klicka på ett element på sidan för att ta bort det och skapa en renare version av webbsidan.
@@ -993,7 +1149,7 @@ Börja redigera en webbsida på några sekunder — ingen kodning krävs.
 ## Thai — ไทย (th)
 
 ```text
-Edit Page ให้คุณแก้ไขหน้าเว็บได้โดยตรงในเบราว์เซอร์ แก้ข้อความ เปลี่ยนรูปภาพ ลบองค์ประกอบ และจับภาพหน้าจอได้อย่างรวดเร็วโดยไม่ต้องออกจากหน้าเว็บ
+Edit Page ให้คุณแก้ไขหน้าเว็บได้โดยตรงในเบราว์เซอร์ แก้ข้อความและจัดรูปแบบ เปลี่ยนและปรับขนาดรูปภาพ ลบองค์ประกอบ และจับภาพหน้าจอได้อย่างรวดเร็วโดยไม่ต้องออกจากหน้าเว็บ
 
 ไม่ว่าคุณจะทำ mockup อย่างรวดเร็ว ทดลองไอเดียการออกแบบ เตรียมงานนำเสนอ หรือแค่อยากดูว่าหน้าเว็บจะหน้าตาเป็นอย่างไรเมื่อเปลี่ยนเนื้อหา Edit Page ทำให้การแก้ไขหน้าเว็บชั่วคราวเป็นเรื่องง่าย
 
@@ -1004,6 +1160,12 @@ Edit Page ให้คุณแก้ไขหน้าเว็บได้โ�
 
 เปลี่ยนรูปภาพ
 แทนที่รูปภาพบนหน้าเว็บด้วยรูปจากอุปกรณ์ของคุณหรือ URL ของรูปภาพ ดูตัวอย่างก่อนนำไปใช้
+
+การจัดรูปแบบข้อความ
+เลือกข้อความขณะแก้ไข แล้วจัดรูปแบบจากแถบเครื่องมือลอย: ขนาดฟอนต์ ตัวหนา ตัวเอียง ขีดเส้นใต้ ขีดฆ่า สีข้อความ และสีพื้นหลัง
+
+ปรับขนาด
+หลังเปลี่ยนรูปแล้ว ลากจุดจับเพื่อปรับขนาด: มุมจะรักษาสัดส่วนภาพ และกด Alt ค้างไว้เพื่อยืดได้อย่างอิสระ
 
 ลบองค์ประกอบ
 คลิกองค์ประกอบบนหน้าเว็บเพื่อลบออก และทำให้หน้าเว็บดูสะอาดขึ้น
@@ -1031,7 +1193,7 @@ Edit Page ใช้ได้กับ Chrome และ Microsoft Edge
 ## Turkish — Türkçe (tr)
 
 ```text
-Edit Page, web sayfalarını doğrudan tarayıcınızda düzenlemenizi sağlar. Sayfadan ayrılmadan metin düzenleyin, görselleri değiştirin, öğeleri kaldırın ve ekran görüntüsü alın.
+Edit Page, web sayfalarını doğrudan tarayıcınızda düzenlemenizi sağlar. Sayfadan ayrılmadan metni düzenleyip biçimlendirin, görselleri değiştirip boyutlandırın, öğeleri kaldırın ve ekran görüntüsü alın.
 
 İster hızlı bir taslak oluşturun, ister bir tasarım fikrini test edin, ister bir sunum hazırlayın, isterseniz de bir web sayfasının farklı içerikle nasıl görüneceğini görmek isteyin; Edit Page web sayfalarını geçici olarak düzenlemeyi kolaylaştırır.
 
@@ -1042,6 +1204,12 @@ Bir web sayfasındaki metne tıklayın ve kendi içeriğinizle değiştirin. Edi
 
 Görseli değiştir
 Bir web sayfasındaki görselleri cihazınızdaki bir görselle veya bir görsel URL'siyle değiştirin. Uygulamadan önce önizleyin.
+
+Metin biçimlendirme
+Düzenleme sırasında metni seçin ve yüzen araç çubuğundan biçimlendirin: yazı tipi boyutu, kalın, italik, altı çizili, üstü çizili, metin rengi ve arka plan rengi.
+
+Boyutlandırma
+Bir görseli değiştirdikten sonra boyutlandırmak için tutamaçları sürükleyin: köşeler en-boy oranını korur, Alt tuşuyla serbestçe uzatabilirsiniz.
 
 Öğeyi kaldır
 Sayfadaki bir öğeye tıklayarak kaldırın ve web sayfasının daha temiz bir sürümünü elde edin.
@@ -1069,7 +1237,7 @@ Bir web sayfasını saniyeler içinde düzenlemeye başlayın — kodlama gerekm
 ## Ukrainian — Українська (uk)
 
 ```text
-Edit Page дає змогу редагувати вебсторінки безпосередньо у браузері. Швидко редагуйте текст, замінюйте зображення, видаляйте елементи та робіть знімки екрана, не залишаючи сторінку.
+Edit Page дає змогу редагувати вебсторінки безпосередньо у браузері. Швидко редагуйте й форматуйте текст, замінюйте та масштабуйте зображення, видаляйте елементи та робіть знімки екрана, не залишаючи сторінку.
 
 Створюєте ви швидкий макет, перевіряєте ідею дизайну, готуєте презентацію чи просто хочете побачити, як виглядатиме сторінка з іншим вмістом — Edit Page робить тимчасове редагування вебсторінок простим.
 
@@ -1080,6 +1248,12 @@ Edit Page дає змогу редагувати вебсторінки безп
 
 Заміна зображення
 Замініть зображення на сторінці локальним файлом або посиланням на зображення. Перед застосуванням перегляньте попередній вигляд.
+
+Форматування тексту
+Виділіть текст під час редагування та відформатуйте його на плаваючій панелі: розмір шрифту, напівжирний, курсив, підкреслення, закреслення, колір тексту та колір тла.
+
+Зміна розміру
+Після заміни зображення потягніть за маркери, щоб змінити його розмір: кути зберігають пропорції, а із затиснутим Alt його можна вільно розтягнути.
 
 Видалення елемента
 Натисніть на елемент сторінки, щоб видалити його й отримати чистішу версію вебсторінки.
@@ -1107,7 +1281,7 @@ Edit Page доступний для Chrome і Microsoft Edge.
 ## Vietnamese — Tiếng Việt (vi)
 
 ```text
-Edit Page cho phép bạn chỉnh sửa trang web ngay trong trình duyệt. Nhanh chóng sửa văn bản, thay hình ảnh, xóa phần tử và chụp ảnh màn hình mà không cần rời khỏi trang.
+Edit Page cho phép bạn chỉnh sửa trang web ngay trong trình duyệt. Nhanh chóng sửa và định dạng văn bản, thay và đổi kích thước hình ảnh, xóa phần tử và chụp ảnh màn hình mà không cần rời khỏi trang.
 
 Dù bạn đang tạo bản mô phỏng nhanh, thử một ý tưởng thiết kế, chuẩn bị bài thuyết trình hay chỉ muốn xem trang web sẽ trông thế nào với nội dung khác, Edit Page giúp việc chỉnh sửa trang web tạm thời trở nên đơn giản.
 
@@ -1118,6 +1292,12 @@ Nhấp vào văn bản trên trang web và thay bằng nội dung của bạn. E
 
 Thay hình ảnh
 Thay hình ảnh trên trang web bằng ảnh từ thiết bị hoặc URL hình ảnh. Xem trước trước khi áp dụng.
+
+Định dạng văn bản
+Chọn văn bản trong khi chỉnh sửa và định dạng từ thanh công cụ nổi: cỡ chữ, in đậm, in nghiêng, gạch chân, gạch ngang, màu chữ và màu nền.
+
+Thay đổi kích thước
+Sau khi thay ảnh, hãy kéo các tay nắm để đổi kích thước: các góc giữ nguyên tỷ lệ, còn giữ Alt để kéo giãn tự do.
 
 Xóa phần tử
 Nhấp vào một phần tử trên trang để xóa và tạo phiên bản trang web gọn gàng hơn.

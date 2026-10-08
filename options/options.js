@@ -281,7 +281,7 @@ const messages = {
     language: "语言",
     languageHelp: "选择界面语言，或者跟随浏览器。",
     followBrowser: "跟随浏览器",
-    changeImageSettings: "更换图片",
+    changeImageSettings: "更改图片",
     replaceImageFitHeading: "替换图片后",
     replaceImageFitHelp:
       "选择新图片如何放进它取代的元素。保持原尺寸不会影响页面排版；使用新图尺寸可能让页面重新排版。",

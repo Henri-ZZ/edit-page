@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "웹페이지 텍스트를 편집하고 이미지를 교체하며 요소를 제거하고 현재 화면이나 전체 페이지를 캡처하세요.",
+    "message": "텍스트 편집과 서식 지정, 이미지 교체와 크기 조정, 요소 제거, 현재 화면이나 전체 페이지 캡처를 지원합니다.",
     "description": "Extension description"
   }
 }

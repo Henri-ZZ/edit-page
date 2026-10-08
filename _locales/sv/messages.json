@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Redigera text, byt bilder, ta bort element och fånga den aktuella vyn eller hela sidan.",
+    "message": "Redigera och formatera text, byt och ändra storlek på bilder, ta bort element och fånga aktuell vy eller hela sidan.",
     "description": "Extension description"
   }
 }

@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Szerkesszen szöveget, cseréljen képeket, távolítson el elemeket, és rögzítse a nézetet vagy a teljes oldalt.",
+    "message": "Szerkesszen és formázzon szöveget, cseréljen és méretezzen képeket, töröljön elemeket, rögzítsen nézetet vagy teljes oldalt.",
     "description": "Extension description"
   }
 }

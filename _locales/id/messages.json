@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Edit teks, ganti gambar, hapus elemen, dan ambil tangkapan tampilan saat ini atau seluruh halaman.",
+    "message": "Edit dan format teks, ganti dan ubah ukuran gambar, hapus elemen, ambil tampilan saat ini atau seluruh halaman.",
     "description": "Extension description"
   }
 }

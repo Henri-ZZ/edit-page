@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Edit page text, replace images, remove elements, and capture the current view or a full-page screenshot.",
+    "message": "Edit text, replace and resize images, format text, remove elements, and capture the current view or a full-page screenshot.",
     "description": "Extension description"
   }
 }

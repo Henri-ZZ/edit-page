@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Text bearbeiten, Bilder ersetzen, Elemente entfernen und die Ansicht oder ganze Webseite aufnehmen.",
+    "message": "Text bearbeiten und formatieren, Bilder ersetzen und skalieren, Elemente entfernen und Ansicht oder Webseite aufnehmen.",
     "description": "Extension description"
   }
 }

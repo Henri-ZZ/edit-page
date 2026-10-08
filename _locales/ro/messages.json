@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Editează textul, înlocuiește imagini, elimină elemente și capturează vizualizarea sau pagina completă.",
+    "message": "Editează și formatează text, înlocuiește și redimensionează imagini, elimină elemente, capturează vizualizarea sau pagina completă.",
     "description": "Extension description"
   }
 }

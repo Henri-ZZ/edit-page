@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Rediger tekst, bytt bilder, fjern elementer, og ta skjermbilde av visningen eller hele siden.",
+    "message": "Rediger og formater tekst, bytt og skaler bilder, fjern elementer, og ta skjermbilde av visningen eller hele siden.",
     "description": "Extension description"
   }
 }

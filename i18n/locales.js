@@ -274,7 +274,7 @@ const replaceImageFitMessages = {
     replaceImageFitNatural: "استخدام حجم الصورة الجديدة",
   },
   "zh-TW": {
-    changeImageSettings: "更換圖片",
+    changeImageSettings: "更改圖片",
     replaceImageFitHeading: "替換圖片後",
     replaceImageFitHelp: "選擇新圖片如何放入它取代的元素。保持原尺寸不會影響頁面版面；使用新圖尺寸可能讓頁面重新排版。",
     replaceImageFitCover: "保持原尺寸並裁切",

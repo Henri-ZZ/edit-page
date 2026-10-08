@@ -1,6 +1,6 @@
 # Chrome Web Store Listing — Edit Page
 
-> Last Updated: 2026-09-24
+> Last Updated: 2026-10-08
 
 ## Localized Store Listing
 
@@ -16,7 +16,7 @@ Edit Page - Webpage Editor & Full Page Screenshot
 
 **Summary**
 
-Edit webpage text, replace images, remove elements, and capture the current view or a full-page screenshot.
+Edit text, replace and resize images, format text, remove elements, and capture the current view or a full-page screenshot.
 
 ### 简体中文
 
@@ -26,7 +26,7 @@ Edit Page - 网页编辑与整页截图
 
 **摘要**
 
-直接编辑网页文字、替换图片、移除元素，并截取当前视窗或整张网页。
+直接编辑网页文字、设置文本格式、替换图片并调整大小、移除元素，并截取当前视窗或整张网页。
 
 ### Español
 
@@ -36,7 +36,7 @@ Edit Page - Editor de páginas web y captura completa
 
 **Resumen**
 
-Edita textos, cambia imágenes, elimina elementos y captura la vista actual o una página web completa.
+Edita y formatea textos, cambia y redimensiona imágenes, elimina elementos y captura la vista actual o una página completa.
 
 ### Português (Brasil)
 
@@ -46,7 +46,7 @@ Edit Page - Editor de páginas e captura completa
 
 **Resumo**
 
-Edite textos, altere imagens, remova elementos e capture a visualização atual ou uma página inteira.
+Edite e formate textos, altere e redimensione imagens, remova elementos, capture a visualização ou a página inteira.
 
 ### 日本語
 
@@ -56,13 +56,13 @@ Edit Page - ウェブページ編集とページ全体撮影
 
 **概要**
 
-ページのテキスト編集、画像置換、要素削除、現在の表示領域またはページ全体の撮影ができます。
+テキストの編集と書式設定、画像の置換とサイズ変更、要素の削除、現在の表示領域またはページ全体の撮影ができます。
 
 ## Copy Rules
 
 - Product name: always `Edit Page` in every language.
-- English feature terms: Edit text, Replace images, Remove elements, Screenshot, Current view, Full page.
-- Chinese feature terms: 编辑文字、更改图片、移除元素、截图、当前视窗、整张网页。
+- English feature terms: Edit text, Text formatting, Change image, Resize, Remove element, Screenshot, Current view, Full page.
+- Chinese feature terms: 编辑文字、文本格式、更改图片、调整大小、移除元素、截图、当前视窗、整张网页。
 - Supported interface and store languages: 30 total. English is the default; the remaining languages are Arabic, Simplified Chinese, Traditional Chinese, Czech, Danish, Dutch, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Korean, Malay, Norwegian, Polish, Brazilian Portuguese, Romanian, Russian, Spanish, Swedish, Thai, Turkish, Ukrainian, and Vietnamese.
 - Keep the extension name within 75 characters and the Summary within 132 characters.
 - Keep keywords natural. Do not add unsupported claims, superlatives, or repetitive keyword variants.
@@ -70,6 +70,7 @@ Edit Page - ウェブページ編集とページ全体撮影
 ## Dashboard Sync
 
 - [ ] Copy all 30 localized descriptions from `docs/CHROMEWEBSTORE-DESCRIPTIONS.md` into the Chrome Web Store dashboard.
+- [ ] Copy the 30 localized names and summaries from `_locales` into the Chrome Web Store dashboard.
 - [x] Generate the packaged names and summaries in `_locales`, plus the separate description document, by running `node scripts/generate-store-locales.mjs`.
 
 ## Current Screenshot Behavior
@@ -126,6 +127,13 @@ Each permission is requested separately, matching the user's current action, and
 
 ## Version History
 
+### 2.3.0 — 2026-10-07
+
+- Added an optional selection formatting toolbar for font size, emphasis, decoration, text color, background color, and restoring original formatting.
+- Added a free allowance of 30 text-formatting actions per 12-hour usage window; Premium use remains unlimited.
+- Added resize handles to an image that was just replaced: corners keep the aspect ratio, edges stretch one axis, and holding Alt inverts the default.
+- Added undo and redo for image resizing, one step per drag.
+
 ### 2.0 — 2026-08-31
 
 - Added text, image, and element editing with shared undo and redo controls.
@@ -137,8 +145,6 @@ Each permission is requested separately, matching the user's current action, and
 - Added first-install Getting Started and post-uninstall Goodbye links.
 - Regenerated all extension icon sizes from the shared SVG artwork.
 - Expanded the interface and Chrome Web Store localization coverage to 30 languages, including RTL layout support for Arabic and Hebrew.
-- Added an optional selection formatting toolbar for font size, emphasis, decoration, text color, background color, and restoring original formatting.
-- Added a free allowance of 30 text-formatting actions per 12-hour usage window; Premium use remains unlimited.
 
 ## Publishing Readiness
 

@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Edita textos, cambia imágenes, elimina elementos y captura la vista actual o una página web completa.",
+    "message": "Edita y formatea textos, cambia y redimensiona imágenes, elimina elementos y captura la vista actual o una página completa.",
     "description": "Extension description"
   }
 }

@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Modifica il testo, sostituisci immagini, rimuovi elementi e cattura la vista o l’intera pagina.",
+    "message": "Modifica e formatta il testo, sostituisci e ridimensiona immagini, rimuovi elementi e cattura la vista o l’intera pagina.",
     "description": "Extension description"
   }
 }

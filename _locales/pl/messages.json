@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Edytuj tekst, zastępuj obrazy, usuwaj elementy i zapisuj bieżący widok lub całą stronę.",
+    "message": "Edytuj i formatuj tekst, zastępuj i skaluj obrazy, usuwaj elementy i zapisuj bieżący widok lub całą stronę.",
     "description": "Extension description"
   }
 }
