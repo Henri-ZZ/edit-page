@@ -55,6 +55,7 @@
       .bar{display:flex;align-items:center;gap:3px;padding:5px;background:#fff;border:1px solid #dbe2ef;border-radius:11px;box-shadow:0 8px 28px #0f172a30;white-space:nowrap}
       .sep{width:1px;height:24px;background:#e2e8f0;margin:0 2px}.btn{height:30px;min-width:30px;padding:0 8px;border-radius:7px;background:transparent;color:#334155;font-weight:650}.btn:hover,.btn.active{background:#eef2ff;color:#4338ca}.btn.mixed{box-shadow:inset 0 -2px #a5b4fc}.size{min-width:43px;text-align:center;color:#475569;font-variant-numeric:tabular-nums}.strike{text-decoration:line-through}.under{text-decoration:underline}.italic{font-style:italic}.color{position:relative;font-size:16px}.color::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:3px;border-radius:2px;background:var(--current-color,#111827)}.clear-icon{display:block;width:18px;height:18px;object-fit:contain}.tooltip{position:relative;--tt-top:auto;--tt-bottom:calc(100% + 7px);--tt-shift:2px}.bar.tooltip-below{--tt-top:calc(100% + 7px);--tt-bottom:auto;--tt-shift:-2px}.tooltip::after{content:attr(data-tooltip);position:absolute;top:var(--tt-top);bottom:var(--tt-bottom);right:0;width:max-content;max-width:180px;padding:5px 7px;color:#fff;font:500 11px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap;background:#172033;border-radius:6px;box-shadow:0 4px 12px #0f172a33;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(var(--tt-shift));transition:opacity 80ms ease 150ms,transform 80ms ease 150ms,visibility 0s linear 230ms}.tooltip:hover::after,.tooltip:focus-visible::after{opacity:1;visibility:visible;transform:translateY(0);transition-delay:150ms,150ms,0s}
       .pop{position:absolute;display:none;width:220px;padding:10px;top:42px;right:0;background:#fff;border:1px solid #dbe2ef;border-radius:11px;box-shadow:0 12px 32px #0f172a33}.pop.open{display:block}.bar.pop-above .pop{top:auto;bottom:42px}.heading{margin:0 0 7px;font-size:11px;font-weight:700;color:#64748b}.heading.bg{margin-top:10px}.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.swatch{width:20px;height:20px;padding:0;border:1px solid #cbd5e1;border-radius:5px;background:var(--swatch)}.swatch.selected{outline:2px solid #4f46e5;outline-offset:1px}.swatch.none{background:linear-gradient(135deg,transparent 46%,#ef4444 47%,#ef4444 53%,transparent 54%),#fff}.custom-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;color:#64748b;font-size:11px;font-weight:650}.custom{appearance:none;-webkit-appearance:none;display:block;flex:none;width:32px;height:24px;padding:0;border:0;border-radius:5px;background:transparent;overflow:hidden}.custom::-webkit-color-swatch-wrapper{padding:0}.custom::-webkit-color-swatch{border:0;border-radius:5px}.custom::-moz-color-swatch{border:0;border-radius:5px}.reset-row{display:flex;justify-content:center;border-top:1px solid #e2e8f0;margin-top:10px;padding-top:8px}.reset{width:auto;min-width:72px;height:26px;padding:0 14px;border-radius:7px;background:#f1f5f9;color:#475569;font-size:11px;font-weight:650}
+      .bar.locked{opacity:.55;filter:grayscale(1)}.bar.locked .btn,.bar.locked .swatch,.bar.locked .custom,.bar.locked .reset{cursor:not-allowed}.bar.locked .tooltip::after{display:none}
     </style><div class="bar" role="toolbar">
       <button class="btn" data-action="smaller">−</button><span class="size">—</span><button class="btn" data-action="larger">+</button><span class="sep"></span>
       <button class="btn" data-action="bold"><b>B</b></button><button class="btn strike" data-action="strike">S</button><button class="btn italic" data-action="italic">I</button><button class="btn under" data-action="underline">U</button><button class="btn color" data-action="color">A</button><span class="sep"></span><button class="btn tooltip" data-action="restore-format" data-tooltip="${labels.restoreOriginalFormatting || "Restore original formatting"}" aria-label="${labels.restoreOriginalFormatting || "Restore original formatting"}"><img class="clear-icon" src="${clearIconUrl}" alt=""></button>
@@ -64,6 +65,21 @@
     const $ = (selector) => shadow.querySelector(selector);
     const bar = $(".bar");
     const pop = $(".pop");
+    const quotaLabel = labels.quotaExhausted || "Features limited";
+    let locked = false;
+    /**
+     * Locked free tier: grey the whole bar and put the explanation on the bar
+     * itself. The restore button's own tooltip is hidden by CSS while locked so
+     * the two bubbles can never stack.
+     */
+    const setLocked = (value) => {
+      locked = value === true;
+      bar.classList.toggle("locked", locked);
+      bar.classList.toggle("tooltip", locked);
+      if (locked) bar.dataset.tooltip = quotaLabel;
+      else delete bar.dataset.tooltip;
+    };
+    setLocked(labels.locked === true);
 
     const selectionNodes = (range = savedRange) => {
       if (!range || !range.commonAncestorContainer.isConnected) return [];
@@ -167,10 +183,18 @@
     const consumeFormattingUse = async () => {
       try {
         const response = await chrome.runtime.sendMessage({ type: "consume-text-formatting-use" });
-        return response?.allowed === true;
+        // Only an explicit refusal from a working worker means the tier is out;
+        // that is when the bar greys itself.
+        if (response?.ok === true && response.allowed === false) {
+          setLocked(true);
+          return false;
+        }
+        // The quota must never break formatting: a missing, stale, or failed
+        // worker allows the action (uncharged) instead of ignoring the click.
+        return true;
       } catch (error) {
         console.warn("Edit Page could not update the text-formatting quota", error);
-        return false;
+        return true;
       }
     };
     COLORS.forEach((color) => { const button = document.createElement("button"); button.className="swatch"; button.style.setProperty("--swatch",color); button.dataset.value=color; $(".text-colors").appendChild(button); });
@@ -178,6 +202,9 @@
     shadow.addEventListener("pointerdown", (event) => { if (!(event.target instanceof HTMLInputElement)) event.preventDefault(); event.stopPropagation(); });
     shadow.addEventListener("click", async (event) => {
       event.stopPropagation();
+      // Locked: every control is inert, including the colour popover — any choice
+      // in it would be refused anyway, and the hover tooltip already explains why.
+      if (locked) return;
       const action = event.target.closest("[data-action]")?.dataset.action;
       if (action === "color") {
         popoverOpen = !popoverOpen; pop.classList.toggle("open", popoverOpen); position(); return;

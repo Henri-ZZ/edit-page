@@ -182,11 +182,33 @@ button.tertiary.active:hover {
 }
 
 .expandable-tool:has(> .tool-button[aria-expanded="true"])
-  > :is(.image-source-options, .screenshot-options, .image-preview) {
+  > :is(.image-source-options, .screenshot-options) {
   width: auto;
   margin: 0 8px 8px;
   background: #f8fafc;
   border: 0;
+}
+
+/* Replace mode is a mode, not a panel: the whole Change image card takes the
+   same purple highlight the toggle tools use. Collapsed, the header button is
+   the card; expanded, the section is, so the header gives up its border. */
+.image-section.is-replacing > .tool-button:not([aria-expanded="true"]) {
+  color: #172033;
+  background: #f5f3ff;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 1px #7c3aed;
+}
+
+.image-section.is-replacing:has(> .tool-button[aria-expanded="true"]) {
+  border: 1px solid #c4b5fd;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.1);
+}
+
+/* Inside the expanded card the header must not keep its own white fill, or a
+   white block would sit on top of the highlight. */
+.image-section.is-replacing:has(> .tool-button[aria-expanded="true"])
+  > .tool-button {
+  background: transparent;
 }
 
 .image-source-options {
@@ -294,6 +316,14 @@ button.tertiary.active:hover {
   transform: none;
 }
 
+/* Locked free tier: greyed but deliberately still clickable — the click itself
+   is what explains the limit, so this must not use `disabled`. */
+.tool-button.is-locked,
+.screenshot-option.is-locked {
+  opacity: 0.55;
+  filter: grayscale(0.65);
+}
+
 .tool-button:active {
   color: #172033;
   background: #f8fafc;
@@ -396,6 +426,51 @@ button.tertiary.active:hover {
 .tool-button[aria-expanded="true"] .tool-indicator {
   color: #059669;
   transform: rotate(90deg);
+}
+
+/* Edit text and Remove element are toggles: they open no panel, so a switch
+   shows whether the mode is on instead of a chevron that would promise one.
+   The state comes straight from the button's own aria-pressed, which the popup
+   already maintains — no extra JS. The active border/background above is
+   untouched; the "on" colour matches that highlight. */
+.tool-button--text,
+.tool-button--remove {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+}
+
+.tool-switch {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  transition: background 0.16s ease;
+}
+
+.tool-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  transition: transform 0.16s ease;
+}
+
+.tool-button.active .tool-switch,
+.tool-button[aria-pressed="true"] .tool-switch,
+.preview-action[aria-pressed="true"] .tool-switch {
+  background: #7c3aed;
+}
+
+.tool-button.active .tool-switch::after,
+.tool-button[aria-pressed="true"] .tool-switch::after,
+.preview-action[aria-pressed="true"] .tool-switch::after {
+  transform: translateX(14px);
 }
 
 .screenshot-options {
@@ -524,17 +599,21 @@ button.tertiary.active:hover {
   border-radius: 7px;
 }
 
-.image-preview-actions {
+/* The thumbnail is the positioning context for the clear button, which now sits
+   on the image's top-right corner instead of taking a column of its own. */
+.preview-thumb {
+  position: relative;
   display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
+  flex: none;
 }
 
 .preview-action {
-  width: auto;
+  display: flex;
   flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: auto;
   min-width: 0;
   margin: 0;
   padding: 8px 10px;
@@ -542,17 +621,22 @@ button.tertiary.active:hover {
   color: #4f46e5;
   font-size: 12px;
   font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   background: #eef2ff;
   border-radius: 7px;
 }
 
+.preview-action > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover stays a tint: the row now holds the mode switch, and a solid fill
+   would swallow it. The mode itself is shown by the whole card, see above. */
 .preview-action:hover,
-.preview-action:active,
-.preview-action.active {
-  color: #fff;
-  background: #4f46e5;
+.preview-action:active {
+  color: #4f46e5;
+  background: #e0e7ff;
 }
 
 .preview-action:disabled {
@@ -561,27 +645,36 @@ button.tertiary.active:hover {
 }
 
 .clear-btn {
-  position: static;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  padding: 0;
-  margin: 0;
-  background: #f1f5f9;
-  color: #64748b;
-  border: none;
-  border-radius: 7px;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
+  position: absolute;
+  top: -6px;
+  right: -6px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1;
+  background: #fff;
+  border: 1px solid #e4e8f0;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.16);
+  cursor: pointer;
 }
 
 .clear-btn:hover {
   color: #b91c1c;
   background: #fee2e2;
+  border-color: #fecaca;
+}
+
+/* Without this the legacy global `button:active` (dark blue) wins on press. */
+.clear-btn:active {
+  color: #b91c1c;
+  background: #fecaca;
 }
 
 .status {

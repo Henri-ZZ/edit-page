@@ -93,7 +93,8 @@ h1 {
 
 .edit-text-card,
 .change-image-card,
-.screenshot-card {
+.screenshot-card,
+.auto-enter-card {
   grid-column: 1 / -1;
 }
 

@@ -7,6 +7,7 @@ import {
   getState,
   getHideRepeatedElements,
   getLanguagePreference,
+  getAutoEnterMode,
   getReplaceImageFit,
   getScreenshotDestination,
   getSelectionToolbarEnabled,
@@ -16,6 +17,7 @@ import {
   requestOptionalPermission,
   resolveLanguage,
   setLanguagePreference,
+  setAutoEnterMode,
   setHideRepeatedElements,
   setReplaceImageFit,
   setScreenshotDestination,
@@ -78,6 +80,11 @@ const messages = {
     language: "Language",
     languageHelp: "Choose the interface language, or follow your browser.",
     followBrowser: "Follow browser",
+    autoEnterHeading: "When you click the extension icon",
+    autoEnterHelp:
+      "Choose the tool that turns on as soon as you click the extension icon. Click the selected tool again to turn this off. Remove element uses one free allowance each time it starts.",
+    autoEnterEdit: "Edit text",
+    autoEnterRemove: "Remove element",
     changeImageSettings: "Change image",
     replaceImageFitHeading: "After replacing an image",
     replaceImageFitHelp:
@@ -107,7 +114,7 @@ const messages = {
     premiumActivateRefunded: "This License Key has been refunded.",
     premiumActivateError:
       "Activation failed. Check your connection and try again.",
-    quotaReplaceImage: "Image imports",
+    quotaReplaceImage: "Image replacements",
     quotaFullPage: "Full-page screenshot",
     quotaRemoveElement: "Remove element",
     quotaTextFormatting: "Text formatting",
@@ -136,6 +143,10 @@ const messages = {
     language: "Idioma",
     languageHelp: "Elige el idioma de la interfaz o usa el del navegador.",
     followBrowser: "Usar el idioma del navegador",
+    autoEnterHeading: "Al hacer clic en el icono de la extensión",
+    autoEnterHelp: "Elige la herramienta que se activa en cuanto haces clic en el icono de la extensión. Haz clic de nuevo en la herramienta seleccionada para desactivarla. Eliminar elemento consume una cuota gratuita cada vez que se inicia.",
+    autoEnterEdit: "Editar texto",
+    autoEnterRemove: "Eliminar elemento",
     changeImageSettings: "Cambiar imagen",
     replaceImageFitHeading: "Después de reemplazar una imagen",
     replaceImageFitHelp:
@@ -185,6 +196,10 @@ const messages = {
     language: "Idioma",
     languageHelp: "Escolha o idioma da interface ou siga o navegador.",
     followBrowser: "Seguir o navegador",
+    autoEnterHeading: "Ao clicar no ícone da extensão",
+    autoEnterHelp: "Escolha a ferramenta que liga assim que você clica no ícone da extensão. Clique novamente na ferramenta selecionada para desligá-la. Remover elemento consome uma cota gratuita a cada início.",
+    autoEnterEdit: "Editar texto",
+    autoEnterRemove: "Remover elemento",
     changeImageSettings: "Alterar imagem",
     replaceImageFitHeading: "Depois de substituir uma imagem",
     replaceImageFitHelp:
@@ -234,6 +249,10 @@ const messages = {
     language: "言語",
     languageHelp: "表示言語を選択するか、ブラウザーの言語に合わせます。",
     followBrowser: "ブラウザーに合わせる",
+    autoEnterHeading: "拡張機能のアイコンをクリックしたとき",
+    autoEnterHelp: "拡張機能のアイコンをクリックするとすぐに有効になるツールを選びます。選択中のツールをもう一度クリックするとオフになります。「要素を削除」は開始するたびに無料枠を 1 回消費します。",
+    autoEnterEdit: "テキストを編集",
+    autoEnterRemove: "要素を削除",
     changeImageSettings: "画像を変更",
     replaceImageFitHeading: "画像を置き換えた後",
     replaceImageFitHelp:
@@ -281,6 +300,10 @@ const messages = {
     language: "语言",
     languageHelp: "选择界面语言，或者跟随浏览器。",
     followBrowser: "跟随浏览器",
+    autoEnterHeading: "点击扩展图标时",
+    autoEnterHelp: "选择点击扩展图标后立即开启的工具。再次点击已选工具即可关闭。「移除元素」每次启动都会消耗一次免费额度。",
+    autoEnterEdit: "编辑文字",
+    autoEnterRemove: "移除元素",
     changeImageSettings: "更改图片",
     replaceImageFitHeading: "替换图片后",
     replaceImageFitHelp:
@@ -308,7 +331,7 @@ const messages = {
     premiumActivateRevoked: "该激活码已被吊销。",
     premiumActivateRefunded: "该激活码已退款。",
     premiumActivateError: "激活失败，请检查网络后重试。",
-    quotaReplaceImage: "图片导入",
+    quotaReplaceImage: "图片替换",
     quotaFullPage: "整页截图",
     quotaRemoveElement: "移除元素",
     quotaOfLeft: "剩 {remaining} / {limit} 次",
@@ -573,6 +596,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectionToolbarEnabled.checked = await getSelectionToolbarEnabled();
   selectionToolbarEnabled.addEventListener("change", async () => {
     await setSelectionToolbarEnabled(selectionToolbarEnabled.checked);
+  });
+
+  // No permission dance here either: the popup reads this on open, and nothing
+  // else depends on it. Clicking the tool that is already in effect clears the
+  // choice — that is how "turn nothing on" is expressed without a third option.
+  let autoEnterMode = await getAutoEnterMode();
+  document.querySelectorAll('input[name="autoEnterMode"]').forEach((input) => {
+    input.checked = input.value === autoEnterMode;
+    input.addEventListener("click", async () => {
+      if (input.value === autoEnterMode) {
+        input.checked = false;
+        autoEnterMode = await setAutoEnterMode("none");
+      } else {
+        autoEnterMode = await setAutoEnterMode(input.value);
+      }
+    });
   });
 
   // No permission dance here: unlike the screenshot destination, this setting

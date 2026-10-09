@@ -51,8 +51,10 @@ export function buildUninstallUrl(installationId) {
 
 /** Complete schema-v1 event catalog. */
 export const TELEMETRY_EVENTS = Object.freeze([
+  "popup.open",
   "dashboard.open",
   "edit.start",
+  "remove.start",
   "text.edit",
   "format.bold",
   "format.italic",
@@ -61,6 +63,7 @@ export const TELEMETRY_EVENTS = Object.freeze([
   "format.font_size",
   "format.text_color",
   "format.background_color",
+  "image.replace.start",
   "image.replace",
   "image.resize",
   "image.import_local",

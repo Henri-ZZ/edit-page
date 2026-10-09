@@ -11,6 +11,8 @@ import {
   getGettingStartedUrl,
   getHideRepeatedElements,
   getPendingScreenshot,
+  setPendingQuotaNotice,
+  claimFeatureUse,
   consumeFeatureUse,
   getQuotaState,
   refreshPremiumState,
@@ -541,6 +543,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ ok: true, premium: await initializeLicenseState() });
     })();
     return true;
+  } else if (request.type === 'claim-feature-use') {
+    // Charged by the injected page code only when the action actually happens.
+    // The answer decides whether that action is allowed to proceed at all.
+    (async () => {
+      const result = await claimFeatureUse(request.feature);
+      // Refused, or this claim is what used up the last allowance: park a
+      // notice and try to surface it right away.
+      if (!result.allowed || result.state?.limited)
+        await announceQuotaLimit(!result.allowed);
+      sendResponse(result);
+    })().catch((error) =>
+      // Always answer: the page treats a missing answer as "allowed", so a
+      // broken quota channel can never block the feature itself.
+      sendResponse({ allowed: true, error: error.message }),
+    );
+    return true;
   } else if (request.type === 'consume-text-formatting-use') {
     (async () => {
       if (await refreshPremiumState()) {
@@ -549,10 +567,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
       const before = await getQuotaState();
       if (before.limited) {
+        // Already locked: stay quiet here. Announcing on every formatting click
+        // would reopen the popup over and over.
         sendResponse({ ok: true, allowed: false, state: before });
         return;
       }
       const state = await consumeFeatureUse('textFormatting');
+      // This action is the one that used up the allowance: say so once.
+      if (state?.limited) await announceQuotaLimit(false);
       sendResponse({ ok: true, allowed: true, state });
     })().catch((error) => sendResponse({ ok: false, allowed: false, error: error.message }));
     return true;
@@ -634,6 +656,22 @@ chrome.permissions.onAdded.addListener(async (granted) => {
     // and the popup resumes the screenshot whenever it is next opened.
   }
 });
+
+/**
+ * The free tier just locked (or refused a page-side action): the page will stop
+ * responding to further clicks, so park a notice for the popup and try to open
+ * it. The popup then leaves whatever mode is active and shows the limit message.
+ * Chrome 126 and older cannot open a popup programmatically; the notice stays
+ * parked (and the badge shows the exhausted state) instead.
+ */
+async function announceQuotaLimit(blocked = false) {
+  await setPendingQuotaNotice(blocked);
+  try {
+    await chrome.action.openPopup();
+  } catch {
+    // Unsupported or unfocused window: the next manual open shows the notice.
+  }
+}
 
 // Pending screenshots live in session storage, which is wiped on browser
 // restart — never leave a badge behind for a request that no longer exists.

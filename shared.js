@@ -75,6 +75,41 @@ export async function clearPendingScreenshot() {
   } catch {}
 }
 
+export const PENDING_QUOTA_NOTICE_KEY = "pendingQuotaNotice";
+export const PENDING_QUOTA_NOTICE_TTL_MS = 3 * 60 * 1000;
+
+/**
+ * Set by the service worker the moment the free tier locks (or refuses a
+ * page-side action): the popup reads it on open, leaves whatever mode the page
+ * is in, and explains the limit. Session-scoped and short-lived, like the
+ * pending screenshot request.
+ */
+export async function getPendingQuotaNotice() {
+  try {
+    const result = await chrome.storage.session.get(PENDING_QUOTA_NOTICE_KEY);
+    const notice = result[PENDING_QUOTA_NOTICE_KEY];
+    if (!notice || !Number.isFinite(notice.at)) return null;
+    if (Date.now() - notice.at > PENDING_QUOTA_NOTICE_TTL_MS) return null;
+    return notice;
+  } catch {
+    return null;
+  }
+}
+
+export async function setPendingQuotaNotice(blocked = false) {
+  try {
+    await chrome.storage.session.set({
+      [PENDING_QUOTA_NOTICE_KEY]: { at: Date.now(), blocked: blocked === true },
+    });
+  } catch {}
+}
+
+export async function clearPendingQuotaNotice() {
+  try {
+    await chrome.storage.session.remove(PENDING_QUOTA_NOTICE_KEY);
+  } catch {}
+}
+
 /**
  * Icon feedback for a screenshot that is still waiting on a permission
  * decision. By then the popup is closed, so the badge is the only thing the
@@ -104,6 +139,8 @@ export const HIDE_REPEATED_ELEMENTS_KEY = "hideRepeatedElements";
 export const SELECTION_TOOLBAR_ENABLED_KEY = "selectionToolbarEnabled";
 export const REPLACE_IMAGE_FIT_KEY = "replaceImageFit";
 export const REPLACE_IMAGE_FITS = ["natural", "cover"];
+export const AUTO_ENTER_MODE_KEY = "autoEnterMode";
+export const AUTO_ENTER_MODES = ["edit", "remove", "none"];
 
 export function getBrowserPlatform(userAgent = "") {
   if (/Edg\//i.test(userAgent)) return "edge";
@@ -168,6 +205,24 @@ export async function setReplaceImageFit(value) {
   return normalized;
 }
 
+/**
+ * Which tool turns itself on when the popup opens. `edit` is the product
+ * default; `remove` starts remove mode (which spends one free allowance), and
+ * `none` leaves the popup exactly as it was. An unrecognized stored value falls
+ * back to the default.
+ */
+export async function getAutoEnterMode() {
+  const result = await chrome.storage.sync.get(AUTO_ENTER_MODE_KEY);
+  const value = result[AUTO_ENTER_MODE_KEY];
+  return AUTO_ENTER_MODES.includes(value) ? value : "edit";
+}
+
+export async function setAutoEnterMode(value) {
+  const normalized = AUTO_ENTER_MODES.includes(value) ? value : "edit";
+  await chrome.storage.sync.set({ [AUTO_ENTER_MODE_KEY]: normalized });
+  return normalized;
+}
+
 // ───────────────────────── free usage quotas ─────────────────────────
 // Free tier: each advanced feature has its own allowance, but limits are
 // OR-combined — as soon as ANY feature reaches its limit, ALL advanced
@@ -177,9 +232,9 @@ export async function setReplaceImageFit(value) {
 export const FEATURE_USAGE_KEY = "featureUsage";
 export const QUOTA_LOCK_MS = 12 * 60 * 60 * 1000;
 export const FREE_FEATURE_LIMITS = {
-  replaceImage: 5, // image imports: upload and pasted URL both count
+  replaceImage: 7, // counted per replacement actually applied to an element
   fullPageScreenshot: 3,
-  removeElement: 5, // counted per entering remove mode, not per removed element
+  removeElement: 12, // counted per element actually removed
   textFormatting: 30, // counted per formatting-toolbar action
 };
 
@@ -235,6 +290,20 @@ export async function getQuotaState() {
     state[feature] = { used, limit, remaining: Math.max(0, limit - used) };
   }
   return state;
+}
+
+/**
+ * Charge one use, or refuse without charging when the free tier is already
+ * locked. Used by actions that are counted only once they succeed — a removed
+ * element, an applied image replacement — so entering the mode and importing an
+ * image can stay free. Callers must do nothing when `allowed` is false.
+ */
+export async function claimFeatureUse(feature) {
+  if (!FREE_FEATURE_LIMITS[feature])
+    return { allowed: true, state: await getQuotaState() };
+  const state = await getQuotaState();
+  if (state.limited) return { allowed: false, state };
+  return { allowed: true, state: await consumeFeatureUse(feature) };
 }
 
 /** Consume one use; locks ALL advanced features for 12h once any limit is hit. */

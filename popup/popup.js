@@ -10,7 +10,10 @@ import {
   clearPendingScreenshot,
   consumeFeatureUse,
   getPendingScreenshot,
+  getPendingQuotaNotice,
+  clearPendingQuotaNotice,
   getQuotaState,
+  getAutoEnterMode,
   getReplaceImageFit,
   getScreenshotDestination,
   getSelectionToolbarEnabled,
@@ -28,10 +31,9 @@ const i18n = {
   en: {
     title: "Edit Page",
     settings: "Dashboard",
-    chooseTool: "Choose a tool",
+    chooseTool: "Select a tool to start",
     editText: "Edit text",
     editTextDesc: "Change any text on this page",
-    exitEdit: "Exit Edit",
     screenshot: "Screenshot",
     screenshotDesc: "Capture the viewport or full page",
     visibleScreenshot: "Current viewport",
@@ -76,12 +78,10 @@ const i18n = {
     removeModeFailed: "Remove mode could not start on this page.",
     clearImage: "Clear selected image",
     replaceMode: "Replace Image Mode",
-    exitReplaceMode: "Exit Replace Mode",
     imageSelected: 'Image selected, click "Replace Image Mode"',
     pleaseSelectImageFirst: "Please select an image first",
     removeElement: "Remove element",
     removeElementDesc: "Click anything to remove it",
-    exitRemoveMode: "Exit remove mode",
     undo: "↶ Undo",
     redo: "↷ Redo",
     done: "Done",
@@ -90,16 +90,24 @@ const i18n = {
     connecting: "Connecting to server...",
     cannotEditThisPage: "Cannot edit this page",
     pageNotSupported: "This page type is not supported",
+    // Text-formatting toolbar (injected into the page).
+    textColor: "Text color",
+    backgroundColor: "Background color",
+    customColor: "Custom",
+    customTextColor: "Custom text color",
+    customBackgroundColor: "Custom background color",
+    reset: "Reset",
+    restoreOriginalFormatting: "Restore original formatting",
+    mixed: "Mixed",
     quotaExhaustedToast:
       "Advanced feature limit reached. Unlocks in {reset}. Upgrade to Premium for unlimited use.",
   },
   es: {
     title: "Edit Page",
     settings: "Panel",
-    chooseTool: "Elige una herramienta",
+    chooseTool: "Selecciona una herramienta para empezar",
     editText: "Editar texto",
     editTextDesc: "Cambia cualquier texto de esta página",
-    exitEdit: "Salir de la edición",
     screenshot: "Captura de pantalla",
     screenshotDesc: "Captura la vista actual o la página completa",
     visibleScreenshot: "Vista actual",
@@ -141,12 +149,10 @@ const i18n = {
     removeModeFailed: "No se pudo iniciar el modo de eliminación en esta página.",
     clearImage: "Quitar la imagen seleccionada",
     replaceMode: "Modo de reemplazo",
-    exitReplaceMode: "Salir del modo de reemplazo",
     imageSelected: 'Imagen seleccionada. Haz clic en "Modo de reemplazo"',
     pleaseSelectImageFirst: "Selecciona primero una imagen",
     removeElement: "Eliminar elemento",
     removeElementDesc: "Haz clic en cualquier elemento para eliminarlo",
-    exitRemoveMode: "Salir del modo de eliminación",
     undo: "↶ Deshacer",
     redo: "↷ Rehacer",
     done: "Listo",
@@ -155,15 +161,23 @@ const i18n = {
     connecting: "Conectando con el servidor...",
     cannotEditThisPage: "No se puede editar esta página",
     pageNotSupported: "Este tipo de página no es compatible",
+    // Text-formatting toolbar (injected into the page).
+    textColor: "Color del texto",
+    backgroundColor: "Color de fondo",
+    customColor: "Personalizado",
+    customTextColor: "Color de texto personalizado",
+    customBackgroundColor: "Color de fondo personalizado",
+    reset: "Restablecer",
+    restoreOriginalFormatting: "Restaurar el formato original",
+    mixed: "Mixto",
     quotaExhaustedToast: "Se alcanzó el límite de funciones avanzadas. Se desbloquea en {reset}. Actualiza a Premium para usarlas sin límites.",
   },
   pt: {
     title: "Edit Page",
     settings: "Painel",
-    chooseTool: "Escolha uma ferramenta",
+    chooseTool: "Selecione uma ferramenta para começar",
     editText: "Editar texto",
     editTextDesc: "Altere qualquer texto desta página",
-    exitEdit: "Sair da edição",
     screenshot: "Captura de tela",
     screenshotDesc: "Capture a visualização atual ou a página inteira",
     visibleScreenshot: "Visualização atual",
@@ -204,12 +218,10 @@ const i18n = {
     removeModeFailed: "Não foi possível iniciar o modo de remoção nesta página.",
     clearImage: "Limpar imagem selecionada",
     replaceMode: "Modo de substituição",
-    exitReplaceMode: "Sair do modo de substituição",
     imageSelected: 'Imagem selecionada. Clique em "Modo de substituição"',
     pleaseSelectImageFirst: "Selecione uma imagem primeiro",
     removeElement: "Remover elemento",
     removeElementDesc: "Clique em qualquer elemento para removê-lo",
-    exitRemoveMode: "Sair do modo de remoção",
     undo: "↶ Desfazer",
     redo: "↷ Refazer",
     done: "Concluir",
@@ -218,15 +230,23 @@ const i18n = {
     connecting: "Conectando ao servidor...",
     cannotEditThisPage: "Não é possível editar esta página",
     pageNotSupported: "Este tipo de página não é compatível",
+    // Text-formatting toolbar (injected into the page).
+    textColor: "Cor do texto",
+    backgroundColor: "Cor de fundo",
+    customColor: "Personalizado",
+    customTextColor: "Cor de texto personalizada",
+    customBackgroundColor: "Cor de fundo personalizada",
+    reset: "Redefinir",
+    restoreOriginalFormatting: "Restaurar a formatação original",
+    mixed: "Misto",
     quotaExhaustedToast: "O limite de recursos avançados foi atingido. Desbloqueia em {reset}. Assine o Premium para uso ilimitado.",
   },
   ja: {
     title: "Edit Page",
     settings: "ダッシュボード",
-    chooseTool: "ツールを選択",
+    chooseTool: "ツールを選んで開始",
     editText: "テキストを編集",
     editTextDesc: "ページ上のテキストを変更します",
-    exitEdit: "編集を終了",
     screenshot: "スクリーンショット",
     screenshotDesc: "現在の表示領域またはページ全体を撮影します",
     visibleScreenshot: "現在の表示領域",
@@ -267,12 +287,10 @@ const i18n = {
     removeModeFailed: "このページで要素削除モードを開始できませんでした。",
     clearImage: "選択した画像をクリア",
     replaceMode: "画像置換モード",
-    exitReplaceMode: "画像置換モードを終了",
     imageSelected: "画像を選択しました。「画像置換モード」をクリックしてください",
     pleaseSelectImageFirst: "先に画像を選択してください",
     removeElement: "要素を削除",
     removeElementDesc: "ページ上の要素をクリックして削除します",
-    exitRemoveMode: "削除モードを終了",
     undo: "↶ 元に戻す",
     redo: "↷ やり直す",
     done: "完了",
@@ -281,15 +299,23 @@ const i18n = {
     connecting: "サーバーに接続中...",
     cannotEditThisPage: "このページは編集できません",
     pageNotSupported: "この種類のページには対応していません",
+    // Text-formatting toolbar (injected into the page).
+    textColor: "文字色",
+    backgroundColor: "背景色",
+    customColor: "カスタム",
+    customTextColor: "カスタム文字色",
+    customBackgroundColor: "カスタム背景色",
+    reset: "リセット",
+    restoreOriginalFormatting: "元の書式に戻す",
+    mixed: "混在",
     quotaExhaustedToast: "高度な機能の上限に達しました。{reset}後に解除されます。Premium では無制限に利用できます。",
   },
   zh: {
     title: "Edit Page",
     settings: "控制面板",
-    chooseTool: "选择工具",
+    chooseTool: "选择工具即可开始",
     editText: "编辑文字",
     editTextDesc: "直接修改当前页面的文字",
-    exitEdit: "退出编辑",
     screenshot: "截图",
     screenshotDesc: "截取当前视窗或完整网页",
     visibleScreenshot: "当前视窗",
@@ -330,12 +356,10 @@ const i18n = {
     removeModeFailed: "无法在当前页面启动移除元素模式。",
     clearImage: "清除已选图片",
     replaceMode: "替换图片模式",
-    exitReplaceMode: "退出替换模式",
     imageSelected: '已选择图片，点击"替换图片模式"',
     pleaseSelectImageFirst: "请先选择图片",
     removeElement: "移除元素",
     removeElementDesc: "点击页面上的任意元素进行移除",
-    exitRemoveMode: "退出移除模式",
     undo: "↶ 撤回",
     redo: "↷ 重做",
     done: "完成",
@@ -344,6 +368,15 @@ const i18n = {
     connecting: "正在连接服务器...",
     cannotEditThisPage: "无法编辑此页面",
     pageNotSupported: "此类页面不支持编辑",
+    // Text-formatting toolbar (injected into the page).
+    textColor: "文字颜色",
+    backgroundColor: "背景色",
+    customColor: "自定义",
+    customTextColor: "自定义文字颜色",
+    customBackgroundColor: "自定义背景色",
+    reset: "重置",
+    restoreOriginalFormatting: "恢复原始格式",
+    mixed: "混合",
     quotaExhaustedToast:
       "高级功能额度已用尽，{reset}后恢复。升级 Premium 可无限使用。",
     cannotEditThisPage: "无法编辑此页面",
@@ -377,6 +410,9 @@ const quotaExhaustedMessage = (state) =>
   t("quotaExhaustedToast").replace("{reset}", formatResetIn(state.lockedUntil));
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Counted before any early return: the popup surface itself is the
+  // denominator for every tool, including pages that cannot be edited.
+  trackTelemetryEvent("popup.open");
   const editBtn = document.getElementById("editBtn");
   const editBtnLabel = document.getElementById("editBtnLabel");
   const screenshotBtn = document.getElementById("screenshotBtn");
@@ -449,6 +485,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const updatePlanUI = async () => {
     document.body.classList.toggle("is-premium", isPremium());
 
+    const state = await getQuotaState();
+    // A locked free tier greys out the entry points that would be refused. They
+    // stay clickable on purpose: the click is what explains the limit. Premium
+    // has to clear the grey too, even though it returns early below.
+    // "Current viewport" screenshot is free and deliberately not in this list.
+    const locked = state.limited && !isPremium();
+    for (const button of [
+      selectImageBtn,
+      removeBtn,
+      fullPageScreenshotBtn,
+    ]) {
+      button.classList.toggle("is-locked", locked);
+    }
+
     if (isPremium()) {
       planBadge.style.display = "none";
       planBadge.onclick = null;
@@ -457,8 +507,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     mainContent.classList.remove("hidden");
-
-    const state = await getQuotaState();
 
     planBadge.textContent = state.limited
       ? t("quotaExhaustedBadge")
@@ -522,7 +570,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const updateButton = (isEditing) => {
-    editBtnLabel.textContent = isEditing ? t("exitEdit") : t("editText");
+    // The label stays the tool's name; the switch is what shows the mode.
+    editBtnLabel.textContent = t("editText");
     editBtn.classList.toggle("active", isEditing);
     editBtn.setAttribute("aria-pressed", String(isEditing));
   };
@@ -1080,13 +1129,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       ],
     });
     if (await getSelectionToolbarEnabled()) {
+      // Same labels mechanism as the history toolbar above. `locked` lets the
+      // toolbar start greyed when the free tier is already out, and the short
+      // badge string is what its tooltip shows — already localized everywhere.
+      const quota = await getQuotaState();
+      const toolbarLabels = {
+        locked: quota.limited && !isPremium(),
+        quotaExhausted: t("quotaExhaustedBadge"),
+        // The toolbar's own strings, localized here so the page never has to
+        // fall back to the English defaults baked into the content script.
+        textColor: t("textColor"),
+        backgroundColor: t("backgroundColor"),
+        customColor: t("customColor"),
+        customTextColor: t("customTextColor"),
+        customBackgroundColor: t("customBackgroundColor"),
+        reset: t("reset"),
+        restoreOriginalFormatting: t("restoreOriginalFormatting"),
+        mixed: t("mixed"),
+      };
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         files: ["content/selection-toolbar.js"],
       });
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        func: () => window._editPageSelectionToolbarInit?.(),
+        func: (labels) => window._editPageSelectionToolbarInit?.(labels),
+        args: [toolbarLabels],
       });
     } else {
       await chrome.scripting.executeScript({
@@ -1334,6 +1402,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
+  // The page keeps its own copies of the picture and the fit mode
+  // (`window._editPageReplaceImage` / `_editPageReplaceFit`) and only refreshed
+  // them when replace mode started. Changing either while the mode was already
+  // running therefore left every replacement pasting the previous picture, or
+  // using the previous fit. Push the current selection over whenever it
+  // changes; the guard inside the injected function keeps this to pages that
+  // really are in replace mode, so no stray globals are created anywhere else.
+  const syncReplaceSelectionToPage = async (imageData, fitMode) => {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab?.id) return;
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (data, fit) => {
+          if (!window._editPageReplaceHandler) return;
+          if (window._editPageReplaceImage !== data) {
+            window._editPageReplaceImage = data;
+          }
+          if (fit && window._editPageReplaceFit !== fit) {
+            window._editPageReplaceFit = fit;
+          }
+        },
+        args: [imageData, fitMode ?? null],
+      });
+    } catch (e) {}
+  };
+
   const checkReplaceModeActive = async () => {
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -1368,9 +1466,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const updateRemoveButton = () => {
-    removeBtnLabel.textContent = isRemoveMode
-      ? t("exitRemoveMode")
-      : t("removeElement");
+    // The label stays the tool's name; the switch is what shows the mode.
+    removeBtnLabel.textContent = t("removeElement");
     removeBtn.classList.toggle("active", isRemoveMode);
     removeBtn.setAttribute("aria-pressed", String(isRemoveMode));
   };
@@ -1430,6 +1527,25 @@ document.addEventListener("DOMContentLoaded", async () => {
           element !== document.body &&
           !element.closest("#edit-page-history-toolbar");
 
+        // One free use per element actually removed. The quota must never break
+        // the feature: an unavailable, stale, or unresponsive service worker —
+        // a stale worker after an update, for example — lets the removal
+        // through uncharged instead of silently doing nothing.
+        const claimRemoveUse = async () => {
+          try {
+            const response = await Promise.race([
+              chrome.runtime.sendMessage({
+                type: "claim-feature-use",
+                feature: "removeElement",
+              }),
+              new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
+            ]);
+            return response?.allowed !== false;
+          } catch {
+            return true;
+          }
+        };
+
         window._editPageRemoveOverHandler = (event) => {
           if (!canRemove(event.target)) return;
           document
@@ -1446,11 +1562,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             event.target.classList.remove("edit-page-remove-target");
         };
 
-        window._editPageRemoveClickHandler = (event) => {
+        window._editPageRemoveClickHandler = async (event) => {
           if (!canRemove(event.target)) return;
           event.preventDefault();
           event.stopPropagation();
           event.stopImmediatePropagation();
+          // Charged only when the element is actually removed.
+          if (!(await claimRemoveUse())) {
+            console.warn("Edit Page: the free remove allowance is used up.");
+            return;
+          }
           const parent = event.target.parentNode;
           const nextSibling = event.target.nextSibling;
           window._editPageHistory?.push({
@@ -1501,11 +1622,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const updateReplaceButton = () => {
-    replaceImageBtnLabel.textContent = isReplaceMode
-      ? t("exitReplaceMode")
-      : t("replaceMode");
-    replaceImageBtn.classList.toggle("active", isReplaceMode);
+    // The label stays the tool's name; the switch is what shows the mode.
+    replaceImageBtnLabel.textContent = t("replaceMode");
+    // No `active` class here on purpose: popup.css still carries legacy global
+    // `button.active` rules (a red fill) that would leak onto this row. The
+    // mode is expressed through aria-pressed and the card's `is-replacing`.
     replaceImageBtn.setAttribute("aria-pressed", String(isReplaceMode));
+    replaceImageBtn
+      .closest(".image-section")
+      ?.classList.toggle("is-replacing", isReplaceMode);
   };
 
   const clearImage = async () => {
@@ -1516,6 +1641,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     previewImg.src = "";
     replaceImageBtn.classList.add("hidden");
     await saveImageData(null);
+    // Defensive: if the page is still in replace mode without this popup
+    // knowing, it must not keep pasting the picture that was just cleared.
+    void syncReplaceSelectionToPage(null);
     if (isReplaceMode) {
       isReplaceMode = false;
       updateReplaceButton();
@@ -1999,7 +2127,25 @@ document.addEventListener("DOMContentLoaded", async () => {
           window._editPageResizeHandles = createResizeHandles(element);
         };
 
-        window._editPageReplaceHandler = (e) => {
+        // One free use per replacement that actually lands. Same contract as the
+        // remove flow: the quota must never break the feature, so a missing or
+        // unresponsive service worker lets the replacement through uncharged.
+        const claimReplaceUse = async () => {
+          try {
+            const response = await Promise.race([
+              chrome.runtime.sendMessage({
+                type: "claim-feature-use",
+                feature: "replaceImage",
+              }),
+              new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
+            ]);
+            return response?.allowed !== false;
+          } catch {
+            return true;
+          }
+        };
+
+        window._editPageReplaceHandler = async (e) => {
           if (!window._editPageReplaceImage) return;
           // The click a resize drag leaves behind must not replace anything.
           if (Date.now() < replaceClickGuardUntil) {
@@ -2025,6 +2171,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           const img = resolveReplaceTarget(e.clientX, e.clientY);
 
           if (img) {
+            // Charged per replacement that actually lands. Resizing stays free.
+            if (!(await claimReplaceUse())) {
+              console.warn(
+                "Edit Page: the free image replacement allowance is used up.",
+              );
+              return;
+            }
             if (img.tagName === "IMG") {
               const picture = img.closest("picture");
               const sources = picture
@@ -2169,6 +2322,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   };
 
+  // The one way into replace mode. Shared by the switch and by the automatic
+  // entry that follows a successful import, so both behave identically: quota
+  // gate, history manager, other modes stopped, telemetry counted once.
+  // `countTelemetry` is the caller's "this was a real user click" answer: the
+  // automatic entry after an import must not count as a tool entry.
+  // Returns true when replace mode is running (including "already was").
+  const enterReplaceMode = async (countTelemetry) => {
+    if (isReplaceMode) return true;
+    if (!selectedImageData) return false;
+    // Entering the mode is free, but a locked free tier cannot act on the page:
+    // say so here instead of letting each replacement be refused later on.
+    if (!isPremium()) {
+      const state = await getQuotaState();
+      if (state.limited) {
+        reportQuotaExhausted(state);
+        return false;
+      }
+    }
+    await ensureHistoryManager();
+    await stopEditMode();
+    if (isRemoveMode) {
+      await stopRemoveMode();
+      isRemoveMode = false;
+      updateRemoveButton();
+    }
+    await startReplaceMode();
+    isReplaceMode = true;
+    updateReplaceButton();
+    // Only an inactive -> active transition the user asked for counts, and only
+    // once the mode actually started.
+    if (countTelemetry) trackTelemetryEvent("image.replace.start");
+    return true;
+  };
+
   const stopReplaceMode = async () => {
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -2235,7 +2422,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateRemoveButton();
   }
 
-  editBtn.addEventListener("click", async () => {
+  // The service worker parks a notice when the free tier locks (or refuses a
+  // page-side action) and tries to open this popup. Leave whatever mode the page
+  // is in, explain the limit, and remember the notice so auto-start does not
+  // walk straight back into a mode.
+  const quotaNotice = await getPendingQuotaNotice();
+  if (quotaNotice) {
+    await clearPendingQuotaNotice();
+    if (isEditing) await stopEditMode();
+    if (isReplaceMode) {
+      isReplaceMode = false;
+      await stopReplaceMode();
+      updateReplaceButton();
+    }
+    if (isRemoveMode) {
+      isRemoveMode = false;
+      await stopRemoveMode();
+      updateRemoveButton();
+    }
+    const state = await getQuotaState();
+    // Only a genuinely refused action counts as "limit reached"; the action that
+    // merely used up the last allowance is announced without that count.
+    if (quotaNotice.blocked) reportQuotaExhausted(state);
+    else showStatus(quotaExhaustedMessage(state), false);
+  }
+
+  // Replace mode is running on the page: open the panel so the picture and the
+  // switch that is currently on are both in view, instead of a collapsed card
+  // whose only affordance is a chevron.
+  if (isReplaceMode) {
+    selectImageBtn.setAttribute("aria-expanded", "true");
+    imageSourceOptions.classList.remove("hidden");
+  }
+
+  editBtn.addEventListener("click", async (event) => {
     if (isEditModeTransitioning) return;
     isEditModeTransitioning = true;
     editBtn.disabled = true;
@@ -2258,9 +2478,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       await toggleEdit();
       const newIsEditing = await getIsEditing();
       updateButton(newIsEditing);
-      if (newIsEditing && willEnableEdit) {
-        // Only the inactive -> active transition counts; re-clicking while
-        // already editing does not.
+      if (newIsEditing && willEnableEdit && event.isTrusted) {
+        // Only an inactive -> active transition the user asked for counts;
+        // re-clicking while already editing does not, and neither does the
+        // Dashboard's automatic entry — `editBtn.click()` is untrusted.
         trackTelemetryEvent("edit.start");
       }
       if (!newIsEditing) {
@@ -2313,7 +2534,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await prepareForScreenshot();
     const captured = await takeFullPageScreenshot();
     // Only bill the free allowance for completed captures.
-    if (captured && billUse) await consumeFeatureUse("fullPageScreenshot");
+    if (captured && billUse) {
+      const state = await consumeFeatureUse("fullPageScreenshot");
+      // This capture used up the allowance: say so while the popup is still
+      // open. It was allowed, so it is not a "limit reached" event.
+      if (state?.limited) showStatus(quotaExhaustedMessage(state), false);
+    }
     await updatePlanUI();
   };
 
@@ -2360,25 +2586,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   const setSelectedImage = async (imageSource, source) => {
-    // Advanced-feature quota: each successful image import (upload or URL)
-    // counts once; replacing multiple page elements with that import does not.
-    let billUse = false;
+    // Advanced-feature quota: importing is free, but a locked free tier cannot
+    // import at all — each replacement that actually lands is what spends an
+    // allowance, and the injected page code charges it at that moment.
     if (!isPremium()) {
       const state = await getQuotaState();
       if (state.limited) {
         reportQuotaExhausted(state);
         return;
       }
-      billUse = true;
     }
     selectedImageData = imageSource;
     previewImg.src = imageSource;
     imagePreview.classList.remove("hidden");
     replaceImageBtn.classList.remove("hidden");
-    imageSourceOptions.classList.add("hidden");
-    selectImageBtn.setAttribute("aria-expanded", "false");
+    // The preview is one of the expanded panel's contents now, so the panel has
+    // to stay open — collapsing here would hide the image just imported.
     await saveImageData(imageSource);
-    if (billUse) await consumeFeatureUse("replaceImage");
+    // Replace mode may already be running on this page: hand it the new picture
+    // (and the current fit) now, or the next click would still paste the
+    // previous one.
+    void syncReplaceSelectionToPage(imageSource, await getReplaceImageFit());
+    // An imported picture is only ever wanted for one thing: go straight into
+    // replace mode, through the same path the switch uses. If that is not
+    // possible (a transition is already running, or the tier is used up), the
+    // old instruction to press the switch is still the right thing to show.
+    if (!isReplaceModeTransitioning) {
+      // Automatic entry: no user click on a tool entry, so it is not counted.
+      if (await enterReplaceMode(false)) return;
+    }
     showStatus(t("imageSelected"), true);
     // Counted after the quota gate: an import blocked by the free-tier limit is
     // not an accepted import (`monetization.free_limit_reached` covers that),
@@ -2485,6 +2721,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectImageBtn.addEventListener("click", async () => {
     const isExpanded =
       selectImageBtn.getAttribute("aria-expanded") === "true";
+    // Explain the limit right here instead of after the user has picked a file: a
+    // locked free tier cannot import at all, so there is nothing to expand into.
+    if (!isExpanded && !isPremium()) {
+      const state = await getQuotaState();
+      if (state.limited) {
+        reportQuotaExhausted(state);
+        return;
+      }
+    }
     selectImageBtn.setAttribute("aria-expanded", String(!isExpanded));
     imageSourceOptions.classList.toggle("hidden", isExpanded);
   });
@@ -2495,6 +2740,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   imageInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
+    // Reset right away: a file input keeps its value, so picking the same file
+    // again fires no change event at all and the previous image would silently
+    // stay selected.
+    e.target.value = "";
     if (file) {
       const reader = new FileReader();
       reader.onload = async (event) => {
@@ -2571,7 +2820,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     imageInput.value = "";
   });
 
-  replaceImageBtn.addEventListener("click", async () => {
+  replaceImageBtn.addEventListener("click", async (event) => {
     if (isReplaceModeTransitioning) return;
     if (!selectedImageData) {
       showStatus(t("pleaseSelectImageFirst"), false);
@@ -2580,23 +2829,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     isReplaceModeTransitioning = true;
     replaceImageBtn.disabled = true;
     replaceImageBtn.setAttribute("aria-busy", "true");
-    const nextReplaceMode = !isReplaceMode;
     try {
-      if (nextReplaceMode) {
-        await ensureHistoryManager();
-        await stopEditMode();
-        if (isRemoveMode) {
-          await stopRemoveMode();
-          isRemoveMode = false;
-          updateRemoveButton();
-        }
-        await startReplaceMode();
-      } else {
+      if (isReplaceMode) {
         await stopReplaceMode();
         await finishEditingSession();
+        isReplaceMode = false;
+        updateReplaceButton();
+      } else {
+        // A programmatic click (there is none today) would carry isTrusted
+        // false and correctly not count.
+        await enterReplaceMode(event.isTrusted);
       }
-      isReplaceMode = nextReplaceMode;
-      updateReplaceButton();
     } catch (error) {
       console.error("Failed to toggle replacement mode", error);
       showStatus(t("replaceModeFailed"), false);
@@ -2607,18 +2850,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  removeBtn.addEventListener("click", async () => {
+  removeBtn.addEventListener("click", async (event) => {
     if (isRemoveModeTransitioning) return;
     const nextRemoveMode = !isRemoveMode;
-    // Advanced-feature quota: entering remove mode consumes one use.
-    let billUse = false;
+    // Advanced-feature quota: entering remove mode is free, but a locked free
+    // tier cannot enter at all — each element actually removed spends an
+    // allowance, charged by the injected page code at that moment.
     if (nextRemoveMode && !isPremium()) {
       const state = await getQuotaState();
       if (state.limited) {
         reportQuotaExhausted(state);
         return;
       }
-      billUse = true;
     }
     isRemoveModeTransitioning = true;
     removeBtn.disabled = true;
@@ -2639,7 +2882,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       isRemoveMode = nextRemoveMode;
       updateRemoveButton();
-      if (billUse) await consumeFeatureUse("removeElement");
+      // Only an inactive -> active transition that actually started and that
+      // the user asked for counts; `removeBtn.click()` from the Dashboard's
+      // automatic entry is untrusted and must not count.
+      if (nextRemoveMode && event.isTrusted) {
+        trackTelemetryEvent("remove.start");
+      }
       await updatePlanUI();
     } catch (error) {
       console.error("Failed to toggle remove mode", error);
@@ -2650,6 +2898,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       removeBtn.removeAttribute("aria-busy");
     }
   });
+
+  // Auto-start the tool chosen in the Dashboard — but only on an editable page,
+  // only when no mode is already active, and never while a screenshot is
+  // waiting to be resumed (prepareForScreenshot() would undo it immediately).
+  // Remove mode spends a free allowance, so a locked free tier is skipped
+  // silently instead of toasting on every popup open.
+  const pendingScreenshot = await getPendingScreenshot();
+  const autoEnterMode = await getAutoEnterMode();
+  if (
+    !quotaNotice &&
+    !pendingScreenshot &&
+    !isEditing &&
+    !isReplaceMode &&
+    !isRemoveMode
+  ) {
+    if (autoEnterMode === "edit") {
+      editBtn.click();
+    } else if (autoEnterMode === "remove") {
+      const quota = await getQuotaState();
+      if (isPremium() || !quota.limited) removeBtn.click();
+    }
+  }
 
   // Runs last so every control above is already wired up: if the permission
   // dialog closed the popup during a previous attempt, finish that screenshot

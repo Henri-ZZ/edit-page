@@ -90,31 +90,31 @@ const rowsToMessages = (keys, rows) => Object.fromEntries(
 );
 
 const popupRows = {
-  ar: ["لوحة التحكم","اختر أداة","تحرير النص","غيّر أي نص في هذه الصفحة","تغيير الصورة","ارفع صورة أو ألصق رابطها","رفع من الجهاز","ألصق رابط الصورة","استخدام الرابط","إزالة عنصر","انقر على أي عنصر لإزالته","لقطة شاشة","التقط العرض الحالي أو الصفحة كاملة","العرض الحالي","الصفحة كاملة","الإصدار المجاني","↶ تراجع","↷ إعادة","تم","لا يمكن تحرير هذه الصفحة","هذا النوع من الصفحات غير مدعوم","نُسخت اللقطة إلى الحافظة!","تم تنزيل اللقطة!"],
-  "zh-TW": ["控制面板","選擇工具","編輯文字","直接修改目前頁面的文字","更改圖片","上傳圖片或貼上圖片網址","從裝置上傳","貼上圖片網址","使用網址","移除元素","點擊任意元素即可移除","截圖","擷取目前視窗或完整網頁","目前視窗","整張網頁","免費版","↶ 復原","↷ 重做","完成","無法編輯此頁面","不支援此類型的頁面","截圖已複製到剪貼簿！","截圖已下載！"],
-  cs: ["Nastavení","Vyberte nástroj","Upravit text","Změňte libovolný text na stránce","Změnit obrázek","Nahrajte obrázek nebo vložte jeho URL","Nahrát ze zařízení","Vložte URL obrázku","Použít URL","Odstranit prvek","Kliknutím prvek odstraníte","Snímek obrazovky","Zachyťte zobrazení nebo celou stránku","Aktuální zobrazení","Celá stránka","Bezplatná verze","↶ Zpět","↷ Znovu","Hotovo","Tuto stránku nelze upravit","Tento typ stránky není podporován","Snímek byl zkopírován!","Snímek byl stažen!"],
-  da: ["Indstillinger","Vælg et værktøj","Rediger tekst","Skift tekst på denne side","Skift billede","Upload et billede eller indsæt en URL","Upload fra enhed","Indsæt billed-URL","Brug URL","Fjern element","Klik på et element for at fjerne det","Skærmbillede","Tag billede af visningen eller hele siden","Aktuel visning","Hele siden","Gratis version","↶ Fortryd","↷ Annuller fortryd","Færdig","Siden kan ikke redigeres","Denne sidetype understøttes ikke","Skærmbilledet er kopieret!","Skærmbilledet er downloadet!"],
-  nl: ["Instellingen","Kies een hulpmiddel","Tekst bewerken","Wijzig tekst op deze pagina","Afbeelding wijzigen","Upload een afbeelding of plak een URL","Uploaden vanaf apparaat","Plak afbeeldings-URL","URL gebruiken","Element verwijderen","Klik op een element om het te verwijderen","Schermafbeelding","Leg de weergave of volledige pagina vast","Huidige weergave","Volledige pagina","Gratis versie","↶ Ongedaan maken","↷ Opnieuw","Klaar","Deze pagina kan niet worden bewerkt","Dit paginatype wordt niet ondersteund","Schermafbeelding gekopieerd!","Schermafbeelding gedownload!"],
-  fi: ["Asetukset","Valitse työkalu","Muokkaa tekstiä","Muuta sivun tekstiä","Vaihda kuva","Lataa kuva tai liitä kuvan URL","Lataa laitteelta","Liitä kuvan URL","Käytä URL-osoitetta","Poista elementti","Poista elementti napsauttamalla","Kuvakaappaus","Kaappaa näkymä tai koko sivu","Nykyinen näkymä","Koko sivu","Ilmaisversio","↶ Kumoa","↷ Tee uudelleen","Valmis","Sivua ei voi muokata","Tätä sivutyyppiä ei tueta","Kuvakaappaus kopioitu!","Kuvakaappaus ladattu!"],
-  fr: ["Paramètres","Choisir un outil","Modifier le texte","Modifiez le texte de cette page","Changer l’image","Importez une image ou collez son URL","Importer depuis l’appareil","Collez l’URL de l’image","Utiliser l’URL","Supprimer un élément","Cliquez sur un élément pour le supprimer","Capture d’écran","Capturez la vue ou la page entière","Vue actuelle","Page entière","Version gratuite","↶ Annuler","↷ Rétablir","Terminé","Impossible de modifier cette page","Ce type de page n’est pas pris en charge","Capture copiée !","Capture téléchargée !"],
-  de: ["Einstellungen","Werkzeug auswählen","Text bearbeiten","Text auf dieser Seite ändern","Bild ändern","Bild hochladen oder Bild-URL einfügen","Vom Gerät hochladen","Bild-URL einfügen","URL verwenden","Element entfernen","Zum Entfernen auf ein Element klicken","Screenshot","Ansicht oder ganze Seite aufnehmen","Aktuelle Ansicht","Ganze Seite","Kostenlose Version","↶ Rückgängig","↷ Wiederholen","Fertig","Diese Seite kann nicht bearbeitet werden","Dieser Seitentyp wird nicht unterstützt","Screenshot kopiert!","Screenshot heruntergeladen!"],
-  el: ["Ρυθμίσεις","Επιλέξτε εργαλείο","Επεξεργασία κειμένου","Αλλάξτε κείμενο στη σελίδα","Αλλαγή εικόνας","Ανεβάστε εικόνα ή επικολλήστε URL","Μεταφόρτωση από συσκευή","Επικολλήστε URL εικόνας","Χρήση URL","Αφαίρεση στοιχείου","Κάντε κλικ σε στοιχείο για αφαίρεση","Στιγμιότυπο","Λήψη προβολής ή ολόκληρης σελίδας","Τρέχουσα προβολή","Ολόκληρη σελίδα","Δωρεάν έκδοση","↶ Αναίρεση","↷ Επανάληψη","Τέλος","Δεν είναι δυνατή η επεξεργασία","Αυτός ο τύπος σελίδας δεν υποστηρίζεται","Το στιγμιότυπο αντιγράφηκε!","Το στιγμιότυπο λήφθηκε!"],
-  he: ["הגדרות","בחירת כלי","עריכת טקסט","שינוי טקסט בדף הזה","החלפת תמונה","העלאת תמונה או הדבקת כתובת URL","העלאה מהמכשיר","הדבקת כתובת תמונה","שימוש בכתובת","הסרת רכיב","לחצו על רכיב כדי להסירו","צילום מסך","צילום התצוגה או הדף המלא","התצוגה הנוכחית","דף מלא","גרסה חינמית","↶ ביטול","↷ ביצוע מחדש","סיום","לא ניתן לערוך דף זה","סוג דף זה אינו נתמך","צילום המסך הועתק!","צילום המסך הורד!"],
-  hi: ["सेटिंग्स","कोई टूल चुनें","टेक्स्ट संपादित करें","इस पेज का कोई भी टेक्स्ट बदलें","इमेज बदलें","इमेज अपलोड करें या URL पेस्ट करें","डिवाइस से अपलोड करें","इमेज URL पेस्ट करें","URL इस्तेमाल करें","एलिमेंट हटाएँ","हटाने के लिए किसी एलिमेंट पर क्लिक करें","स्क्रीनशॉट","मौजूदा दृश्य या पूरा पेज कैप्चर करें","मौजूदा दृश्य","पूरा पेज","मुफ़्त संस्करण","↶ पूर्ववत","↷ फिर करें","पूर्ण","इस पेज को संपादित नहीं किया जा सकता","यह पेज प्रकार समर्थित नहीं है","स्क्रीनशॉट क्लिपबोर्ड पर कॉपी हुआ!","स्क्रीनशॉट डाउनलोड हुआ!"],
-  hu: ["Beállítások","Válasszon eszközt","Szöveg szerkesztése","Módosítsa az oldal szövegét","Kép cseréje","Töltsön fel képet vagy illesszen be URL-t","Feltöltés eszközről","Kép URL-jének beillesztése","URL használata","Elem eltávolítása","Kattintson egy elemre az eltávolításhoz","Képernyőkép","Nézet vagy teljes oldal rögzítése","Aktuális nézet","Teljes oldal","Ingyenes verzió","↶ Visszavonás","↷ Újra","Kész","Ez az oldal nem szerkeszthető","Ez az oldaltípus nem támogatott","Képernyőkép másolva!","Képernyőkép letöltve!"],
-  id: ["Pengaturan","Pilih alat","Edit teks","Ubah teks apa pun di halaman ini","Ganti gambar","Unggah gambar atau tempel URL","Unggah dari perangkat","Tempel URL gambar","Gunakan URL","Hapus elemen","Klik elemen untuk menghapusnya","Tangkapan layar","Ambil tampilan atau seluruh halaman","Tampilan saat ini","Seluruh halaman","Versi gratis","↶ Urungkan","↷ Ulangi","Selesai","Halaman ini tidak dapat diedit","Jenis halaman ini tidak didukung","Tangkapan layar disalin!","Tangkapan layar diunduh!"],
-  it: ["Impostazioni","Scegli uno strumento","Modifica testo","Modifica il testo della pagina","Cambia immagine","Carica un’immagine o incolla l’URL","Carica dal dispositivo","Incolla URL immagine","Usa URL","Rimuovi elemento","Fai clic su un elemento per rimuoverlo","Screenshot","Cattura la vista o l’intera pagina","Vista corrente","Pagina intera","Versione gratuita","↶ Annulla","↷ Ripeti","Fatto","Impossibile modificare questa pagina","Questo tipo di pagina non è supportato","Screenshot copiato!","Screenshot scaricato!"],
-  ko: ["설정","도구 선택","텍스트 편집","페이지의 텍스트를 변경합니다","이미지 변경","이미지를 업로드하거나 URL을 붙여넣으세요","기기에서 업로드","이미지 URL 붙여넣기","URL 사용","요소 제거","제거할 요소를 클릭하세요","스크린샷","현재 화면 또는 전체 페이지 캡처","현재 화면","전체 페이지","무료 버전","↶ 실행 취소","↷ 다시 실행","완료","이 페이지를 편집할 수 없습니다","지원되지 않는 페이지 유형입니다","스크린샷을 클립보드에 복사했습니다!","스크린샷을 다운로드했습니다!"],
-  ms: ["Tetapan","Pilih alat","Edit teks","Ubah teks pada halaman ini","Tukar imej","Muat naik imej atau tampal URL","Muat naik dari peranti","Tampal URL imej","Guna URL","Alih keluar elemen","Klik elemen untuk mengalih keluarnya","Tangkap skrin","Tangkap paparan atau seluruh halaman","Paparan semasa","Seluruh halaman","Versi percuma","↶ Buat asal","↷ Buat semula","Selesai","Halaman ini tidak boleh diedit","Jenis halaman ini tidak disokong","Tangkapan disalin!","Tangkapan dimuat turun!"],
-  no: ["Innstillinger","Velg et verktøy","Rediger tekst","Endre tekst på denne siden","Bytt bilde","Last opp et bilde eller lim inn en URL","Last opp fra enheten","Lim inn bilde-URL","Bruk URL","Fjern element","Klikk på et element for å fjerne det","Skjermbilde","Ta bilde av visningen eller hele siden","Gjeldende visning","Hele siden","Gratisversjon","↶ Angre","↷ Gjør om","Ferdig","Denne siden kan ikke redigeres","Denne sidetypen støttes ikke","Skjermbildet er kopiert!","Skjermbildet er lastet ned!"],
-  pl: ["Ustawienia","Wybierz narzędzie","Edytuj tekst","Zmień tekst na tej stronie","Zmień obraz","Prześlij obraz lub wklej adres URL","Prześlij z urządzenia","Wklej adres URL obrazu","Użyj URL","Usuń element","Kliknij element, aby go usunąć","Zrzut ekranu","Zapisz widok lub całą stronę","Bieżący widok","Cała strona","Wersja bezpłatna","↶ Cofnij","↷ Ponów","Gotowe","Nie można edytować tej strony","Ten typ strony nie jest obsługiwany","Zrzut skopiowany!","Zrzut pobrany!"],
-  ro: ["Setări","Alege un instrument","Editează textul","Modifică textul de pe această pagină","Schimbă imaginea","Încarcă o imagine sau lipește URL-ul","Încarcă de pe dispozitiv","Lipește URL-ul imaginii","Folosește URL-ul","Elimină elementul","Apasă pe un element pentru a-l elimina","Captură de ecran","Capturează vizualizarea sau pagina completă","Vizualizarea curentă","Pagina completă","Versiune gratuită","↶ Anulează","↷ Refă","Gata","Această pagină nu poate fi editată","Acest tip de pagină nu este acceptat","Captura a fost copiată!","Captura a fost descărcată!"],
-  ru: ["Настройки","Выберите инструмент","Редактировать текст","Измените текст на этой странице","Заменить изображение","Загрузите изображение или вставьте URL","Загрузить с устройства","Вставьте URL изображения","Использовать URL","Удалить элемент","Нажмите элемент, чтобы удалить его","Скриншот","Снимок текущего вида или всей страницы","Текущий вид","Вся страница","Бесплатная версия","↶ Отменить","↷ Повторить","Готово","Эту страницу нельзя редактировать","Этот тип страницы не поддерживается","Скриншот скопирован!","Скриншот загружен!"],
-  sv: ["Inställningar","Välj ett verktyg","Redigera text","Ändra text på sidan","Byt bild","Ladda upp en bild eller klistra in en URL","Ladda upp från enhet","Klistra in bild-URL","Använd URL","Ta bort element","Klicka på ett element för att ta bort det","Skärmbild","Fånga vyn eller hela sidan","Aktuell vy","Hela sidan","Gratisversion","↶ Ångra","↷ Gör om","Klar","Sidan kan inte redigeras","Den här sidtypen stöds inte","Skärmbilden kopierades!","Skärmbilden laddades ned!"],
-  th: ["การตั้งค่า","เลือกเครื่องมือ","แก้ไขข้อความ","เปลี่ยนข้อความบนหน้านี้","เปลี่ยนรูปภาพ","อัปโหลดรูปหรือวาง URL","อัปโหลดจากอุปกรณ์","วาง URL รูปภาพ","ใช้ URL","ลบองค์ประกอบ","คลิกองค์ประกอบเพื่อลบ","ภาพหน้าจอ","จับภาพมุมมองหรือทั้งหน้า","มุมมองปัจจุบัน","ทั้งหน้า","เวอร์ชันฟรี","↶ เลิกทำ","↷ ทำซ้ำ","เสร็จสิ้น","แก้ไขหน้านี้ไม่ได้","ไม่รองรับหน้าประเภทนี้","คัดลอกภาพหน้าจอแล้ว!","ดาวน์โหลดภาพหน้าจอแล้ว!"],
-  tr: ["Ayarlar","Bir araç seçin","Metni düzenle","Bu sayfadaki metni değiştirin","Görseli değiştir","Görsel yükleyin veya URL yapıştırın","Cihazdan yükle","Görsel URL’sini yapıştırın","URL’yi kullan","Öğeyi kaldır","Kaldırmak için bir öğeye tıklayın","Ekran görüntüsü","Görünümü veya tam sayfayı yakalayın","Geçerli görünüm","Tam sayfa","Ücretsiz sürüm","↶ Geri al","↷ Yinele","Bitti","Bu sayfa düzenlenemiyor","Bu sayfa türü desteklenmiyor","Ekran görüntüsü kopyalandı!","Ekran görüntüsü indirildi!"],
-  uk: ["Налаштування","Виберіть інструмент","Редагувати текст","Змініть текст на цій сторінці","Замінити зображення","Завантажте зображення або вставте URL","Завантажити з пристрою","Вставте URL зображення","Використати URL","Видалити елемент","Натисніть елемент, щоб видалити","Знімок екрана","Захопіть поточний вигляд або всю сторінку","Поточний вигляд","Уся сторінка","Безкоштовна версія","↶ Скасувати","↷ Повторити","Готово","Цю сторінку не можна редагувати","Цей тип сторінки не підтримується","Знімок скопійовано!","Знімок завантажено!"],
-  vi: ["Cài đặt","Chọn công cụ","Sửa văn bản","Thay đổi văn bản trên trang này","Đổi hình ảnh","Tải ảnh lên hoặc dán URL","Tải lên từ thiết bị","Dán URL hình ảnh","Dùng URL","Xóa phần tử","Nhấp vào phần tử để xóa","Ảnh chụp màn hình","Chụp khung nhìn hoặc toàn bộ trang","Khung nhìn hiện tại","Toàn bộ trang","Phiên bản miễn phí","↶ Hoàn tác","↷ Làm lại","Xong","Không thể chỉnh sửa trang này","Loại trang này không được hỗ trợ","Đã sao chép ảnh chụp!","Đã tải ảnh chụp!"],
+  ar: ["لوحة التحكم","اختر أداة للبدء","تحرير النص","غيّر أي نص في هذه الصفحة","تغيير الصورة","ارفع صورة أو ألصق رابطها","رفع من الجهاز","ألصق رابط الصورة","استخدام الرابط","إزالة عنصر","انقر على أي عنصر لإزالته","لقطة شاشة","التقط العرض الحالي أو الصفحة كاملة","العرض الحالي","الصفحة كاملة","الإصدار المجاني","↶ تراجع","↷ إعادة","تم","لا يمكن تحرير هذه الصفحة","هذا النوع من الصفحات غير مدعوم","نُسخت اللقطة إلى الحافظة!","تم تنزيل اللقطة!"],
+  "zh-TW": ["控制面板","選擇工具即可開始","編輯文字","直接修改目前頁面的文字","更改圖片","上傳圖片或貼上圖片網址","從裝置上傳","貼上圖片網址","使用網址","移除元素","點擊任意元素即可移除","截圖","擷取目前視窗或完整網頁","目前視窗","整張網頁","免費版","↶ 復原","↷ 重做","完成","無法編輯此頁面","不支援此類型的頁面","截圖已複製到剪貼簿！","截圖已下載！"],
+  cs: ["Nastavení","Vyberte nástroj a začněte","Upravit text","Změňte libovolný text na stránce","Změnit obrázek","Nahrajte obrázek nebo vložte jeho URL","Nahrát ze zařízení","Vložte URL obrázku","Použít URL","Odstranit prvek","Kliknutím prvek odstraníte","Snímek obrazovky","Zachyťte zobrazení nebo celou stránku","Aktuální zobrazení","Celá stránka","Bezplatná verze","↶ Zpět","↷ Znovu","Hotovo","Tuto stránku nelze upravit","Tento typ stránky není podporován","Snímek byl zkopírován!","Snímek byl stažen!"],
+  da: ["Indstillinger","Vælg et værktøj for at komme i gang","Rediger tekst","Skift tekst på denne side","Skift billede","Upload et billede eller indsæt en URL","Upload fra enhed","Indsæt billed-URL","Brug URL","Fjern element","Klik på et element for at fjerne det","Skærmbillede","Tag billede af visningen eller hele siden","Aktuel visning","Hele siden","Gratis version","↶ Fortryd","↷ Annuller fortryd","Færdig","Siden kan ikke redigeres","Denne sidetype understøttes ikke","Skærmbilledet er kopieret!","Skærmbilledet er downloadet!"],
+  nl: ["Instellingen","Kies een hulpmiddel om te beginnen","Tekst bewerken","Wijzig tekst op deze pagina","Afbeelding wijzigen","Upload een afbeelding of plak een URL","Uploaden vanaf apparaat","Plak afbeeldings-URL","URL gebruiken","Element verwijderen","Klik op een element om het te verwijderen","Schermafbeelding","Leg de weergave of volledige pagina vast","Huidige weergave","Volledige pagina","Gratis versie","↶ Ongedaan maken","↷ Opnieuw","Klaar","Deze pagina kan niet worden bewerkt","Dit paginatype wordt niet ondersteund","Schermafbeelding gekopieerd!","Schermafbeelding gedownload!"],
+  fi: ["Asetukset","Valitse työkalu aloittaaksesi","Muokkaa tekstiä","Muuta sivun tekstiä","Vaihda kuva","Lataa kuva tai liitä kuvan URL","Lataa laitteelta","Liitä kuvan URL","Käytä URL-osoitetta","Poista elementti","Poista elementti napsauttamalla","Kuvakaappaus","Kaappaa näkymä tai koko sivu","Nykyinen näkymä","Koko sivu","Ilmaisversio","↶ Kumoa","↷ Tee uudelleen","Valmis","Sivua ei voi muokata","Tätä sivutyyppiä ei tueta","Kuvakaappaus kopioitu!","Kuvakaappaus ladattu!"],
+  fr: ["Paramètres","Choisir un outil pour commencer","Modifier le texte","Modifiez le texte de cette page","Changer l’image","Importez une image ou collez son URL","Importer depuis l’appareil","Collez l’URL de l’image","Utiliser l’URL","Supprimer un élément","Cliquez sur un élément pour le supprimer","Capture d’écran","Capturez la vue ou la page entière","Vue actuelle","Page entière","Version gratuite","↶ Annuler","↷ Rétablir","Terminé","Impossible de modifier cette page","Ce type de page n’est pas pris en charge","Capture copiée !","Capture téléchargée !"],
+  de: ["Einstellungen","Werkzeug auswählen und starten","Text bearbeiten","Text auf dieser Seite ändern","Bild ändern","Bild hochladen oder Bild-URL einfügen","Vom Gerät hochladen","Bild-URL einfügen","URL verwenden","Element entfernen","Zum Entfernen auf ein Element klicken","Screenshot","Ansicht oder ganze Seite aufnehmen","Aktuelle Ansicht","Ganze Seite","Kostenlose Version","↶ Rückgängig","↷ Wiederholen","Fertig","Diese Seite kann nicht bearbeitet werden","Dieser Seitentyp wird nicht unterstützt","Screenshot kopiert!","Screenshot heruntergeladen!"],
+  el: ["Ρυθμίσεις","Επιλέξτε εργαλείο για να ξεκινήσετε","Επεξεργασία κειμένου","Αλλάξτε κείμενο στη σελίδα","Αλλαγή εικόνας","Ανεβάστε εικόνα ή επικολλήστε URL","Μεταφόρτωση από συσκευή","Επικολλήστε URL εικόνας","Χρήση URL","Αφαίρεση στοιχείου","Κάντε κλικ σε στοιχείο για αφαίρεση","Στιγμιότυπο","Λήψη προβολής ή ολόκληρης σελίδας","Τρέχουσα προβολή","Ολόκληρη σελίδα","Δωρεάν έκδοση","↶ Αναίρεση","↷ Επανάληψη","Τέλος","Δεν είναι δυνατή η επεξεργασία","Αυτός ο τύπος σελίδας δεν υποστηρίζεται","Το στιγμιότυπο αντιγράφηκε!","Το στιγμιότυπο λήφθηκε!"],
+  he: ["הגדרות","בחירת כלי כדי להתחיל","עריכת טקסט","שינוי טקסט בדף הזה","החלפת תמונה","העלאת תמונה או הדבקת כתובת URL","העלאה מהמכשיר","הדבקת כתובת תמונה","שימוש בכתובת","הסרת רכיב","לחצו על רכיב כדי להסירו","צילום מסך","צילום התצוגה או הדף המלא","התצוגה הנוכחית","דף מלא","גרסה חינמית","↶ ביטול","↷ ביצוע מחדש","סיום","לא ניתן לערוך דף זה","סוג דף זה אינו נתמך","צילום המסך הועתק!","צילום המסך הורד!"],
+  hi: ["सेटिंग्स","शुरू करने के लिए कोई टूल चुनें","टेक्स्ट संपादित करें","इस पेज का कोई भी टेक्स्ट बदलें","इमेज बदलें","इमेज अपलोड करें या URL पेस्ट करें","डिवाइस से अपलोड करें","इमेज URL पेस्ट करें","URL इस्तेमाल करें","एलिमेंट हटाएँ","हटाने के लिए किसी एलिमेंट पर क्लिक करें","स्क्रीनशॉट","मौजूदा दृश्य या पूरा पेज कैप्चर करें","मौजूदा दृश्य","पूरा पेज","मुफ़्त संस्करण","↶ पूर्ववत","↷ फिर करें","पूर्ण","इस पेज को संपादित नहीं किया जा सकता","यह पेज प्रकार समर्थित नहीं है","स्क्रीनशॉट क्लिपबोर्ड पर कॉपी हुआ!","स्क्रीनशॉट डाउनलोड हुआ!"],
+  hu: ["Beállítások","Válasszon eszközt a kezdéshez","Szöveg szerkesztése","Módosítsa az oldal szövegét","Kép cseréje","Töltsön fel képet vagy illesszen be URL-t","Feltöltés eszközről","Kép URL-jének beillesztése","URL használata","Elem eltávolítása","Kattintson egy elemre az eltávolításhoz","Képernyőkép","Nézet vagy teljes oldal rögzítése","Aktuális nézet","Teljes oldal","Ingyenes verzió","↶ Visszavonás","↷ Újra","Kész","Ez az oldal nem szerkeszthető","Ez az oldaltípus nem támogatott","Képernyőkép másolva!","Képernyőkép letöltve!"],
+  id: ["Pengaturan","Pilih alat untuk memulai","Edit teks","Ubah teks apa pun di halaman ini","Ganti gambar","Unggah gambar atau tempel URL","Unggah dari perangkat","Tempel URL gambar","Gunakan URL","Hapus elemen","Klik elemen untuk menghapusnya","Tangkapan layar","Ambil tampilan atau seluruh halaman","Tampilan saat ini","Seluruh halaman","Versi gratis","↶ Urungkan","↷ Ulangi","Selesai","Halaman ini tidak dapat diedit","Jenis halaman ini tidak didukung","Tangkapan layar disalin!","Tangkapan layar diunduh!"],
+  it: ["Impostazioni","Scegli uno strumento per iniziare","Modifica testo","Modifica il testo della pagina","Cambia immagine","Carica un’immagine o incolla l’URL","Carica dal dispositivo","Incolla URL immagine","Usa URL","Rimuovi elemento","Fai clic su un elemento per rimuoverlo","Screenshot","Cattura la vista o l’intera pagina","Vista corrente","Pagina intera","Versione gratuita","↶ Annulla","↷ Ripeti","Fatto","Impossibile modificare questa pagina","Questo tipo di pagina non è supportato","Screenshot copiato!","Screenshot scaricato!"],
+  ko: ["설정","도구를 선택하여 시작하세요","텍스트 편집","페이지의 텍스트를 변경합니다","이미지 변경","이미지를 업로드하거나 URL을 붙여넣으세요","기기에서 업로드","이미지 URL 붙여넣기","URL 사용","요소 제거","제거할 요소를 클릭하세요","스크린샷","현재 화면 또는 전체 페이지 캡처","현재 화면","전체 페이지","무료 버전","↶ 실행 취소","↷ 다시 실행","완료","이 페이지를 편집할 수 없습니다","지원되지 않는 페이지 유형입니다","스크린샷을 클립보드에 복사했습니다!","스크린샷을 다운로드했습니다!"],
+  ms: ["Tetapan","Pilih alat untuk bermula","Edit teks","Ubah teks pada halaman ini","Tukar imej","Muat naik imej atau tampal URL","Muat naik dari peranti","Tampal URL imej","Guna URL","Alih keluar elemen","Klik elemen untuk mengalih keluarnya","Tangkap skrin","Tangkap paparan atau seluruh halaman","Paparan semasa","Seluruh halaman","Versi percuma","↶ Buat asal","↷ Buat semula","Selesai","Halaman ini tidak boleh diedit","Jenis halaman ini tidak disokong","Tangkapan disalin!","Tangkapan dimuat turun!"],
+  no: ["Innstillinger","Velg et verktøy for å komme i gang","Rediger tekst","Endre tekst på denne siden","Bytt bilde","Last opp et bilde eller lim inn en URL","Last opp fra enheten","Lim inn bilde-URL","Bruk URL","Fjern element","Klikk på et element for å fjerne det","Skjermbilde","Ta bilde av visningen eller hele siden","Gjeldende visning","Hele siden","Gratisversjon","↶ Angre","↷ Gjør om","Ferdig","Denne siden kan ikke redigeres","Denne sidetypen støttes ikke","Skjermbildet er kopiert!","Skjermbildet er lastet ned!"],
+  pl: ["Ustawienia","Wybierz narzędzie, aby rozpocząć","Edytuj tekst","Zmień tekst na tej stronie","Zmień obraz","Prześlij obraz lub wklej adres URL","Prześlij z urządzenia","Wklej adres URL obrazu","Użyj URL","Usuń element","Kliknij element, aby go usunąć","Zrzut ekranu","Zapisz widok lub całą stronę","Bieżący widok","Cała strona","Wersja bezpłatna","↶ Cofnij","↷ Ponów","Gotowe","Nie można edytować tej strony","Ten typ strony nie jest obsługiwany","Zrzut skopiowany!","Zrzut pobrany!"],
+  ro: ["Setări","Alege un instrument pentru a începe","Editează textul","Modifică textul de pe această pagină","Schimbă imaginea","Încarcă o imagine sau lipește URL-ul","Încarcă de pe dispozitiv","Lipește URL-ul imaginii","Folosește URL-ul","Elimină elementul","Apasă pe un element pentru a-l elimina","Captură de ecran","Capturează vizualizarea sau pagina completă","Vizualizarea curentă","Pagina completă","Versiune gratuită","↶ Anulează","↷ Refă","Gata","Această pagină nu poate fi editată","Acest tip de pagină nu este acceptat","Captura a fost copiată!","Captura a fost descărcată!"],
+  ru: ["Настройки","Выберите инструмент, чтобы начать","Редактировать текст","Измените текст на этой странице","Заменить изображение","Загрузите изображение или вставьте URL","Загрузить с устройства","Вставьте URL изображения","Использовать URL","Удалить элемент","Нажмите элемент, чтобы удалить его","Скриншот","Снимок текущего вида или всей страницы","Текущий вид","Вся страница","Бесплатная версия","↶ Отменить","↷ Повторить","Готово","Эту страницу нельзя редактировать","Этот тип страницы не поддерживается","Скриншот скопирован!","Скриншот загружен!"],
+  sv: ["Inställningar","Välj ett verktyg för att börja","Redigera text","Ändra text på sidan","Byt bild","Ladda upp en bild eller klistra in en URL","Ladda upp från enhet","Klistra in bild-URL","Använd URL","Ta bort element","Klicka på ett element för att ta bort det","Skärmbild","Fånga vyn eller hela sidan","Aktuell vy","Hela sidan","Gratisversion","↶ Ångra","↷ Gör om","Klar","Sidan kan inte redigeras","Den här sidtypen stöds inte","Skärmbilden kopierades!","Skärmbilden laddades ned!"],
+  th: ["การตั้งค่า","เลือกเครื่องมือเพื่อเริ่มต้น","แก้ไขข้อความ","เปลี่ยนข้อความบนหน้านี้","เปลี่ยนรูปภาพ","อัปโหลดรูปหรือวาง URL","อัปโหลดจากอุปกรณ์","วาง URL รูปภาพ","ใช้ URL","ลบองค์ประกอบ","คลิกองค์ประกอบเพื่อลบ","ภาพหน้าจอ","จับภาพมุมมองหรือทั้งหน้า","มุมมองปัจจุบัน","ทั้งหน้า","เวอร์ชันฟรี","↶ เลิกทำ","↷ ทำซ้ำ","เสร็จสิ้น","แก้ไขหน้านี้ไม่ได้","ไม่รองรับหน้าประเภทนี้","คัดลอกภาพหน้าจอแล้ว!","ดาวน์โหลดภาพหน้าจอแล้ว!"],
+  tr: ["Ayarlar","Başlamak için bir araç seçin","Metni düzenle","Bu sayfadaki metni değiştirin","Görseli değiştir","Görsel yükleyin veya URL yapıştırın","Cihazdan yükle","Görsel URL’sini yapıştırın","URL’yi kullan","Öğeyi kaldır","Kaldırmak için bir öğeye tıklayın","Ekran görüntüsü","Görünümü veya tam sayfayı yakalayın","Geçerli görünüm","Tam sayfa","Ücretsiz sürüm","↶ Geri al","↷ Yinele","Bitti","Bu sayfa düzenlenemiyor","Bu sayfa türü desteklenmiyor","Ekran görüntüsü kopyalandı!","Ekran görüntüsü indirildi!"],
+  uk: ["Налаштування","Виберіть інструмент, щоб почати","Редагувати текст","Змініть текст на цій сторінці","Замінити зображення","Завантажте зображення або вставте URL","Завантажити з пристрою","Вставте URL зображення","Використати URL","Видалити елемент","Натисніть елемент, щоб видалити","Знімок екрана","Захопіть поточний вигляд або всю сторінку","Поточний вигляд","Уся сторінка","Безкоштовна версія","↶ Скасувати","↷ Повторити","Готово","Цю сторінку не можна редагувати","Цей тип сторінки не підтримується","Знімок скопійовано!","Знімок завантажено!"],
+  vi: ["Cài đặt","Chọn công cụ để bắt đầu","Sửa văn bản","Thay đổi văn bản trên trang này","Đổi hình ảnh","Tải ảnh lên hoặc dán URL","Tải lên từ thiết bị","Dán URL hình ảnh","Dùng URL","Xóa phần tử","Nhấp vào phần tử để xóa","Ảnh chụp màn hình","Chụp khung nhìn hoặc toàn bộ trang","Khung nhìn hiện tại","Toàn bộ trang","Phiên bản miễn phí","↶ Hoàn tác","↷ Làm lại","Xong","Không thể chỉnh sửa trang này","Loại trang này không được hỗ trợ","Đã sao chép ảnh chụp!","Đã tải ảnh chụp!"],
 };
 
 export const ADDITIONAL_POPUP_MESSAGES = rowsToMessages(P, popupRows);
@@ -164,7 +164,7 @@ for (const [locale, values] of Object.entries(optionLocaleNames)) {
     "Learn about Premium", "Already have an activation code?", "Enter activation code",
     premiumActivate, "Enter your activation code.", "Activating...",
     "Premium activated successfully.", "This activation code is invalid or expired.",
-    "Image imports", "Full-page screenshot", "Remove element", "Limit reached",
+    "Image replacements", "Full-page screenshot", "Remove element", "Limit reached",
     supportSection, "Enjoying Edit Page?", "Found a bug or have a suggestion?",
     leaveReview, sendFeedback,
   ];
@@ -456,7 +456,6 @@ const popupImageFlowMessages = {
   ar: {
     title: "Edit Page",
     replaceMode: "وضع استبدال الصورة",
-    exitReplaceMode: "الخروج من وضع الاستبدال",
     clearImage: "مسح الصورة المحددة",
     imageSelected: "تم اختيار الصورة، انقر على «وضع استبدال الصورة»",
     pleaseSelectImageFirst: "يرجى اختيار صورة أولاً",
@@ -468,7 +467,6 @@ const popupImageFlowMessages = {
   "zh-TW": {
     title: "Edit Page",
     replaceMode: "替換圖片模式",
-    exitReplaceMode: "結束替換模式",
     clearImage: "清除已選圖片",
     imageSelected: "已選擇圖片，請點「替換圖片模式」",
     pleaseSelectImageFirst: "請先選擇一張圖片",
@@ -480,7 +478,6 @@ const popupImageFlowMessages = {
   cs: {
     title: "Edit Page",
     replaceMode: "Režim nahrazení obrázku",
-    exitReplaceMode: "Ukončit režim nahrazení",
     clearImage: "Zrušit vybraný obrázek",
     imageSelected: "Obrázek vybrán, klikněte na „Režim nahrazení obrázku“",
     pleaseSelectImageFirst: "Nejprve vyberte obrázek",
@@ -492,7 +489,6 @@ const popupImageFlowMessages = {
   da: {
     title: "Edit Page",
     replaceMode: "Tilstanden Erstat billede",
-    exitReplaceMode: "Afslut erstatningstilstand",
     clearImage: "Ryd valgt billede",
     imageSelected: "Billede valgt – klik på “Erstat billede”",
     pleaseSelectImageFirst: "Vælg et billede først",
@@ -504,7 +500,6 @@ const popupImageFlowMessages = {
   nl: {
     title: "Edit Page",
     replaceMode: "Afbeelding vervangen",
-    exitReplaceMode: "Vervangmodus sluiten",
     clearImage: "Geselecteerde afbeelding wissen",
     imageSelected: "Afbeelding geselecteerd, klik op ‘Afbeelding vervangen’",
     pleaseSelectImageFirst: "Selecteer eerst een afbeelding",
@@ -516,7 +511,6 @@ const popupImageFlowMessages = {
   fi: {
     title: "Edit Page",
     replaceMode: "Kuvan korvaustila",
-    exitReplaceMode: "Poistu korvaustilasta",
     clearImage: "Tyhjennä valittu kuva",
     imageSelected: "Kuva valittu, napsauta ”Kuvan korvaustila”",
     pleaseSelectImageFirst: "Valitse ensin kuva",
@@ -528,7 +522,6 @@ const popupImageFlowMessages = {
   fr: {
     title: "Edit Page",
     replaceMode: "Mode remplacement d’image",
-    exitReplaceMode: "Quitter le mode remplacement",
     clearImage: "Effacer l’image sélectionnée",
     imageSelected: "Image sélectionnée, cliquez sur « Mode remplacement d’image »",
     pleaseSelectImageFirst: "Sélectionnez d’abord une image",
@@ -540,7 +533,6 @@ const popupImageFlowMessages = {
   de: {
     title: "Edit Page",
     replaceMode: "Bild-Ersetzungsmodus",
-    exitReplaceMode: "Ersetzungsmodus beenden",
     clearImage: "Ausgewähltes Bild entfernen",
     imageSelected: "Bild ausgewählt – klicke auf „Bild-Ersetzungsmodus“",
     pleaseSelectImageFirst: "Bitte zuerst ein Bild auswählen",
@@ -552,7 +544,6 @@ const popupImageFlowMessages = {
   el: {
     title: "Edit Page",
     replaceMode: "Λειτουργία αντικατάστασης εικόνας",
-    exitReplaceMode: "Έξοδος από τη λειτουργία αντικατάστασης",
     clearImage: "Καθαρισμός επιλεγμένης εικόνας",
     imageSelected: "Η εικόνα επιλέχθηκε, πατήστε «Λειτουργία αντικατάστασης εικόνας»",
     pleaseSelectImageFirst: "Επιλέξτε πρώτα μια εικόνα",
@@ -564,7 +555,6 @@ const popupImageFlowMessages = {
   he: {
     title: "Edit Page",
     replaceMode: "מצב החלפת תמונה",
-    exitReplaceMode: "יציאה ממצב ההחלפה",
     clearImage: "ניקוי התמונה שנבחרה",
     imageSelected: "התמונה נבחרה, לחצו על ״מצב החלפת תמונה״",
     pleaseSelectImageFirst: "יש לבחור תמונה תחילה",
@@ -576,7 +566,6 @@ const popupImageFlowMessages = {
   hi: {
     title: "Edit Page",
     replaceMode: "इमेज बदलने का मोड",
-    exitReplaceMode: "बदलने का मोड बंद करें",
     clearImage: "चुनी गई इमेज हटाएँ",
     imageSelected: "इमेज चुनी गई, “इमेज बदलने का मोड” पर क्लिक करें",
     pleaseSelectImageFirst: "पहले एक इमेज चुनें",
@@ -588,7 +577,6 @@ const popupImageFlowMessages = {
   hu: {
     title: "Edit Page",
     replaceMode: "Képcsere mód",
-    exitReplaceMode: "Képcsere mód bezárása",
     clearImage: "Kiválasztott kép törlése",
     imageSelected: "Kép kiválasztva, kattintson a „Képcsere mód” elemre",
     pleaseSelectImageFirst: "Először válasszon képet",
@@ -600,7 +588,6 @@ const popupImageFlowMessages = {
   id: {
     title: "Edit Page",
     replaceMode: "Mode Ganti Gambar",
-    exitReplaceMode: "Keluar dari mode ganti",
     clearImage: "Hapus gambar yang dipilih",
     imageSelected: "Gambar dipilih, klik “Mode Ganti Gambar”",
     pleaseSelectImageFirst: "Pilih gambar terlebih dahulu",
@@ -612,7 +599,6 @@ const popupImageFlowMessages = {
   it: {
     title: "Edit Page",
     replaceMode: "Modalità sostituzione immagine",
-    exitReplaceMode: "Esci dalla modalità sostituzione",
     clearImage: "Cancella immagine selezionata",
     imageSelected: "Immagine selezionata, fai clic su “Modalità sostituzione immagine”",
     pleaseSelectImageFirst: "Seleziona prima un’immagine",
@@ -624,7 +610,6 @@ const popupImageFlowMessages = {
   ko: {
     title: "Edit Page",
     replaceMode: "이미지 교체 모드",
-    exitReplaceMode: "교체 모드 종료",
     clearImage: "선택한 이미지 지우기",
     imageSelected: "이미지를 선택했습니다. “이미지 교체 모드”를 클릭하세요",
     pleaseSelectImageFirst: "먼저 이미지를 선택하세요",
@@ -636,7 +621,6 @@ const popupImageFlowMessages = {
   ms: {
     title: "Edit Page",
     replaceMode: "Mod Tukar Imej",
-    exitReplaceMode: "Keluar dari mod tukar",
     clearImage: "Kosongkan imej dipilih",
     imageSelected: "Imej dipilih, klik “Mod Tukar Imej”",
     pleaseSelectImageFirst: "Sila pilih imej dahulu",
@@ -648,7 +632,6 @@ const popupImageFlowMessages = {
   no: {
     title: "Edit Page",
     replaceMode: "Erstatt bilde-modus",
-    exitReplaceMode: "Avslutt erstatningsmodus",
     clearImage: "Fjern valgt bilde",
     imageSelected: "Bilde valgt, klikk på «Erstatt bilde-modus»",
     pleaseSelectImageFirst: "Velg et bilde først",
@@ -660,7 +643,6 @@ const popupImageFlowMessages = {
   pl: {
     title: "Edit Page",
     replaceMode: "Tryb zamiany obrazu",
-    exitReplaceMode: "Zakończ tryb zamiany",
     clearImage: "Wyczyść wybrany obraz",
     imageSelected: "Obraz wybrany, kliknij „Tryb zamiany obrazu”",
     pleaseSelectImageFirst: "Najpierw wybierz obraz",
@@ -672,7 +654,6 @@ const popupImageFlowMessages = {
   ro: {
     title: "Edit Page",
     replaceMode: "Mod de înlocuire a imaginii",
-    exitReplaceMode: "Ieși din modul de înlocuire",
     clearImage: "Șterge imaginea selectată",
     imageSelected: "Imagine selectată, apasă „Mod de înlocuire a imaginii”",
     pleaseSelectImageFirst: "Selectează mai întâi o imagine",
@@ -684,7 +665,6 @@ const popupImageFlowMessages = {
   ru: {
     title: "Edit Page",
     replaceMode: "Режим замены изображения",
-    exitReplaceMode: "Выйти из режима замены",
     clearImage: "Очистить выбранное изображение",
     imageSelected: "Изображение выбрано, нажмите «Режим замены изображения»",
     pleaseSelectImageFirst: "Сначала выберите изображение",
@@ -696,7 +676,6 @@ const popupImageFlowMessages = {
   sv: {
     title: "Edit Page",
     replaceMode: "Bildbytesläge",
-    exitReplaceMode: "Avsluta bildbytesläget",
     clearImage: "Rensa vald bild",
     imageSelected: "Bild vald, klicka på ”Bildbytesläge”",
     pleaseSelectImageFirst: "Välj en bild först",
@@ -708,7 +687,6 @@ const popupImageFlowMessages = {
   th: {
     title: "Edit Page",
     replaceMode: "โหมดแทนที่รูปภาพ",
-    exitReplaceMode: "ออกจากโหมดแทนที่",
     clearImage: "ล้างรูปที่เลือก",
     imageSelected: "เลือกรูปแล้ว คลิก “โหมดแทนที่รูปภาพ”",
     pleaseSelectImageFirst: "โปรดเลือกรูปก่อน",
@@ -720,7 +698,6 @@ const popupImageFlowMessages = {
   tr: {
     title: "Edit Page",
     replaceMode: "Görsel değiştirme modu",
-    exitReplaceMode: "Değiştirme modundan çık",
     clearImage: "Seçili görseli temizle",
     imageSelected: "Görsel seçildi, “Görsel değiştirme modu”na tıklayın",
     pleaseSelectImageFirst: "Önce bir görsel seçin",
@@ -732,7 +709,6 @@ const popupImageFlowMessages = {
   uk: {
     title: "Edit Page",
     replaceMode: "Режим заміни зображення",
-    exitReplaceMode: "Вийти з режиму заміни",
     clearImage: "Очистити вибране зображення",
     imageSelected: "Зображення вибрано, натисніть «Режим заміни зображення»",
     pleaseSelectImageFirst: "Спочатку виберіть зображення",
@@ -744,7 +720,6 @@ const popupImageFlowMessages = {
   vi: {
     title: "Edit Page",
     replaceMode: "Chế độ thay thế hình ảnh",
-    exitReplaceMode: "Thoát chế độ thay thế",
     clearImage: "Xóa hình đã chọn",
     imageSelected: "Đã chọn hình, hãy nhấp “Chế độ thay thế hình ảnh”",
     pleaseSelectImageFirst: "Vui lòng chọn hình trước",
@@ -764,8 +739,6 @@ for (const [locale, localizedMessages] of Object.entries(popupImageFlowMessages)
 // built-in-only keys that every other language rendered in English.
 const popupToolbarMessages = {
   ar: {
-    exitEdit: "إنهاء التحرير",
-    exitRemoveMode: "الخروج من وضع الإزالة",
     changeCount: "{count} تغييرات",
     editWarning: "قد يؤثر التحرير على سلوك الصفحة. أعد التحميل للاستعادة الكاملة.",
     connecting: "جارٍ الاتصال بالخادم...",
@@ -774,8 +747,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "ميزات محدودة",
   },
   "zh-TW": {
-    exitEdit: "結束編輯",
-    exitRemoveMode: "結束移除模式",
     changeCount: "{count} 項變更",
     editWarning: "編輯可能影響頁面行為，重新整理即可完全還原。",
     connecting: "正在連線伺服器…",
@@ -784,8 +755,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "功能受限",
   },
   cs: {
-    exitEdit: "Ukončit úpravy",
-    exitRemoveMode: "Ukončit režim odebírání",
     changeCount: "{count} změn",
     editWarning: "Úpravy mohou ovlivnit chování stránky. Obnovením stránky vše vrátíte.",
     connecting: "Připojování k serveru...",
@@ -794,8 +763,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Funkce omezeny",
   },
   da: {
-    exitEdit: "Afslut redigering",
-    exitRemoveMode: "Afslut fjernelsestilstand",
     changeCount: "{count} ændringer",
     editWarning: "Redigering kan påvirke sidens funktion. Genindlæs for at gendanne alt.",
     connecting: "Forbinder til server...",
@@ -804,8 +771,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Begrænsede funktioner",
   },
   nl: {
-    exitEdit: "Stoppen met bewerken",
-    exitRemoveMode: "Verwijdermodus sluiten",
     changeCount: "{count} wijzigingen",
     editWarning: "Bewerken kan het gedrag van de pagina beïnvloeden. Vernieuw om alles te herstellen.",
     connecting: "Verbinden met server...",
@@ -814,8 +779,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Beperkte functies",
   },
   fi: {
-    exitEdit: "Lopeta muokkaus",
-    exitRemoveMode: "Poistu poistotilasta",
     changeCount: "{count} muutosta",
     editWarning: "Muokkaus voi vaikuttaa sivun toimintaan. Päivitä sivu palauttaaksesi kaiken.",
     connecting: "Yhdistetään palvelimeen...",
@@ -824,8 +787,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Rajoitettu toimintoja",
   },
   fr: {
-    exitEdit: "Quitter l’édition",
-    exitRemoveMode: "Quitter le mode suppression",
     changeCount: "{count} modifications",
     editWarning: "La modification peut affecter le comportement de la page. Rechargez pour tout restaurer.",
     connecting: "Connexion au serveur...",
@@ -834,8 +795,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Fonctions limitées",
   },
   de: {
-    exitEdit: "Bearbeitung beenden",
-    exitRemoveMode: "Entfernungsmodus beenden",
     changeCount: "{count} Änderungen",
     editWarning: "Bearbeitungen können das Verhalten der Seite beeinflussen. Zum vollständigen Zurücksetzen neu laden.",
     connecting: "Verbindung zum Server...",
@@ -844,8 +803,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Funktionen eingeschränkt",
   },
   el: {
-    exitEdit: "Έξοδος από την επεξεργασία",
-    exitRemoveMode: "Έξοδος από τη λειτουργία αφαίρεσης",
     changeCount: "{count} αλλαγές",
     editWarning: "Η επεξεργασία μπορεί να επηρεάσει τη συμπεριφορά της σελίδας. Ανανεώστε για πλήρη επαναφορά.",
     connecting: "Σύνδεση με τον διακομιστή...",
@@ -854,8 +811,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Περιορισμένες λειτουργίες",
   },
   he: {
-    exitEdit: "יציאה מהעריכה",
-    exitRemoveMode: "יציאה ממצב ההסרה",
     changeCount: "{count} שינויים",
     editWarning: "העריכה עשויה להשפיע על התנהגות העמוד. רעננו כדי לשחזר הכול.",
     connecting: "מתחבר לשרת...",
@@ -864,8 +819,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "תכונות מוגבלות",
   },
   hi: {
-    exitEdit: "संपादन बंद करें",
-    exitRemoveMode: "हटाने का मोड बंद करें",
     changeCount: "{count} बदलाव",
     editWarning: "संपादन से पेज का व्यवहार बदल सकता है। पूरी तरह बहाल करने के लिए रीफ़्रेश करें।",
     connecting: "सर्वर से कनेक्ट हो रहा है...",
@@ -874,8 +827,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "सीमित सुविधाएँ",
   },
   hu: {
-    exitEdit: "Szerkesztés befejezése",
-    exitRemoveMode: "Eltávolítási mód bezárása",
     changeCount: "{count} módosítás",
     editWarning: "A szerkesztés befolyásolhatja az oldal működését. Frissítéssel teljesen visszaállítható.",
     connecting: "Csatlakozás a szerverhez...",
@@ -884,8 +835,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Korlátozott funkciók",
   },
   id: {
-    exitEdit: "Keluar dari edit",
-    exitRemoveMode: "Keluar dari mode hapus",
     changeCount: "{count} perubahan",
     editWarning: "Pengeditan dapat memengaruhi perilaku halaman. Muat ulang untuk memulihkan sepenuhnya.",
     connecting: "Menghubungkan ke server...",
@@ -894,8 +843,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Fitur terbatas",
   },
   it: {
-    exitEdit: "Esci dalla modifica",
-    exitRemoveMode: "Esci dalla modalità rimozione",
     changeCount: "{count} modifiche",
     editWarning: "La modifica può influire sul comportamento della pagina. Ricarica per ripristinare tutto.",
     connecting: "Connessione al server...",
@@ -904,8 +851,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Funzioni limitate",
   },
   ko: {
-    exitEdit: "편집 종료",
-    exitRemoveMode: "제거 모드 종료",
     changeCount: "변경 {count}건",
     editWarning: "편집은 페이지 동작에 영향을 줄 수 있습니다. 새로 고치면 완전히 복원됩니다.",
     connecting: "서버에 연결하는 중...",
@@ -914,8 +859,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "기능 제한됨",
   },
   ms: {
-    exitEdit: "Keluar dari edit",
-    exitRemoveMode: "Keluar dari mod buang",
     changeCount: "{count} perubahan",
     editWarning: "Pengeditan boleh menjejaskan tingkah laku halaman. Muat semula untuk memulihkan sepenuhnya.",
     connecting: "Menyambung ke pelayan...",
@@ -924,8 +867,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Ciri terhad",
   },
   no: {
-    exitEdit: "Avslutt redigering",
-    exitRemoveMode: "Avslutt fjerningsmodus",
     changeCount: "{count} endringer",
     editWarning: "Redigering kan påvirke sidens oppførsel. Oppdater for å gjenopprette alt.",
     connecting: "Kobler til server...",
@@ -934,8 +875,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Begrensede funksjoner",
   },
   pl: {
-    exitEdit: "Zakończ edycję",
-    exitRemoveMode: "Zakończ tryb usuwania",
     changeCount: "{count} zmian",
     editWarning: "Edycja może wpłynąć na działanie strony. Odśwież, aby w pełni przywrócić.",
     connecting: "Łączenie z serwerem...",
@@ -944,8 +883,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Funkcje ograniczone",
   },
   ro: {
-    exitEdit: "Ieși din editare",
-    exitRemoveMode: "Ieși din modul de eliminare",
     changeCount: "{count} modificări",
     editWarning: "Editarea poate afecta comportamentul paginii. Reîncarcă pentru a restaura complet.",
     connecting: "Se conectează la server...",
@@ -954,8 +891,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Funcții limitate",
   },
   ru: {
-    exitEdit: "Выйти из редактирования",
-    exitRemoveMode: "Выйти из режима удаления",
     changeCount: "Изменений: {count}",
     editWarning: "Редактирование может повлиять на поведение страницы. Обновите страницу для полного восстановления.",
     connecting: "Подключение к серверу...",
@@ -964,8 +899,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Функции ограничены",
   },
   sv: {
-    exitEdit: "Avsluta redigering",
-    exitRemoveMode: "Avsluta borttagningsläget",
     changeCount: "{count} ändringar",
     editWarning: "Redigering kan påverka sidans beteende. Uppdatera för att återställa helt.",
     connecting: "Ansluter till servern...",
@@ -974,8 +907,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Begränsade funktioner",
   },
   th: {
-    exitEdit: "ออกจากการแก้ไข",
-    exitRemoveMode: "ออกจากโหมดลบ",
     changeCount: "แก้ไข {count} จุด",
     editWarning: "การแก้ไขอาจส่งผลต่อการทำงานของหน้า รีเฟรชเพื่อคืนค่าเดิมทั้งหมด",
     connecting: "กำลังเชื่อมต่อเซิร์ฟเวอร์...",
@@ -984,8 +915,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "ฟีเจอร์ถูกจำกัด",
   },
   tr: {
-    exitEdit: "Düzenlemeden çık",
-    exitRemoveMode: "Kaldırma modundan çık",
     changeCount: "{count} değişiklik",
     editWarning: "Düzenleme sayfanın davranışını etkileyebilir. Tamamen geri almak için sayfayı yenileyin.",
     connecting: "Sunucuya bağlanılıyor...",
@@ -994,8 +923,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Özellikler sınırlı",
   },
   uk: {
-    exitEdit: "Вийти з редагування",
-    exitRemoveMode: "Вийти з режиму видалення",
     changeCount: "Змін: {count}",
     editWarning: "Редагування може вплинути на поведінку сторінки. Оновіть сторінку, щоб повністю відновити.",
     connecting: "Підключення до сервера...",
@@ -1004,8 +931,6 @@ const popupToolbarMessages = {
     quotaExhaustedBadge: "Функції обмежено",
   },
   vi: {
-    exitEdit: "Thoát chỉnh sửa",
-    exitRemoveMode: "Thoát chế độ xóa",
     changeCount: "{count} thay đổi",
     editWarning: "Chỉnh sửa có thể ảnh hưởng đến hoạt động của trang. Tải lại để khôi phục hoàn toàn.",
     connecting: "Đang kết nối máy chủ...",
@@ -1535,6 +1460,536 @@ const popupScreenshotMessages = {
 };
 
 for (const [locale, localizedMessages] of Object.entries(popupScreenshotMessages)) {
+  Object.assign(ADDITIONAL_POPUP_MESSAGES[locale], localizedMessages);
+}
+
+// Screenshot permission refusals. These existed only in the five built-in
+// locales, so the other 25 fell back to English; they are collected here in
+// the same shape as the tables above, and are now listed in check-locales.
+const popupPermissionMessages = {
+  "ar": {
+    clipboardPermissionDenied: "تعذّر إكمال اللقطة لأن الوصول إلى الحافظة مرفوض. انقر زر اللقطة مرة أخرى واختر «السماح».",
+    downloadPermissionDenied: "تعذّر إكمال اللقطة لأن الوصول إلى التنزيل مرفوض. انقر زر اللقطة مرة أخرى واختر «السماح».",
+  },
+  "zh-TW": {
+    clipboardPermissionDenied: "無法完成截圖，因為剪貼簿存取遭到拒絕。請再次點擊截圖按鈕並選擇「允許」。",
+    downloadPermissionDenied: "無法完成截圖，因為下載存取遭到拒絕。請再次點擊截圖按鈕並選擇「允許」。",
+  },
+  "cs": {
+    clipboardPermissionDenied: "Snímek se nepodařilo dokončit, protože přístup ke schránce byl zamítnut. Klikněte znovu na tlačítko snímku a zvolte Povolit.",
+    downloadPermissionDenied: "Snímek se nepodařilo dokončit, protože přístup ke stahování byl zamítnut. Klikněte znovu na tlačítko snímku a zvolte Povolit.",
+  },
+  "da": {
+    clipboardPermissionDenied: "Skærmbilledet kunne ikke fuldføres, fordi adgang til udklipsholderen blev afvist. Klik på skærmbilledknappen igen, og vælg Tillad.",
+    downloadPermissionDenied: "Skærmbilledet kunne ikke fuldføres, fordi adgang til download blev afvist. Klik på skærmbilledknappen igen, og vælg Tillad.",
+  },
+  "nl": {
+    clipboardPermissionDenied: "De schermafbeelding kon niet worden voltooid omdat toegang tot het klembord is geweigerd. Klik nogmaals op de knop voor schermafbeelding en kies Toestaan.",
+    downloadPermissionDenied: "De schermafbeelding kon niet worden voltooid omdat toegang tot downloaden is geweigerd. Klik nogmaals op de knop voor schermafbeelding en kies Toestaan.",
+  },
+  "fi": {
+    clipboardPermissionDenied: "Kuvakaappausta ei voitu viimeistellä, koska leikepöydän käyttö evättiin. Napsauta kuvakaappauspainiketta uudelleen ja valitse Salli.",
+    downloadPermissionDenied: "Kuvakaappausta ei voitu viimeistellä, koska latauksen käyttö evättiin. Napsauta kuvakaappauspainiketta uudelleen ja valitse Salli.",
+  },
+  "fr": {
+    clipboardPermissionDenied: "La capture n’a pas pu être terminée car l’accès au presse-papiers a été refusé. Cliquez à nouveau sur le bouton de capture et choisissez Autoriser.",
+    downloadPermissionDenied: "La capture n’a pas pu être terminée car l’accès au téléchargement a été refusé. Cliquez à nouveau sur le bouton de capture et choisissez Autoriser.",
+  },
+  "de": {
+    clipboardPermissionDenied: "Der Screenshot konnte nicht abgeschlossen werden, weil der Zugriff auf die Zwischenablage abgelehnt wurde. Klicke erneut auf die Screenshot-Schaltfläche und wähle Zulassen.",
+    downloadPermissionDenied: "Der Screenshot konnte nicht abgeschlossen werden, weil der Zugriff auf Downloads abgelehnt wurde. Klicke erneut auf die Screenshot-Schaltfläche und wähle Zulassen.",
+  },
+  "el": {
+    clipboardPermissionDenied: "Το στιγμιότυπο δεν ολοκληρώθηκε επειδή απορρίφθηκε η πρόσβαση στο πρόχειρο. Κάντε ξανά κλικ στο κουμπί στιγμιότυπου και επιλέξτε Να επιτρέπεται.",
+    downloadPermissionDenied: "Το στιγμιότυπο δεν ολοκληρώθηκε επειδή απορρίφθηκε η πρόσβαση στη λήψη. Κάντε ξανά κλικ στο κουμπί στιγμιότυπου και επιλέξτε Να επιτρέπεται.",
+  },
+  "he": {
+    clipboardPermissionDenied: "צילום המסך לא הושלם כי הגישה ללוח הופסקה. לחץ שוב על כפתור צילום המסך ובחר אפשר.",
+    downloadPermissionDenied: "צילום המסך לא הושלם כי הגישה להורדה הופסקה. לחץ שוב על כפתור צילום המסך ובחר אפשר.",
+  },
+  "hi": {
+    clipboardPermissionDenied: "क्लिपबोर्ड एक्सेस अस्वीकार होने के कारण स्क्रीनशॉट पूरा नहीं हो सका। स्क्रीनशॉट बटन पर फिर क्लिक करें और अनुमति चुनें।",
+    downloadPermissionDenied: "डाउनलोड एक्सेस अस्वीकार होने के कारण स्क्रीनशॉट पूरा नहीं हो सका। स्क्रीनशॉट बटन पर फिर क्लिक करें और अनुमति चुनें।",
+  },
+  "hu": {
+    clipboardPermissionDenied: "A képernyőkép nem készült el, mert a vágólaphozzáférés megtagadva. Kattints újra a képernyőkép gombra, és válaszd az Engedélyezés lehetőséget.",
+    downloadPermissionDenied: "A képernyőkép nem készült el, mert a letöltési hozzáférés megtagadva. Kattints újra a képernyőkép gombra, és válaszd az Engedélyezés lehetőséget.",
+  },
+  "id": {
+    clipboardPermissionDenied: "Tangkapan layar tidak dapat diselesaikan karena akses papan klip ditolak. Klik tombol tangkapan layar lagi dan pilih Izinkan.",
+    downloadPermissionDenied: "Tangkapan layar tidak dapat diselesaikan karena akses unduhan ditolak. Klik tombol tangkapan layar lagi dan pilih Izinkan.",
+  },
+  "it": {
+    clipboardPermissionDenied: "Impossibile completare lo screenshot perché l’accesso agli appunti è stato negato. Fai di nuovo clic sul pulsante screenshot e scegli Consenti.",
+    downloadPermissionDenied: "Impossibile completare lo screenshot perché l’accesso ai download è stato negato. Fai di nuovo clic sul pulsante screenshot e scegli Consenti.",
+  },
+  "ko": {
+    clipboardPermissionDenied: "클립보드 접근이 거부되어 스크린샷을 완료할 수 없습니다. 스크린샷 버튼을 다시 클릭하고 허용을 선택하세요.",
+    downloadPermissionDenied: "다운로드 접근이 거부되어 스크린샷을 완료할 수 없습니다. 스크린샷 버튼을 다시 클릭하고 허용을 선택하세요.",
+  },
+  "ms": {
+    clipboardPermissionDenied: "Tangkapan skrin tidak dapat diselesaikan kerana akses papan keratan ditolak. Klik butang tangkapan skrin sekali lagi dan pilih Benarkan.",
+    downloadPermissionDenied: "Tangkapan skrin tidak dapat diselesaikan kerana akses muat turun ditolak. Klik butang tangkapan skrin sekali lagi dan pilih Benarkan.",
+  },
+  "no": {
+    clipboardPermissionDenied: "Skjermbildet kunne ikke fullføres fordi tilgangen til utklippstavlen ble avslått. Klikk på skjermbildeknappen igjen og velg Tillat.",
+    downloadPermissionDenied: "Skjermbildet kunne ikke fullføres fordi tilgangen til nedlasting ble avslått. Klikk på skjermbildeknappen igjen og velg Tillat.",
+  },
+  "pl": {
+    clipboardPermissionDenied: "Nie udało się zrobić zrzutu, ponieważ odmówiono dostępu do schowka. Kliknij ponownie przycisk zrzutu i wybierz Zezwól.",
+    downloadPermissionDenied: "Nie udało się zrobić zrzutu, ponieważ odmówiono dostępu do pobierania. Kliknij ponownie przycisk zrzutu i wybierz Zezwól.",
+  },
+  "ro": {
+    clipboardPermissionDenied: "Captura nu a putut fi finalizată deoarece accesul la clipboard a fost refuzat. Dă din nou clic pe butonul de captură și alege Permite.",
+    downloadPermissionDenied: "Captura nu a putut fi finalizată deoarece accesul la descărcare a fost refuzat. Dă din nou clic pe butonul de captură și alege Permite.",
+  },
+  "ru": {
+    clipboardPermissionDenied: "Не удалось завершить снимок: доступ к буферу обмена отклонён. Нажмите кнопку снимка ещё раз и выберите «Разрешить».",
+    downloadPermissionDenied: "Не удалось завершить снимок: доступ к загрузкам отклонён. Нажмите кнопку снимка ещё раз и выберите «Разрешить».",
+  },
+  "sv": {
+    clipboardPermissionDenied: "Skärmbilden kunde inte slutföras eftersom åtkomst till urklipp nekades. Klicka på skärmbildsknappen igen och välj Tillåt.",
+    downloadPermissionDenied: "Skärmbilden kunde inte slutföras eftersom åtkomst till nedladdning nekades. Klicka på skärmbildsknappen igen och välj Tillåt.",
+  },
+  "th": {
+    clipboardPermissionDenied: "จับภาพหน้าจอไม่สำเร็จเพราะการเข้าถึงคลิปบอร์ดถูกปฏิเสธ คลิกปุ่มจับภาพหน้าจออีกครั้งแล้วเลือกอนุญาต",
+    downloadPermissionDenied: "จับภาพหน้าจอไม่สำเร็จเพราะการเข้าถึงการดาวน์โหลดถูกปฏิเสธ คลิกปุ่มจับภาพหน้าจออีกครั้งแล้วเลือกอนุญาต",
+  },
+  "tr": {
+    clipboardPermissionDenied: "Pano erişimi reddedildiği için ekran görüntüsü tamamlanamadı. Ekran görüntüsü düğmesine tekrar tıklayıp İzin ver seçeneğini seçin.",
+    downloadPermissionDenied: "İndirme erişimi reddedildiği için ekran görüntüsü tamamlanamadı. Ekran görüntüsü düğmesine tekrar tıklayıp İzin ver seçeneğini seçin.",
+  },
+  "uk": {
+    clipboardPermissionDenied: "Не вдалося завершити знімок: доступ до буфера обміну відхилено. Натисніть кнопку знімка ще раз і виберіть «Дозволити».",
+    downloadPermissionDenied: "Не вдалося завершити знімок: доступ до завантажень відхилено. Натисніть кнопку знімка ще раз і виберіть «Дозволити».",
+  },
+  "vi": {
+    clipboardPermissionDenied: "Không thể hoàn tất ảnh chụp vì quyền truy cập bộ nhớ tạm bị từ chối. Nhấp lại nút chụp ảnh và chọn Cho phép.",
+    downloadPermissionDenied: "Không thể hoàn tất ảnh chụp vì quyền truy cập tải xuống bị từ chối. Nhấp lại nút chụp ảnh và chọn Cho phép.",
+  },
+};
+
+for (const [locale, localizedMessages] of Object.entries(popupPermissionMessages)) {
+  Object.assign(ADDITIONAL_POPUP_MESSAGES[locale], localizedMessages);
+}
+
+// Dashboard's auto-enter card. Same story: English-only until now. The two
+// tool names reuse each locale's own editText / removeElement wording so the
+// option always matches the tool it names.
+const autoEnterMessages = {
+  "ar": {
+    autoEnterHeading: "عند النقر على أيقونة الإضافة",
+    autoEnterHelp: "اختر الأداة التي تعمل مباشرة عند النقر على أيقونة الإضافة. انقر الأداة المحددة مرة أخرى لإيقاف ذلك. تستهلك «إزالة عنصر» حصة مجانية واحدة في كل مرة تبدأ.",
+    autoEnterEdit: "تحرير النص",
+    autoEnterRemove: "إزالة عنصر",
+  },
+  "zh-TW": {
+    autoEnterHeading: "點擊擴充功能圖示時",
+    autoEnterHelp: "選擇點擊擴充功能圖示後立即開啟的工具。再次點擊已選工具即可關閉。每次啟動「移除元素」都會消耗一次免費額度。",
+    autoEnterEdit: "編輯文字",
+    autoEnterRemove: "移除元素",
+  },
+  "cs": {
+    autoEnterHeading: "Když kliknete na ikonu rozšíření",
+    autoEnterHelp: "Vyberte nástroj, který se zapne ihned po kliknutí na ikonu rozšíření. Opětovným kliknutím na vybraný nástroj jej vypnete. Nástroj Odstranění prvku spotřebuje při každém spuštění jeden bezplatný limit.",
+    autoEnterEdit: "Upravit text",
+    autoEnterRemove: "Odstranit prvek",
+  },
+  "da": {
+    autoEnterHeading: "Når du klikker på udvidelsesikonet",
+    autoEnterHelp: "Vælg det værktøj, der slås til, så snart du klikker på udvidelsesikonet. Klik på det valgte værktøj igen for at slå det fra. Fjern element bruger én gratis kvote, hver gang det starter.",
+    autoEnterEdit: "Rediger tekst",
+    autoEnterRemove: "Fjern element",
+  },
+  "nl": {
+    autoEnterHeading: "Wanneer je op het extensiepictogram klikt",
+    autoEnterHelp: "Kies de tool die meteen aangaat zodra je op het extensiepictogram klikt. Klik nogmaals op de gekozen tool om dit uit te zetten. Element verwijderen gebruikt één gratis tegoed per keer dat het start.",
+    autoEnterEdit: "Tekst bewerken",
+    autoEnterRemove: "Element verwijderen",
+  },
+  "fi": {
+    autoEnterHeading: "Kun napsautat laajennuksen kuvaketta",
+    autoEnterHelp: "Valitse työkalu, joka käynnistyy heti, kun napsautat laajennuksen kuvaketta. Sammuta se napsauttamalla valittua työkalua uudelleen. Elementin poisto kuluttaa yhden ilmaisen kiintiön joka kerta, kun se käynnistyy.",
+    autoEnterEdit: "Muokkaa tekstiä",
+    autoEnterRemove: "Poista elementti",
+  },
+  "fr": {
+    autoEnterHeading: "Quand vous cliquez sur l’icône de l’extension",
+    autoEnterHelp: "Choisissez l’outil qui s’active dès que vous cliquez sur l’icône de l’extension. Cliquez à nouveau sur l’outil sélectionné pour le désactiver. Supprimer un élément consomme une autorisation gratuite à chaque démarrage.",
+    autoEnterEdit: "Modifier le texte",
+    autoEnterRemove: "Supprimer un élément",
+  },
+  "de": {
+    autoEnterHeading: "Wenn du auf das Erweiterungssymbol klickst",
+    autoEnterHelp: "Wähle das Tool, das sich sofort einschaltet, wenn du auf das Erweiterungssymbol klickst. Klicke erneut auf das gewählte Tool, um es auszuschalten. Element entfernen verbraucht bei jedem Start ein kostenloses Kontingent.",
+    autoEnterEdit: "Text bearbeiten",
+    autoEnterRemove: "Element entfernen",
+  },
+  "el": {
+    autoEnterHeading: "Όταν κάνετε κλικ στο εικονίδιο της επέκτασης",
+    autoEnterHelp: "Επιλέξτε το εργαλείο που ενεργοποιείται μόλις κάνετε κλικ στο εικονίδιο της επέκτασης. Κάντε ξανά κλικ στο επιλεγμένο εργαλείο για απενεργοποίηση. Η Αφαίρεση στοιχείου καταναλώνει ένα δωρεάν όριο κάθε φορά που ξεκινά.",
+    autoEnterEdit: "Επεξεργασία κειμένου",
+    autoEnterRemove: "Αφαίρεση στοιχείου",
+  },
+  "he": {
+    autoEnterHeading: "כשאתה לוחץ על סמל ההרחבה",
+    autoEnterHelp: "בחר את הכלי שנדלק מיד עם הלחיצה על סמל ההרחבה. לחץ שוב על הכלי הנבחר כדי לכבות אותו. הסרת רכיב צורכת מכסה חינמית אחת בכל הפעלה.",
+    autoEnterEdit: "עריכת טקסט",
+    autoEnterRemove: "הסרת רכיב",
+  },
+  "hi": {
+    autoEnterHeading: "जब आप एक्सटेंशन आइकन पर क्लिक करते हैं",
+    autoEnterHelp: "वह टूल चुनें जो एक्सटेंशन आइकन पर क्लिक करते ही चालू हो जाए। बंद करने के लिए चुने गए टूल पर फिर क्लिक करें। एलिमेंट हटाएँ हर बार शुरू होने पर एक मुफ़्त कोटा लेता है।",
+    autoEnterEdit: "टेक्स्ट संपादित करें",
+    autoEnterRemove: "एलिमेंट हटाएँ",
+  },
+  "hu": {
+    autoEnterHeading: "Amikor a bővítmény ikonjára kattintasz",
+    autoEnterHelp: "Válaszd ki azt az eszközt, amely a bővítmény ikonjára kattintva azonnal bekapcsol. A kikapcsoláshoz kattints újra a kijelölt eszközre. Az Elem eltávolítása minden indításnál egy ingyenes keretet használ el.",
+    autoEnterEdit: "Szöveg szerkesztése",
+    autoEnterRemove: "Elem eltávolítása",
+  },
+  "id": {
+    autoEnterHeading: "Saat Anda mengklik ikon ekstensi",
+    autoEnterHelp: "Pilih alat yang langsung aktif begitu Anda mengklik ikon ekstensi. Klik alat yang dipilih lagi untuk mematikannya. Hapus elemen memakai satu kuota gratis setiap kali dimulai.",
+    autoEnterEdit: "Edit teks",
+    autoEnterRemove: "Hapus elemen",
+  },
+  "it": {
+    autoEnterHeading: "Quando fai clic sull’icona dell’estensione",
+    autoEnterHelp: "Scegli lo strumento che si attiva non appena fai clic sull’icona dell’estensione. Fai di nuovo clic sullo strumento selezionato per disattivarlo. Rimuovi elemento consuma un credito gratuito a ogni avvio.",
+    autoEnterEdit: "Modifica testo",
+    autoEnterRemove: "Rimuovi elemento",
+  },
+  "ko": {
+    autoEnterHeading: "확장 프로그램 아이콘을 클릭하면",
+    autoEnterHelp: "확장 프로그램 아이콘을 클릭하면 바로 켜질 도구를 선택하세요. 선택한 도구를 다시 클릭하면 꺼집니다. 요소 제거는 시작할 때마다 무료 할당량 1회를 사용합니다.",
+    autoEnterEdit: "텍스트 편집",
+    autoEnterRemove: "요소 제거",
+  },
+  "ms": {
+    autoEnterHeading: "Apabila anda klik ikon sambungan",
+    autoEnterHelp: "Pilih alat yang dihidupkan sebaik sahaja anda klik ikon sambungan. Klik alat yang dipilih sekali lagi untuk mematikannya. Alih keluar elemen menggunakan satu kuota percuma setiap kali ia bermula.",
+    autoEnterEdit: "Edit teks",
+    autoEnterRemove: "Alih keluar elemen",
+  },
+  "no": {
+    autoEnterHeading: "Når du klikker på utvidelsesikonet",
+    autoEnterHelp: "Velg verktøyet som slås på så snart du klikker på utvidelsesikonet. Klikk på det valgte verktøyet igjen for å slå det av. Fjern element bruker én gratis kvote hver gang det starter.",
+    autoEnterEdit: "Rediger tekst",
+    autoEnterRemove: "Fjern element",
+  },
+  "pl": {
+    autoEnterHeading: "Gdy klikniesz ikonę rozszerzenia",
+    autoEnterHelp: "Wybierz narzędzie, które włącza się od razu po kliknięciu ikony rozszerzenia. Kliknij ponownie wybrane narzędzie, aby je wyłączyć. Usuwanie elementu zużywa jeden darmowy limit przy każdym uruchomieniu.",
+    autoEnterEdit: "Edytuj tekst",
+    autoEnterRemove: "Usuń element",
+  },
+  "ro": {
+    autoEnterHeading: "Când dai clic pe pictograma extensiei",
+    autoEnterHelp: "Alege instrumentul care pornește imediat ce dai clic pe pictograma extensiei. Dă din nou clic pe instrumentul selectat pentru a-l opri. Elimină elementul consumă o alocație gratuită la fiecare pornire.",
+    autoEnterEdit: "Editează textul",
+    autoEnterRemove: "Elimină elementul",
+  },
+  "ru": {
+    autoEnterHeading: "Когда вы нажимаете на значок расширения",
+    autoEnterHelp: "Выберите инструмент, который включится сразу после нажатия на значок расширения. Нажмите на выбранный инструмент ещё раз, чтобы отключить его. Удаление элемента расходует один бесплатный лимит при каждом запуске.",
+    autoEnterEdit: "Редактировать текст",
+    autoEnterRemove: "Удалить элемент",
+  },
+  "sv": {
+    autoEnterHeading: "När du klickar på tilläggsikonen",
+    autoEnterHelp: "Välj det verktyg som sätts på direkt när du klickar på tilläggsikonen. Klicka på det valda verktyget igen för att stänga av det. Ta bort element använder en gratis kvot varje gång det startar.",
+    autoEnterEdit: "Redigera text",
+    autoEnterRemove: "Ta bort element",
+  },
+  "th": {
+    autoEnterHeading: "เมื่อคุณคลิกไอคอนส่วนขยาย",
+    autoEnterHelp: "เลือกเครื่องมือที่จะเปิดทันทีเมื่อคุณคลิกไอคอนส่วนขยาย คลิกเครื่องมือที่เลือกอีกครั้งเพื่อปิด ลบองค์ประกอบใช้โควตาฟรีหนึ่งครั้งทุกครั้งที่เริ่มทำงาน",
+    autoEnterEdit: "แก้ไขข้อความ",
+    autoEnterRemove: "ลบองค์ประกอบ",
+  },
+  "tr": {
+    autoEnterHeading: "Uzantı simgesine tıkladığınızda",
+    autoEnterHelp: "Uzantı simgesine tıklar tıklamaz açılacak aracı seçin. Kapatmak için seçili araca tekrar tıklayın. Öğeyi kaldır, her başlatıldığında bir ücretsiz kota kullanır.",
+    autoEnterEdit: "Metni düzenle",
+    autoEnterRemove: "Öğeyi kaldır",
+  },
+  "uk": {
+    autoEnterHeading: "Коли ви натискаєте на значок розширення",
+    autoEnterHelp: "Виберіть інструмент, який увімкнеться одразу після натискання на значок розширення. Натисніть вибраний інструмент ще раз, щоб вимкнути його. Видалення елемента витрачає один безкоштовний ліміт під час кожного запуску.",
+    autoEnterEdit: "Редагувати текст",
+    autoEnterRemove: "Видалити елемент",
+  },
+  "vi": {
+    autoEnterHeading: "Khi bạn nhấp vào biểu tượng tiện ích",
+    autoEnterHelp: "Chọn công cụ sẽ bật ngay khi bạn nhấp vào biểu tượng tiện ích. Nhấp lại vào công cụ đã chọn để tắt. Xóa phần tử dùng một hạn mức miễn phí mỗi lần khởi động.",
+    autoEnterEdit: "Sửa văn bản",
+    autoEnterRemove: "Xóa phần tử",
+  },
+};
+
+for (const [locale, localizedMessages] of Object.entries(autoEnterMessages)) {
+  Object.assign(additionalOptionsMessages[locale], localizedMessages);
+}
+
+// The floating text-formatting toolbar lives in the page, but its strings come
+// from here so all 30 languages agree with the Dashboard wording (see the
+// "Text formatting" bullet in the store description for these terms).
+const selectionToolbarMessages = {
+  "ar": {
+    textColor: "لون النص",
+    backgroundColor: "لون الخلفية",
+    customColor: "مخصص",
+    customTextColor: "لون نص مخصص",
+    customBackgroundColor: "لون خلفية مخصص",
+    reset: "إعادة تعيين",
+    restoreOriginalFormatting: "استعادة التنسيق الأصلي",
+    mixed: "مختلط",
+  },
+  "zh-TW": {
+    textColor: "文字顏色",
+    backgroundColor: "背景色",
+    customColor: "自訂",
+    customTextColor: "自訂文字顏色",
+    customBackgroundColor: "自訂背景色",
+    reset: "重設",
+    restoreOriginalFormatting: "還原原始格式",
+    mixed: "混合",
+  },
+  "cs": {
+    textColor: "Barva textu",
+    backgroundColor: "Barva pozadí",
+    customColor: "Vlastní",
+    customTextColor: "Vlastní barva textu",
+    customBackgroundColor: "Vlastní barva pozadí",
+    reset: "Obnovit",
+    restoreOriginalFormatting: "Obnovit původní formátování",
+    mixed: "Smíšené",
+  },
+  "da": {
+    textColor: "Tekstfarve",
+    backgroundColor: "Baggrundsfarve",
+    customColor: "Tilpasset",
+    customTextColor: "Tilpasset tekstfarve",
+    customBackgroundColor: "Tilpasset baggrundsfarve",
+    reset: "Nulstil",
+    restoreOriginalFormatting: "Gendan oprindelig formatering",
+    mixed: "Blandet",
+  },
+  "nl": {
+    textColor: "Tekstkleur",
+    backgroundColor: "Achtergrondkleur",
+    customColor: "Aangepast",
+    customTextColor: "Aangepaste tekstkleur",
+    customBackgroundColor: "Aangepaste achtergrondkleur",
+    reset: "Herstellen",
+    restoreOriginalFormatting: "Oorspronkelijke opmaak herstellen",
+    mixed: "Gemengd",
+  },
+  "fi": {
+    textColor: "Tekstin väri",
+    backgroundColor: "Taustaväri",
+    customColor: "Mukautettu",
+    customTextColor: "Mukautettu tekstin väri",
+    customBackgroundColor: "Mukautettu taustaväri",
+    reset: "Palauta",
+    restoreOriginalFormatting: "Palauta alkuperäinen muotoilu",
+    mixed: "Sekoitettu",
+  },
+  "fr": {
+    textColor: "Couleur du texte",
+    backgroundColor: "Couleur d’arrière-plan",
+    customColor: "Personnalisée",
+    customTextColor: "Couleur de texte personnalisée",
+    customBackgroundColor: "Couleur d’arrière-plan personnalisée",
+    reset: "Réinitialiser",
+    restoreOriginalFormatting: "Rétablir la mise en forme d’origine",
+    mixed: "Mixte",
+  },
+  "de": {
+    textColor: "Textfarbe",
+    backgroundColor: "Hintergrundfarbe",
+    customColor: "Benutzerdefiniert",
+    customTextColor: "Benutzerdefinierte Textfarbe",
+    customBackgroundColor: "Benutzerdefinierte Hintergrundfarbe",
+    reset: "Zurücksetzen",
+    restoreOriginalFormatting: "Ursprüngliche Formatierung wiederherstellen",
+    mixed: "Gemischt",
+  },
+  "el": {
+    textColor: "Χρώμα κειμένου",
+    backgroundColor: "Χρώμα φόντου",
+    customColor: "Προσαρμοσμένο",
+    customTextColor: "Προσαρμοσμένο χρώμα κειμένου",
+    customBackgroundColor: "Προσαρμοσμένο χρώμα φόντου",
+    reset: "Επαναφορά",
+    restoreOriginalFormatting: "Επαναφορά αρχικής μορφοποίησης",
+    mixed: "Μικτό",
+  },
+  "he": {
+    textColor: "צבע טקסט",
+    backgroundColor: "צבע רקע",
+    customColor: "מותאם",
+    customTextColor: "צבע טקסט מותאם",
+    customBackgroundColor: "צבע רקע מותאם",
+    reset: "איפוס",
+    restoreOriginalFormatting: "שחזור העיצוב המקורי",
+    mixed: "מעורב",
+  },
+  "hi": {
+    textColor: "टेक्स्ट रंग",
+    backgroundColor: "पृष्ठभूमि रंग",
+    customColor: "कस्टम",
+    customTextColor: "कस्टम टेक्स्ट रंग",
+    customBackgroundColor: "कस्टम पृष्ठभूमि रंग",
+    reset: "रीसेट",
+    restoreOriginalFormatting: "मूल फ़ॉर्मैटिंग बहाल करें",
+    mixed: "मिश्रित",
+  },
+  "hu": {
+    textColor: "Szövegszín",
+    backgroundColor: "Háttérszín",
+    customColor: "Egyéni",
+    customTextColor: "Egyéni szövegszín",
+    customBackgroundColor: "Egyéni háttérszín",
+    reset: "Visszaállítás",
+    restoreOriginalFormatting: "Eredeti formázás visszaállítása",
+    mixed: "Vegyes",
+  },
+  "id": {
+    textColor: "Warna teks",
+    backgroundColor: "Warna latar",
+    customColor: "Kustom",
+    customTextColor: "Warna teks kustom",
+    customBackgroundColor: "Warna latar kustom",
+    reset: "Atur ulang",
+    restoreOriginalFormatting: "Pulihkan pemformatan asli",
+    mixed: "Campuran",
+  },
+  "it": {
+    textColor: "Colore del testo",
+    backgroundColor: "Colore di sfondo",
+    customColor: "Personalizzato",
+    customTextColor: "Colore del testo personalizzato",
+    customBackgroundColor: "Colore di sfondo personalizzato",
+    reset: "Reimposta",
+    restoreOriginalFormatting: "Ripristina la formattazione originale",
+    mixed: "Misto",
+  },
+  "ko": {
+    textColor: "텍스트 색상",
+    backgroundColor: "배경색",
+    customColor: "사용자 지정",
+    customTextColor: "사용자 지정 텍스트 색상",
+    customBackgroundColor: "사용자 지정 배경색",
+    reset: "재설정",
+    restoreOriginalFormatting: "원래 서식으로 복원",
+    mixed: "혼합",
+  },
+  "ms": {
+    textColor: "Warna teks",
+    backgroundColor: "Warna latar belakang",
+    customColor: "Tersuai",
+    customTextColor: "Warna teks tersuai",
+    customBackgroundColor: "Warna latar belakang tersuai",
+    reset: "Set semula",
+    restoreOriginalFormatting: "Pulihkan pemformatan asal",
+    mixed: "Campuran",
+  },
+  "no": {
+    textColor: "Tekstfarge",
+    backgroundColor: "Bakgrunnsfarge",
+    customColor: "Tilpasset",
+    customTextColor: "Tilpasset tekstfarge",
+    customBackgroundColor: "Tilpasset bakgrunnsfarge",
+    reset: "Tilbakestill",
+    restoreOriginalFormatting: "Gjenopprett opprinnelig formatering",
+    mixed: "Blandet",
+  },
+  "pl": {
+    textColor: "Kolor tekstu",
+    backgroundColor: "Kolor tła",
+    customColor: "Niestandardowy",
+    customTextColor: "Niestandardowy kolor tekstu",
+    customBackgroundColor: "Niestandardowy kolor tła",
+    reset: "Resetuj",
+    restoreOriginalFormatting: "Przywróć oryginalne formatowanie",
+    mixed: "Mieszane",
+  },
+  "ro": {
+    textColor: "Culoarea textului",
+    backgroundColor: "Culoarea de fundal",
+    customColor: "Personalizat",
+    customTextColor: "Culoare personalizată pentru text",
+    customBackgroundColor: "Culoare personalizată pentru fundal",
+    reset: "Resetează",
+    restoreOriginalFormatting: "Restabilește formatarea originală",
+    mixed: "Mixt",
+  },
+  "ru": {
+    textColor: "Цвет текста",
+    backgroundColor: "Цвет фона",
+    customColor: "Другой",
+    customTextColor: "Свой цвет текста",
+    customBackgroundColor: "Свой цвет фона",
+    reset: "Сбросить",
+    restoreOriginalFormatting: "Восстановить исходное форматирование",
+    mixed: "Смешанный",
+  },
+  "sv": {
+    textColor: "Textfärg",
+    backgroundColor: "Bakgrundsfärg",
+    customColor: "Anpassad",
+    customTextColor: "Anpassad textfärg",
+    customBackgroundColor: "Anpassad bakgrundsfärg",
+    reset: "Återställ",
+    restoreOriginalFormatting: "Återställ ursprunglig formatering",
+    mixed: "Blandat",
+  },
+  "th": {
+    textColor: "สีข้อความ",
+    backgroundColor: "สีพื้นหลัง",
+    customColor: "กำหนดเอง",
+    customTextColor: "สีข้อความกำหนดเอง",
+    customBackgroundColor: "สีพื้นหลังกำหนดเอง",
+    reset: "รีเซ็ต",
+    restoreOriginalFormatting: "คืนค่ารูปแบบเดิม",
+    mixed: "ผสม",
+  },
+  "tr": {
+    textColor: "Metin rengi",
+    backgroundColor: "Arka plan rengi",
+    customColor: "Özel",
+    customTextColor: "Özel metin rengi",
+    customBackgroundColor: "Özel arka plan rengi",
+    reset: "Sıfırla",
+    restoreOriginalFormatting: "Özgün biçimlendirmeyi geri yükle",
+    mixed: "Karışık",
+  },
+  "uk": {
+    textColor: "Колір тексту",
+    backgroundColor: "Колір тла",
+    customColor: "Власний",
+    customTextColor: "Власний колір тексту",
+    customBackgroundColor: "Власний колір тла",
+    reset: "Скинути",
+    restoreOriginalFormatting: "Відновити початкове форматування",
+    mixed: "Змішаний",
+  },
+  "vi": {
+    textColor: "Màu chữ",
+    backgroundColor: "Màu nền",
+    customColor: "Tùy chỉnh",
+    customTextColor: "Màu chữ tùy chỉnh",
+    customBackgroundColor: "Màu nền tùy chỉnh",
+    reset: "Đặt lại",
+    restoreOriginalFormatting: "Khôi phục định dạng gốc",
+    mixed: "Hỗn hợp",
+  },
+};
+
+for (const [locale, localizedMessages] of Object.entries(selectionToolbarMessages)) {
   Object.assign(ADDITIONAL_POPUP_MESSAGES[locale], localizedMessages);
 }
 

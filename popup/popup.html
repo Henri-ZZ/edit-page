@@ -26,7 +26,7 @@
         </div>
       </div>
       <div class="content">
-        <p class="section-label" data-i18n="chooseTool">Choose a tool</p>
+        <p class="section-label" data-i18n="chooseTool">Select a tool to start</p>
         <div class="tool-list">
           <button id="editBtn" class="tool-button tool-button--text" type="button" aria-pressed="false">
             <span class="tool-icon" aria-hidden="true"><img src="../public/edit-text.svg" alt=""></span>
@@ -34,7 +34,7 @@
               <span id="editBtnLabel" class="tool-title" data-i18n="editText">Edit text</span>
               <span class="tool-description" data-i18n="editTextDesc">Change any text on this page</span>
             </span>
-            <span class="tool-indicator" aria-hidden="true">›</span>
+            <span class="tool-switch" aria-hidden="true"></span>
           </button>
 
           <div class="image-section expandable-tool">
@@ -52,17 +52,18 @@
                 <input id="imageUrlInput" type="url" inputmode="url" autocomplete="url" spellcheck="false" placeholder="Paste Image URL" aria-label="Paste Image URL" data-i18n-placeholder="imageUrlPlaceholder" data-i18n-aria-label="imageUrlPlaceholder">
                 <button id="useImageUrlBtn" type="button" data-i18n="useImageUrl">Use URL</button>
               </div>
-            </div>
-            <input type="file" id="imageInput" accept="image/*" hidden>
-            <div id="imagePreview" class="image-preview hidden">
-              <img id="previewImg" alt="Preview">
-              <div class="image-preview-actions">
+              <div id="imagePreview" class="image-preview hidden">
+                <span class="preview-thumb">
+                  <img id="previewImg" alt="Preview">
+                  <button id="clearImageBtn" class="clear-btn" type="button" data-i18n-aria-label="clearImage" aria-label="Clear selected image">×</button>
+                </span>
                 <button id="replaceImageBtn" class="preview-action" type="button" aria-pressed="false">
                   <span id="replaceImageBtnLabel" data-i18n="replaceMode">Replace image mode</span>
+                  <span class="tool-switch" aria-hidden="true"></span>
                 </button>
-                <button id="clearImageBtn" class="clear-btn" type="button" data-i18n-aria-label="clearImage" aria-label="Clear selected image">×</button>
               </div>
             </div>
+            <input type="file" id="imageInput" accept="image/*" hidden>
           </div>
 
           <button id="removeBtn" class="tool-button tool-button--remove" type="button" aria-pressed="false">
@@ -71,7 +72,7 @@
               <span id="removeBtnLabel" class="tool-title" data-i18n="removeElement">Remove element</span>
               <span class="tool-description" data-i18n="removeElementDesc">Click anything to remove it</span>
             </span>
-            <span class="tool-indicator" aria-hidden="true">›</span>
+            <span class="tool-switch" aria-hidden="true"></span>
           </button>
 
           <div class="screenshot-section expandable-tool">
